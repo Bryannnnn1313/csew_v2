@@ -346,17 +346,17 @@ def Mbox(title, text):
 
 # Create the forensics questions and add answers to csel.cfg
 def saveForQ():
-    qHeader = 'This is a forensics question. Answer it below\n------------------------\n'
-    qFooter = '\n\nANSWER: <TypeAnswerHere>'
-    f = open('csel.txt', 'a')
-    line1a = 'forensicsPath1=(' + str(usrDsktp.get()) + 'Question1.txt)\n'
-    line1b = 'forensicsAnswer1=(' + fqans01.get() + ')\n'
-    line1c = 'checkForensicsQuestion1Value=(' + str(fqpts01.get()) + ')\n'
-    line1d = 'forensicsQuestion1=' + fquest01.get() + '\n'
-    line2a = 'forensicsPath2=(' + str(usrDsktp.get()) + 'Question2.txt)\n'
-    line2b = 'forensicsAnswer2=(' + fqans02.get() + ')\n'
-    line2c = 'checkForensicsQuestion2Value=(' + str(fqpts02.get()) + ')\n'
-    line2d = 'forensicsQuestion2=' + fquest02.get() + '\n'
+    qHeader = "This is a forensics question. Answer it below\n------------------------\n"
+    qFooter = "\n\nANSWER: <TypeAnswerHere>"
+    f = open("csel.txt", "a")
+    line1a = "forensicsPath1='" + str(usrDsktp.get()) + "Question1.txt'\n"
+    line1b = "forensicsAnswer1='" + fqans01.get() + ")\n"
+    line1c = "checkForensicsQuestion1Value='" + str(fqpts01.get()) + "'\n"
+    line1d = "forensicsQuestion1=" + fquest01.get() + "\n"
+    line2a = "forensicsPath2='" + str(usrDsktp.get()) + "Question2.txt'\n"
+    line2b = "forensicsAnswer2='" + fqans02.get() + ")\n"
+    line2c = "checkForensicsQuestion2Value='" + str(fqpts02.get()) + "'\n"
+    line2d = "forensicsQuestion2=" + fquest02.get() + "\n"
     if fqcb01.get() != 0:
         for line in (line1a, line1b, line1c, line1d):
             f.write(line)
@@ -376,7 +376,7 @@ def createForQ():
     qHeader = 'This is a forensics question. Answer it below\n------------------------\n'
     qFooter = '\n\nANSWER: <TypeAnswerHere>'
     f = open('csel.cfg', 'a')
-    line1a = 'forensicsPath1=(' + str(usrDsktp.get()) + 'Question1.txt)\n'
+    line1a = 'forensicsPath1=' + str(usrDsktp.get()) + 'Question1.txt)\n'
     line1b = 'forensicsAnswer1=(' + fqans01.get() + ')\n'
     line1c = 'checkForensicsQuestion1Value=(' + str(fqpts01.get()) + ')\n'
     line2a = 'forensicsPath2=(' + str(usrDsktp.get()) + 'Question2.txt)\n'
@@ -578,18 +578,18 @@ def saveConfig():
         usrDsktp.set(cwd)
     scoreLoc.set(usrDsktp.get())
     f = open('csel.txt', 'w+')
-    f.write('Desktop=' + usrDsktp.get() + '\n')
+    f.write("Desktop=" + usrDsktp.get() + "\n")
     if silentMode.get() == 1:
-        f.write('silentMiss=(y)\n')
+        f.write("silentMiss='y'\n")
     if ftpMode.get() == 1:
-        f.write('FTPServer=(y)\n')
+        f.write("FTPServer='y'\n")
     f.close()
     saveForQ()
     if ftpMode.get() == 1:
         f = open('FTP.txt', 'w+')
-        line1 = 'serverName=' + serverName.get() + '\n'
-        line2 = 'userName=' + userName.get() + '\n'
-        line3 = 'password=' + password.get() + '\n'
+        line1 = "serverName='" + serverName.get() + "'\n"
+        line2 = "userName='" + userName.get() + "'\n"
+        line3 = "password='" + password.get() + "'\n"
         for line in (line1, line2, line3):
             f.write(line)
         f.close()
@@ -601,7 +601,7 @@ def saveConfig():
             if vuln.name == entry_select[number].get() and vuln.name != "<Select One>":
                 if not vuln.saved:
                     s1 = vuln.name
-                    s2 = vuln.name + 'Value=(' + entry_textBox[ent2].get()
+                    s2 = vuln.name + "Value='" + entry_textBox[ent2].get() + "'"
                     s3 = ''
                     s4 = ''
                     s5 = ''
@@ -611,13 +611,13 @@ def saveConfig():
                             if len(kt) > 1:
                                 for t in range(1, len(kt)):
                                     s2 = s2 + ' ' + entry_textBox[ent2].get()
-                            s3 = vuln.name + 'Keywords=(' + entry_textBox[ent3].get()
+                            s3 = vuln.name + "Keywords='" + entry_textBox[ent3].get()
                     if ent4 > -1:
                         if entry_textBox[ent4].get() != '':
-                            s4 = vuln.name + 'ExtraKeywords=(' + entry_textBox[ent4].get()
+                            s4 = vuln.name + "ExtraKeywords='" + entry_textBox[ent4].get()
                     if ent5 > -1:
                         if entry_textBox[ent5].get() != '':
-                            s5 = vuln.name + 'Message=(' + entry_textBox[ent5].get()
+                            s5 = vuln.name + "Message='" + entry_textBox[ent5].get()
                     vuln.saved = True
                     save_entry.append((s1, s2, s3, s4, s5))
                 else:
@@ -641,14 +641,14 @@ def saveConfig():
                         buff_entry.append((s1, s2, s3, s4, s5))
                     save_entry = buff_entry
     for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
-        f.write(s1 + '=(y)\n')
-        f.write(s2 + ')\n')
+        f.write(s1 + "='y'\n")
+        f.write(s2 + "'\n")
         if s3 != '':
-            f.write(s3 + ')\n')
+            f.write(s3 + "'\n")
         if s4 != '':
-            f.write(s4 + ')\n')
+            f.write(s4 + "'\n")
         if s5 != '':
-            f.write(s5 + ')\n')
+            f.write(s5 + "'\n")
     for vuln in vulns:
         vuln.saved = False
 
@@ -663,46 +663,46 @@ def loadSave():
             content = f.read().splitlines()
         f.close()
     for cont in content:
-        if 'Desktop=' in cont:
-            usrDsktp.set(cont.replace('Desktop=', ''))
-        if 'silentMiss=(y)' in cont:
+        if "Desktop=" in cont:
+            usrDsktp.set(cont.replace("Desktop=", ""))
+        if "silentMiss='y'" in cont:
             silentMode.set(1)
-        if 'FTPServer=(y)' in cont:
+        if "FTPServer='y'" in cont:
             ftpMode.set(1)
             getFTPInfo()
-        if 'forensicsAnswer1=(' in cont:
-            fqA1 = cont.replace('forensicsAnswer1=(', '')
-            fqA1 = fqA1.replace(')', '')
+        if "forensicsAnswer1='" in cont:
+            fqA1 = cont.replace("forensicsAnswer1='", "")
+            fqA1 = fqA1.replace("'", "")
             fqans01.set(fqA1)
             cont = fqA1
-        if 'checkForensicsQuestion1Value=(' in cont:
-            fqP1 = cont.replace('checkForensicsQuestion1Value=(', '')
-            fqP1 = fqP1.replace(')', '')
+        if "checkForensicsQuestion1Value='" in cont:
+            fqP1 = cont.replace("checkForensicsQuestion1Value='", "")
+            fqP1 = fqP1.replace("'", "")
             fqpts01.set(fqP1)
             fqcb01.set(1)
             cont = fqP1
-        if 'forensicsQuestion1=' in cont:
-            fQ1 = cont.replace('forensicsQuestion1=', '')
+        if "forensicsQuestion1='" in cont:
+            fQ1 = cont.replace("forensicsQuestion1='", "")
             fquest01.set(fQ1)
             cont = fQ1
-        if 'forensicsAnswer2=(' in cont:
-            fqA2 = cont.replace('forensicsAnswer2=(', '')
-            fqA2 = fqA2.replace(')', '')
+        if "forensicsAnswer2='" in cont:
+            fqA2 = cont.replace("forensicsAnswer2='", "")
+            fqA2 = fqA2.replace("'", "")
             fqans02.set(fqA2)
             cont = fqA2
-        if 'checkForensicsQuestion2Value=(' in cont:
-            fqP2 = cont.replace('checkForensicsQuestion2Value=(', '')
-            fqP2 = fqP2.replace(')', '')
+        if "checkForensicsQuestion2Value='" in cont:
+            fqP2 = cont.replace("checkForensicsQuestion2Value='", "")
+            fqP2 = fqP2.replace("'", "")
             fqpts01.set(fqP2)
             fqcb02.set(1)
             cont = fqP2
-        if 'forensicsQuestion2=' in cont:
-            fQ2 = cont.replace('forensicsQuestion2=', '')
+        if "forensicsQuestion2='" in cont:
+            fQ2 = cont.replace("forensicsQuestion2='", "")
             fquest02.set(fQ2)
             cont = fQ2
     for cont in content:
         for vuln in vulns:
-            if vuln.name + '=(y)' in cont:
+            if vuln.name + "='y'" in cont:
                 if vuln.name in vulnNames2:
                     addToFrame2(vuln.name)
                 elif vuln.name in vulnNames3:
@@ -711,10 +711,10 @@ def loadSave():
                     addToFrame4(vuln.name)
                 elif vuln.name in vulnNames5:
                     addToFrame5(vuln.name)
-            elif vuln.name + 'Value=(' in cont:
-                points = cont.replace(vuln.name + 'Value=(', '')
-                points = points.replace(')', '')
-                points = points.split(' ')
+            elif vuln.name + "Value='" in cont:
+                points = cont.replace(vuln.name + "Value='", "")
+                points = points.replace("'", "")
+                points = points.split(" ")
                 value = []
                 for x in points:
                     if x not in value:
@@ -738,49 +738,49 @@ def loadSave():
                                 if entry_textBox[ent2].get() == '':
                                     entry_textBox[ent2].set(v)
                                     break
-            elif vuln.name + 'Keywords=(' in cont:
-                keyWd = cont.replace(vuln.name + 'Keywords=(', '')
-                keyWd = keyWd.replace(')', '')
-                keyWd = keyWd.split(' ')
+            elif vuln.name + "Keywords='" in cont:
+                keyWd = cont.replace(vuln.name + "Keywords='", "")
+                keyWd = keyWd.replace("'", "")
+                keyWd = keyWd.split(" ")
                 for p in range(len(points)):
                     for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
                         if vuln.name == entry_select[number].get():
                             if points[p] == entry_textBox[ent2].get():
                                 key = entry_textBox[ent3].get()
-                                if key == '':
+                                if key == "":
                                     key = keyWd[p]
                                 else:
-                                    key = key + ' ' + keyWd[p]
+                                    key = key + " " + keyWd[p]
                                 entry_textBox[ent3].set(key)
-            elif vuln.name + 'ExtraKeywords=(' in cont:
-                exKeyWd = cont.replace(vuln.name + 'ExtraKeywords=(', '')
-                exKeyWd = exKeyWd.replace(')', '')
-                exKeyWd = exKeyWd.split(' ')
+            elif vuln.name + "ExtraKeywords='" in cont:
+                exKeyWd = cont.replace(vuln.name + "ExtraKeywords='", "")
+                exKeyWd = exKeyWd.replace("'", "")
+                exKeyWd = exKeyWd.split(" ")
                 for p in range(len(points)):
                     for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
                         if vuln.name == entry_select[number].get():
                             if points[p] == entry_textBox[ent2].get():
                                 key = entry_textBox[ent4].get()
-                                if key == '':
+                                if key == "":
                                     key = exKeyWd[p]
                                 else:
-                                    key = key + ' ' + exKeyWd[p]
+                                    key = key + " " + exKeyWd[p]
                                 entry_textBox[ent4].set(key)
-            elif vuln.name + 'Message=(' in cont:
-                msg = cont.replace(vuln.name + 'Message=(', '')
-                msg = msg.replace(')', '')
-                msg = msg.split(' ')
+            elif vuln.name + "Message='" in cont:
+                msg = cont.replace(vuln.name + "Message='", "")
+                msg = msg.replace("'", "")
+                msg = msg.split(" ")
                 for p in range(len(points)):
                     for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
                         if vuln.name == entry_select[number].get():
                             if points[p] == entry_textBox[ent2].get():
                                 key = entry_textBox[ent5].get()
-                                if key == '':
+                                if key == "":
                                     key = msg[p]
                                 else:
-                                    key = key + ' ' + msg[p]
+                                    key = key + " " + msg[p]
                                 entry_textBox[ent5].set(key)
-    setEntry('')
+    setEntry("")
     tally()
 
 
