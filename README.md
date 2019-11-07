@@ -1,10 +1,10 @@
-# CSEL
-## Cyberpatriot Scoring Engine: Linux
+# CSEW
+## Cyberpatriot Scoring Engine: Windows
 
-CSEL is a scoring engine written in bash for scoring Linux CyberPatriot images. It is configured by adding scoring options into the csel.cfg and running the install file. It now includes a web page Score Report. It works (to varying degrees) with Ubuntu 14.04 and 16.04.
+CSEW is a scoring engine written in bash for scoring Windows CyberPatriot images. It is configured by adding scoring options into the csel.cfg and running the install file. It now includes a web page Score Report. It works (to varying degrees) with Ubuntu 14.04 and 16.04.
 
 ## Features
-CSEL is still a baby and it's rough around the edges, but so far it can score the following events:
+CSEW is still a baby and it's rough around the edges, but so far it can score the following events:
 - Deleting "bad" users
 - Creating new "good" users
 - Changing passwords on accounts
@@ -40,18 +40,18 @@ CSEL is still a baby and it's rough around the edges, but so far it can score th
 - Install update period
 - Install updates automatically
 
-CSEL can also take away points for:
+CSEW can also take away points for:
 - Deleting "good" users
 
-CSEL can be run with "silent misses" which simulates a CyberPatriot round where you have no idea where the points are until you earn them. It can also be run with the silent misses turned off which is helpful when you are debugging or when you have very inexperienced students who might benefit from the help. This mode gives you a general idea where the points are missing. CSEL can also create a scoreboard report that can be sent to an FTP server and manaipulated however you please.
+CSEW can be run with "silent misses" which simulates a CyberPatriot round where you have no idea where the points are until you earn them. It can also be run with the silent misses turned off which is helpful when you are debugging or when you have very inexperienced students who might benefit from the help. This mode gives you a general idea where the points are missing. CSEW can also create a scoreboard report that can be sent to an FTP server and manaipulated however you please.
 
 ## How to install using git
 1. Set up your image and put your vulnerabilities in place.
 2. Install the following prerequisites: git and python-tk.
 	`install.sh` also has the python-tk installation implemented
-3. Clone into CSEL by typing: sudo git clone https://github.com/gmngmstr/CSELv2.git
+3. Clone into CSEW by typing: sudo git clone https://github.com/gmngmstr/CSEWv2.git
 4. Run `sudo python configurator.py` to set up the config file. 
-6. After you are satisfied that it is working how you want, you can delete the CSEL directory.
+6. After you are satisfied that it is working how you want, you can delete the CSEW directory.
 
 ## How to install without git
 1. To install the scoring engine extrct the folder to the desktop of the linux image
@@ -67,7 +67,7 @@ Notes:
 To add multiple keywords use spaces not commas
 The settings are saved in the csel.txt file
 
-**Important Note**: Your students _will_ be able to see the vulnerabilities if you leave the CSEL folder behind or if they cat the executable file that is created in /usr/local/bin/. I tell my students where the file is and that they should stay away from it. It is practice, after all.
+**Important Note**: Your students _will_ be able to see the vulnerabilities if you leave the CSEW folder behind or if they cat the executable file that is created in /usr/local/bin/. I tell my students where the file is and that they should stay away from it. It is practice, after all.
 
 ## Known issues and planned updates
 - Write a sample explianation for a FTP server
