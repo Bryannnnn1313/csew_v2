@@ -1,6 +1,5 @@
-from stat import *
 from tkinter import *
-import os, sys, subprocess, tkinter.messagebox, time
+import os, subprocess, time
 
 
 class ForenQuest:
@@ -401,7 +400,7 @@ def createForQ():
 # What happens when you click Submit?
 def writeToConfig(name, points, keywords, keywordsExtra, message):
     f = open('csel.cfg', 'a')
-    if name == 'changePassword':
+    """if name == 'changePassword':
         v = open('passGet.bat', 'w+')
         ## Fix to Windows (Fixing, but not done)
         v.write(
@@ -423,7 +422,7 @@ def writeToConfig(name, points, keywords, keywordsExtra, message):
                     passwdO = passwd[1]
         keywordsExtra = passwdO.replace('$', '\$')
         os.remove('passGet.bat')
-        os.remove('name.txt')
+        os.remove('name.txt')"""
     f.write(name + '=(y)\n')
     f.write(name + 'Value=(' + str(points) + ')\n')
     if keywords != '':
