@@ -1,5 +1,7 @@
+import os
+import subprocess
+import time
 from tkinter import *
-import os, subprocess, time
 
 
 class ForenQuest:
@@ -54,7 +56,7 @@ v003 = Vuln("<Select One>", "", "<Description>", False)
 # Variables for vulnerabilities with no input boxes
 v201 = Vuln("disableGuest", "", "Is the guest disabled in Local Security Policies or Accounts?", False)
 v202 = Vuln("disableAdministrator", "", "Is the administrator disabled in Local Security Policies or Accounts?", False)
-v203 = Vuln("requireCTRL+ALT+DEL", "", "Enable the Local Security Policy for requiring CTRL+ALT+DEL", False)
+v203 = Vuln("requireCTRL_ALT_DEL", "", "Enable the Local Security Policy for requiring CTRL+ALT+DEL", False)
 v204 = Vuln("XXX", "", "'PermitRootLogin no' exists in sshd_config", False)
 v205 = Vuln("checkFirewall", "", "Is the firewall enabled?", False)
 v206 = Vuln("XXX", "", "Has kernel been updated?", False)
@@ -118,7 +120,7 @@ vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210,
          v502, v503, v504]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
-vulnNames2 = ["disableGuest", "disableAdministrator", "requireCTRL+ALT+DEL", "disableSshRootLogin", "checkFirewall",
+vulnNames2 = ["disableGuest", "disableAdministrator", "requireCTRL_ALT_DEL", "disableSshRootLogin", "checkFirewall",
               "checkKernel", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
               "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
@@ -354,7 +356,7 @@ def saveForQ():
     line1c = "checkForensicsQuestion1Value='" + str(fqpts01.get()) + "'\n"
     line1d = "forensicsQuestion1=" + fquest01.get() + "\n"
     line2a = "forensicsPath2='" + str(usrDsktp.get()) + "Question2.txt'\n"
-    line2b = "forensicsAnswer2='" + fqans02.get() + ")\n"
+    line2b = "forensicsAnswer2='" + fqans02.get() + "'\n"
     line2c = "checkForensicsQuestion2Value='" + str(fqpts02.get()) + "'\n"
     line2d = "forensicsQuestion2=" + fquest02.get() + "\n"
     if fqcb01.get() != 0:
@@ -599,7 +601,7 @@ def saveConfig():
             if vuln.name == entry_select[number].get() and vuln.name != "<Select One>":
                 if not vuln.saved:
                     s1 = vuln.name
-                    s2 = vuln.name + "Value='" + entry_textBox[ent2].get() + "'"
+                    s2 = vuln.name + "Value='" + entry_textBox[ent2].get()
                     s3 = ''
                     s4 = ''
                     s5 = ''
