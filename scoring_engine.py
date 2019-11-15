@@ -1,13 +1,15 @@
 import ctypes, os, sys, subprocess
 import win32com.client
 import fileinput
+import balloontip
 
 Desktop = 'B:/Users/Shaun/Desktop/'
 silentMiss = 'y'
 FTPServer = 'y'
+forensicCount = []
 forensicsPath1 = 'B:/Users/Shaun/Desktop/Question1.txt'
-forensicsAnswer1 = 'gb)'
-checkForensicsQuestion1Value = '5'
+forensicAnswer = 'gb)'
+forensicValue = '5'
 disableGuest = 'y'
 disableGuestValue = '5'
 disableAdministrator = 'y'
@@ -38,9 +40,8 @@ totalVuln = 0
 prePoints = 0
 scoreIndex = index, 'ScoreReport.html'
 
-if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-    print("You are not admin")
-    exit()
+'''if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+    exit()'''
 
 # Scoring Report creation
 def drawHead():
@@ -59,9 +60,7 @@ def recordHit(name, points, message):
     totalPoints += points
     totalVuln += 1
 
-def recordMiss(name, points):
-    global totalPoints
-    global totalVuln
+def recordMiss(name):
     f = open(scoreIndex, 'a')
     f.write('<p style="color:red">MISS', name, 'Issue</p>')
     f.close()
@@ -105,6 +104,29 @@ def scoreCheck():
     global prePoints
     if totalPoints > prePoints:
         prePoints = totalPoints
+        balloontip.balloon_tip('Score Update', 'You gained points!!')
     if totalPoints < prePoints:
         prePoints = totalPoints
+        balloontip.balloon_tip('Score Update', 'You lost points!!')
+
 # Option Check
+def forensicQuestion():
+    for fq in forensicCount:
+        path = Desktop + 'Question' + fq + '.txt'
+        name = 'Forensic Question', fq
+        f = open(path, 'r')
+        content = f.read().splitlines()
+        for c in content:
+            if 'ANSWER:' in c:
+                if forensicAnswer[fq] in c:
+                    recordHit(name, forensicValue[fq], '')
+                elif not silentMiss:
+                    recordMiss(name)
+
+def disableGuest():
+    f = open('guestCheck.ps1', 'x')
+    f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize')
+    f.close()
+    p = subprocess.Popen(['powershell.exe', 'guestCheck.ps1'], stdout=sys.stdout)
+    p.communicate()
+

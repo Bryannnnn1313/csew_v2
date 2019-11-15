@@ -1,7 +1,8 @@
-import os
+import os, ctypes
 import subprocess
 import time
 from tkinter import *
+from tkinter import messagebox
 
 
 class ForenQuest:
@@ -343,7 +344,7 @@ def positionFrames():
 
 
 def Mbox(title, text):
-    tkMessageBox.showwarning(title, text)
+    messagebox.showwarning(title, text)
 
 
 # Create the forensics questions and add answers to csel.cfg
@@ -436,7 +437,7 @@ def writeToConfig(name, points, keywords, keywordsExtra, message):
 
 def submitCallback():
     # We wanna use those fancy variable lists
-    if os.geteuid() != 0:
+    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
         Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator with sudo.')
         return
     errorFree = True
@@ -558,9 +559,9 @@ def submitCallback():
             vuln.saved = False
         f = open('csel.cfg', 'a')
         # Fix for Windows
-        configFooter = "index=(C:\Users\Default\Documents\ScoreReport.html)\nindexD=(" + usrDsktp.get() + ")\nindexR=(C:\Users\Default\Documents)\n::These values will change during install\nimageScore=0\nposPoints=0\nrelease=\"\"\n\ninstallDate=(%INSTALLDATE%)\n"
-        f.write(configFooter)
-        f.close()
+        #configFooter = "index=(C:\Users\Default\Documents\ScoreReport.html)\nindexD=(" + usrDsktp.get() + ")\nindexR=(C:\Users\Default\Documents)\n::These values will change during install\nimageScore=0\nposPoints=0\nrelease=\"\"\n\ninstallDate=(%INSTALLDATE%)\n"
+        #f.write(configFooter)
+        #f.close()
         subprocess.Popen(['./install.sh'])
         time.sleep(2)
         exit()
