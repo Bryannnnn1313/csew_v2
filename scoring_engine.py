@@ -108,4 +108,3 @@ def scoreCheck():
     if totalPoints < prePoints:
         prePoints = totalPoints
 # Option Check
-def
