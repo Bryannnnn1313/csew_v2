@@ -35,12 +35,14 @@ posPoints = 0
 posVuln = 0
 totalPoints = 0
 totalVuln = 0
+prePoints = 0
 scoreIndex = index, 'ScoreReport.html'
 
 if ctypes.windll.shell32.IsUserAnAdmin() == 0:
     print("You are not admin")
     exit()
 
+# Scoring Report creation
 def drawHead():
     f = open(scoreIndex, 'w+')
     f.write('<!doctype html><html><head><title>CSEL Score Report</title><meta http-equiv="refresh" content="30"></head><body style="background-color:powderblue;">''\n')
@@ -63,8 +65,6 @@ def recordMiss(name, points):
     f = open(scoreIndex, 'a')
     f.write('<p style="color:red">MISS', name, 'Issue</p>')
     f.close()
-    totalPoints -= points
-    totalVuln -= 1
 
 def recordPenalty(name, points, message):
     global totalPoints
@@ -99,3 +99,13 @@ def drawTail():
     replaceSec(index, '#TotalVuln#', totalVuln)
     replaceSec(index, '#PossibleVuln#', posVuln)
 
+# Extra Checks
+def scoreCheck():
+    global totalPoints
+    global prePoints
+    if totalPoints > prePoints:
+        prePoints = totalPoints
+    if totalPoints < prePoints:
+        prePoints = totalPoints
+# Option Check
+def
