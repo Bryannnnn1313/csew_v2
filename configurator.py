@@ -1,4 +1,5 @@
 import os
+import ctypes
 import subprocess
 import time
 from tkinter import *
@@ -586,7 +587,6 @@ def submitCallback():
                 f.write(s5 + "]\n")
         for vuln in vulns:
             vuln.saved = False
-        f = open('csel.cfg', 'a')
         # Fix for Windows
         #configFooter = "index=(C:\Users\Default\Documents\ScoreReport.html)\nindexD=(" + usrDsktp.get() + ")\nindexR=(C:\Users\Default\Documents)\n::These values will change during install\nimageScore=0\nposPoints=0\nrelease=\"\"\n\ninstallDate=(%INSTALLDATE%)\n"
         #f.write(configFooter)
