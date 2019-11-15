@@ -1,7 +1,10 @@
 import os
+import ctypes
 import subprocess
 import time
 from tkinter import *
+from tkinter import messagebox
+
 
 
 class ForenQuest:
@@ -343,7 +346,7 @@ def positionFrames():
 
 
 def Mbox(title, text):
-    tkMessageBox.showwarning(title, text)
+    messagebox.showwarning(title, text)
 
 
 # Create the forensics questions and add answers to csel.cfg
@@ -436,7 +439,7 @@ def createForQ():
 
 def submitCallback():
     # We wanna use those fancy variable lists
-    if os.geteuid() != 0:
+    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
         Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator with sudo.')
         return
     errorFree = True
