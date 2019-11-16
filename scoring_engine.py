@@ -310,3 +310,71 @@ def newUser():
             recordHit('newUser', newUserValue[idx], '')
         else:
             recordMiss('Add User')
+
+def adminCheck(VariableName):
+    f = open('admin.bat', 'x')
+    f.write('@echo off\nnet localgroup Administrators > admins.txt')
+    f.close()
+    subprocess.Popen([r'admin.bat'])
+    time.sleep(1)
+    with open('admins.txt') as t:
+        content = t.read().splitlines()
+    t.close()
+    adminlist = []
+    for c in content:
+        for f in VariableName:
+            if f in c:
+                adminlist.append[True]
+            else:
+                adminlist.append[False]
+    return adminlist
+    os.remove('admin.bat')
+    os.remove('admins.txt')
+
+def goodAdmin():
+    adminlists = adminCheck(goodAdminKeywords)
+    for idx, item in enumerate(adminlists):
+        if not adminlists[idx]:
+            recordPenalty('goodAdmin', goodAdminValue[idx], '')
+
+def badAdmin():
+    adminlists = adminCheck(badAdminKeywords)
+    for idx, item in enumerate(adminlists):
+        if adminlists[idx]:
+            recordMiss('Remove Admin')
+        else:
+            recordHit('badAdmin', badAdminValue[idx], '')
+            
+def groupCheck(VariableName):
+    f = open('group.bat', 'x')
+    f.write('@echo off\nnet localgroup > groups.txt')
+    f.close()
+    subprocess.Popen([r'group.bat'])
+    time.sleep(1)
+    with open('groups.txt') as t:
+        content = t.read().splitlines()
+    t.close()
+    grouplist = []
+    for c in content:
+        for f in VariableName:
+            if f in c:
+                grouplist.append[True]
+            else:
+                grouplist.append[False]
+    return grouplist
+    os.remove('group.bat')
+    os.remove('groups.txt')
+
+def goodGroup():
+    grouplists = groupCheck(goodGroupKeywords)
+    for idx, item in enumerate(grouplists):
+        if not grouplists[idx]:
+            recordPenalty('goodGroup', goodGroupValue[idx], '')
+
+def badGroup():
+    grouplists = groupCheck(badGroupKeywords)
+    for idx, item in enumerate(grouplists):
+        if grouplists[idx]:
+            recordMiss('Remove Group')
+        else:
+            recordHit('badGroup', badGroupValue[idx], '')
