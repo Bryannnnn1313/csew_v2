@@ -100,22 +100,16 @@ v402 = Vuln("userInGroup", "(users)(Group)",
             False)
 v403 = Vuln("goodService", "(Services)", "Service that needs to be started (Can take multiple entries)", False)
 # Variables for custom vulnerabilities
-v501 = Vuln("fileContainsText1", "",
+v501 = Vuln("fileContainsText", "",
             "Custom option for requiring a word or phrase to be added to a file.(Spaces will not be counted as separate entries)",
             False)
-v502 = Vuln("fileContainsText2", "",
-            "Custom option for requiring a word or phrase to be added to a file.(Spaces will not be counted as separate entries)",
-            False)
-v503 = Vuln("fileNoLongerContains1", "",
-            "Custom option for requiring a word or phrase to be removed from a file.(Spaces will not be counted as separate entries)",
-            False)
-v504 = Vuln("fileNoLongerContains2", "",
+v502 = Vuln("fileNoLongerContains", "",
             "Custom option for requiring a word or phrase to be removed from a file.(Spaces will not be counted as separate entries)",
             False)
 
 vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v216, v301,
          v302, v303, v304, v305, v306, v307, v308, v309, v310, v312, v313, v314, v315, v316, v401, v402, v403, v501,
-         v502, v503, v504]
+         v502]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
 vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
@@ -125,7 +119,7 @@ vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "
               "goodProgram", "badProgram", "badService", "badFile", "antivirus", "checkHosts",
               "checkStartup", "Remove"]
 vulnNames4 = ["badCron", "userInGroup", "goodService", "Remove"]
-vulnNames5 = ["fileContainsText1", "fileNoLongerContains1", "Remove"]
+vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
 
 
 def addOptionMenu(loc, bRow, bColumn, list, optSet):
