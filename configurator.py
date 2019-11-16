@@ -33,11 +33,7 @@ class FullScreenApp(object):
 class AutoScrollbar(Scrollbar):
     # a scrollbar that hides itself if it's not needed. only works if you use the grid geometry manager.
     def set(self, lo, hi):
-        if float(lo) <= 0.0 and float(hi) >= 1.0:
-            # grid_remove is currently missing from Tkinter!
-            self.tk.call("grid", "remove", self)
-        else:
-            self.grid()
+        self.grid()
         Scrollbar.set(self, lo, hi)
 
     def pack(self, **kw):
@@ -122,8 +118,8 @@ vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210,
          v502, v503, v504]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
-vulnNames2 = ["disableGuest", "disableAdministrator", "requireCTRL_ALT_DEL", "disableSshRootLogin", "checkFirewall",
-              "checkKernel", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
+vulnNames2 = ["disableGuest", "disableAdministrator", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
+              "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
               "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
               "goodProgram", "badProgram", "goodService", "badService", "badFile", "antivirus", "checkHosts",
@@ -575,14 +571,14 @@ def submitCallback():
                             buff_entry.append((s1, s2, s3, s4, s5))
                         save_entry = buff_entry
                 else:
-                    f.write(vuln.name + "=false")
+                    f.write(vuln.name + "=false\n")
         for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
             f.write(s1 + "=true\n")
             f.write(s2 + "]\n")
             if s3 != '':
                 f.write(s3 + "]\n")
             if s4 != '':
-                f.write(+ s4 + "]\n")
+                f.write(s4 + "]\n")
             if s5 != '':
                 f.write(s5 + "]\n")
         for vuln in vulns:
@@ -591,7 +587,7 @@ def submitCallback():
         #configFooter = "index=(C:\Users\Default\Documents\ScoreReport.html)\nindexD=(" + usrDsktp.get() + ")\nindexR=(C:\Users\Default\Documents)\n::These values will change during install\nimageScore=0\nposPoints=0\nrelease=\"\"\n\ninstallDate=(%INSTALLDATE%)\n"
         #f.write(configFooter)
         f.close()
-        subprocess.Popen(['./install.sh'])
+        #subprocess.Popen(['./install.sh'])
         time.sleep(2)
         exit()
 
@@ -901,9 +897,9 @@ fqans02 = StringVar()
 
 # GUI Creation
 vscrollbar = AutoScrollbar(root)
-vscrollbar.grid(row=0, column=1, sticky=N + S)
+vscrollbar.grid(row=0, column=1, sticky=NS)
 hscrollbar = AutoScrollbar(root, orient=HORIZONTAL)
-hscrollbar.grid(row=1, column=0, sticky=E + W)
+hscrollbar.grid(row=1, column=0, sticky=EW)
 
 canvas = Canvas(root, yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set)
 canvas.grid(row=0, column=0, sticky=N + S + E + W)
