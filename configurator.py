@@ -344,11 +344,11 @@ def Mbox(title, text):
     messagebox.showwarning(title, text)
 
 
-# Create the forensics questions and add answers to csel.cfg
+# Create the forensics questions and add answers to csew.cfg
 def saveForQ():
     qHeader = "This is a forensics question. Answer it below\n------------------------\n"
     qFooter = "\n\nANSWER: <TypeAnswerHere>"
-    f = open("csel.txt", "a")
+    f = open("csew.txt", "a")
     line1a = "forensicsPath1='" + str(usrDsktp.get()) + "Question1.txt'\n"
     line1b = "forensicsAnswer1='" + fqans01.get() + ")\n"
     line1c = "checkForensicsQuestion1Value='" + str(fqpts01.get()) + "'\n"
@@ -375,7 +375,7 @@ def saveForQ():
 def createForQ():
     qHeader = 'This is a forensics question. Answer it below\n------------------------\n'
     qFooter = '\n\nANSWER: <TypeAnswerHere>'
-    f = open('csel.cfg', 'a')
+    f = open('csew.cfg', 'a')
     line1a = 'forensicsPath1=' + str(usrDsktp.get()) + 'Question1.txt)\n'
     line1b = 'forensicsAnswer1=(' + fqans01.get() + ')\n'
     line1c = 'checkForensicsQuestion1Value=(' + str(fqpts01.get()) + ')\n'
@@ -494,7 +494,7 @@ def submitCallback():
     if not errorFree:
         Mbox('Error', errorMessage)
     if errorFree:
-        f = open('csel.cfg', 'w+')
+        f = open('csew.cfg', 'w+')
         if silentMode.get() == 1:
             f.write("silentMiss = True\n")
         else:
@@ -502,12 +502,12 @@ def submitCallback():
         if ftpMode.get() == 1:
             f.write("FTPServer = True\n")
         else:
-            f.write("FTPServertrue = False\n")
+            f.write("FTPServertrue = false\n")
         f.close()
         createForQ()
         save_entry = []
         buff_entry = []
-        f = open('csel.cfg', 'a')
+        f = open('csew.cfg', 'a')
         for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
             for vuln in vulns:
                 if vuln.name == entry_select[number].get() and vuln.name != "<Select One>":
@@ -603,7 +603,7 @@ def saveConfig():
         cwd = "C:/Users/" + cwd + "/Desktop/"
         usrDsktp.set(cwd)
     scoreLoc.set(usrDsktp.get())
-    f = open('csel.txt', 'w+')
+    f = open('csew.txt', 'w+')
     f.write("Desktop=" + usrDsktp.get() + "\n")
     if silentMode.get() == 1:
         f.write("silentMiss='y'\n")
@@ -621,7 +621,7 @@ def saveConfig():
         f.close()
     save_entry = []
     buff_entry = []
-    f = open('csel.txt', 'a')
+    f = open('csew.txt', 'a')
     for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
         for vuln in vulns:
             if vuln.name == entry_select[number].get() and vuln.name != "<Select One>":
@@ -684,8 +684,8 @@ def saveConfig():
 
 def loadSave():
     content = []
-    if os.path.exists('csel.txt'):
-        with open('csel.txt') as f:
+    if os.path.exists('csew.txt'):
+        with open('csew.txt') as f:
             content = f.read().splitlines()
         f.close()
     for cont in content:
@@ -873,7 +873,7 @@ entry_textBox_count = -1
 entry_lable = []
 entry_lable_count = -1
 root = Tk()
-root.title('CSEL Setup Tool')
+root.title('CSEW Setup Tool')
 userLoc = IntVar()
 usrDsktp = StringVar()
 silentMode = IntVar()
