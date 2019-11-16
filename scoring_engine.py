@@ -188,21 +188,22 @@ def disableAdmin():
                 os.remove('user.txt')
 
 def checkFirewall():
-    f = open ('firewall.bat', 'x')
-    f.write('@echo off\nnetsh advfirewall show private > status.bat\nnetsh advfirewall show public >> status.bat')
+    f = open('firewall.bat', 'x')
+    f.write('@echo off\nnetsh advfirewall show private > status.txt\nnetsh advfirewall show public >> status.txt\necho working')
     f.close()
-    subprocess.call('./firewall.bat')
+    subprocess.Popen([r'firewall.bat'])
+    time.sleep(1)
     with open('status.txt') as t:
-            content = t.read().splitlines()
+        content = t.read().splitlines()
     t.close()
     statuson = 'true';
     for cont in content:
         if cont != '':
             status = cont.split('                       ')
-            if status[1]!='ON':
+            if status[1] != 'ON':
                 statuson = 'false'
     if statuson == 'true':
-        recordHit('checkFirewall',checkFirewallValue,'')
+        recordHit('checkFirewall', checkFirewallValue, '')
     else:
         recordMiss('checkFirewall')
     os.remove('firewall.bat')
