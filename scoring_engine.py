@@ -151,3 +151,23 @@ def disableGuest():
                 recordMiss('Disable Guest')
                 os.remove('user.txt')
 
+def checkFirewall():
+    f = open ('firewall.bat', 'x')
+    f.write('@echo off\nnetsh advfirewall show private > status.bat\nnetsh advfirewall show public >> status.bat')
+    f.close()
+    subprocess.call('./firewall.bat')
+    with open('status.txt') as t:
+            content = t.read().splitlines()
+    t.close()
+    statuson = 'true';
+    for cont in content:
+        if cont != '':
+            status = cont.split('                       ')
+            if status[1]!='ON':
+                statuson = 'false'
+    if statuson == 'true':
+        recordHit('checkFirewall',checkFirewallValue,'')
+    else:
+        recordMiss('checkFirewall')
+    os.remove('firewall.bat')
+    os.remove('status.txt')
