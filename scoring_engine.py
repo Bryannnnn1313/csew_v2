@@ -1,4 +1,4 @@
-import ctypes, os, sys, subprocess
+import ctypes, os, sys, subprocess, time
 import win32com.client
 import fileinput
 import balloontip
@@ -61,9 +61,10 @@ def recordHit(name, points, message):
     totalVuln += 1
 
 def recordMiss(name):
-    f = open(scoreIndex, 'a')
-    f.write('<p style="color:red">MISS', name, 'Issue</p>')
-    f.close()
+    if not silentMiss:
+        f = open(scoreIndex, 'a')
+        f.write('<p style="color:red">MISS', name, 'Issue</p>')
+        f.close()
 
 def recordPenalty(name, points, message):
     global totalPoints
@@ -110,10 +111,13 @@ def scoreCheck():
         balloontip.balloon_tip('Score Update', 'You lost points!!')
 
 def runPowershell(fileName):
-    f = open('guestCheck.bat', 'w+')
-    f.write('PowerShell.exe -ExecutionPolicy Bypass -Command "& \'.\\' + fileName + '.ps1\'" > test.txt')
+    f = open('powerRun.bat', 'x')
+    f.write('PowerShell.exe -ExecutionPolicy Bypass -Command "& \'.\\' + fileName + '.ps1\'"')
     f.close()
-    subprocess.Popen([r'' + fileName + '.bat'])
+    subprocess.Popen([r'powerRun.bat'])
+    time.sleep(1)
+    os.remove(fileName + '.ps1')
+    os.remove('powerRun.bat')
 
 # Option Check
 def forensicQuestion():
@@ -126,12 +130,24 @@ def forensicQuestion():
             if 'ANSWER:' in c:
                 if forensicAnswer[fq] in c:
                     recordHit(name, forensicValue[fq], '')
-                elif not silentMiss:
+                else:
                     recordMiss(name)
 
 def disableGuest():
     f = open('guestCheck.ps1', 'w+')
-    f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize')
+    f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
     f.close()
     runPowershell('guestCheck')
+
+    f = open('user.txt','r', encoding='utf-16-le')
+    content = f.read().splitlines()
+    f.close()
+    for c in content:
+        if 'Guest' in c:
+            if ' True' in c:
+                recordHit('Disable Guest', disableGuestValue, '')
+                os.remove('user.txt')
+            else:
+                recordMiss('Disable Guest')
+                os.remove('user.txt')
 
