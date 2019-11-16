@@ -53,7 +53,7 @@ v003 = Vuln("<Select One>", "", "<Description>", False)
 
 # Variables for vulnerabilities with no input boxes
 v201 = Vuln("disableGuest", "", "Is the guest disabled in Local Security Policies or Accounts?", False)
-v202 = Vuln("disableAdministrator", "", "Is the administrator disabled in Local Security Policies or Accounts?", False)
+v202 = Vuln("disableAdmin", "", "Is the administrator disabled in Local Security Policies or Accounts?", False)
 v203 = Vuln("requireCTRL_ALT_DEL", "", "Enable the Local Security Policy for requiring CTRL+ALT+DEL", False)
 v204 = Vuln("XXX", "", "'PermitRootLogin no' exists in sshd_config", False)
 v205 = Vuln("checkFirewall", "", "Is the firewall enabled?", False)
@@ -118,7 +118,7 @@ vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210,
          v502, v503, v504]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
-vulnNames2 = ["disableGuest", "disableAdministrator", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
+vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
               "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
               "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
