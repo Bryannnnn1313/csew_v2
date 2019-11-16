@@ -69,7 +69,7 @@ v213 = Vuln("checkPassCompx", "", "Has password complexity been implemented in L
 v214 = Vuln("XXX", "", "Has the update check period been set to daily? (apt/apt.conf.d/10periodic)",
             False)
 v215 = Vuln("updateAutoInstall", "", "Automaticaly download and install security updates.", False)
-
+v216 = Vuln("DontDisplayLastUser","","Enable the Local Security Policy for requiring Don't Display Last User", False)
 # Variables for vulnerabilities with one input box
 v301 = Vuln("goodUser", "(Users)",
             "Lose points for removing this user (use negative number) (Can take multiple entries)", False)
@@ -90,7 +90,7 @@ v312 = Vuln("badService", "(Services)", "Service that needs to be stopped (Can t
 v313 = Vuln("badFile", "(Location)", "Score points for deleting this file (Can take multiple entries)", False)
 v314 = Vuln("antivirus", "(Keywords)", "Antivirus programs to check for (Can take multiple entries)", False)
 v315 = Vuln("checkHosts", "(Keywords)", "Check /etc/hosts for a specific string (Can take multiple entries)", False)
-v316 = Vuln("checkStartup", "(Keywords)", "Check rc.local for a specific string (Can take multiple entries)", False)
+v316 = Vuln("checkStartup", "(Keywords)", "Check Startup tab for a specific string (Can take multiple entries)", False)
 
 # Variables for vulnerabilities with two input boxes
 v401 = Vuln("taskScheduler", "(User)(Keyword)",
@@ -113,14 +113,14 @@ v504 = Vuln("fileNoLongerContains2", "",
             "Custom option for requiring a word or phrase to be removed from a file.(Spaces will not be counted as separate entries)",
             False)
 
-vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v301,
+vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v216, v301,
          v302, v303, v304, v305, v306, v307, v308, v309, v310, v311, v312, v313, v314, v315, v316, v401, v402, v501,
          v502, v503, v504]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
 vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
               "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
-              "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "Remove"]
+              "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "DontDisplayLastUser", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
               "goodProgram", "badProgram", "goodService", "badService", "badFile", "antivirus", "checkHosts",
               "checkStartup", "Remove"]
