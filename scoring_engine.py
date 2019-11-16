@@ -207,4 +207,40 @@ def checkFirewall():
     os.remove('firewall.bat')
     os.remove('status.txt')
 
+def localGoupPolicy(option):
+    os.system('secedit /export /cfg group-policy.txt')
+    p = open('group-policy.txt','r', encoding='utf-16-le')
+    content = p.read().split('\n')
+    p.close()
+    if option == 'minPassAge':
+        for i in content:
+            if 'MinimumPasswordAge' in i:
+                if i.endswith('30'):
+                    recordHit('Minimum Password Age', option+'value', '')
+    elif option =='maxPassAge':
+        for i in content:
+            if 'MaximumPasswordAge' in i:
+                if i.endswith('60'):
+                    recordHit('Maximum Password Age', option+'value', '')
+    elif option =='maxLoginTries':
+        for i in content:
+            if 'LockoutBadCount' in i:
+                if i.endswith('5'):
+                    recordHit('Maximum Login Tries', option+'value', '')
+    elif option == 'checkPassLength':
+        for i in content:
+            if 'MinimumPasswordLength' in i:
+                if i.endswith('10'):
+                    recordHit('Minimum Password Length', option+'value', '')
+    elif option == 'checkPassHist':
+        for i in content:
+            if 'PasswordHistorySize' in i:
+                if i.endswith('5'):
+                    recordHit('Password History Size', option+'value', '')
+    elif option == 'checkPassCompx':
+        for i in content:
+            if 'PasswordComplexity' in i:
+                if i.endswith('1'):
+                    recordHit('Password Complexity', option+'value', '')
+
 def requireCTRL_ALT_DEL():
