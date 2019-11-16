@@ -196,7 +196,7 @@ def checkFirewall():
     with open('status.txt') as t:
         content = t.read().splitlines()
     t.close()
-    statuson = 'true';
+    statuson = 'true'
     for cont in content:
         if 'OFF' in cont:
             statuson = 'false'
@@ -218,43 +218,56 @@ def localGroupPolicy(option):
                 if i.endswith('30'):
                     recordHit('Minimum Password Age', option+'value', '')
                 else:
-                    recordmiss('Minimum Password Age')
+                    recordMiss('Password Policy')
     elif option =='maxPassAge':
         for i in content:
             if 'MaximumPasswordAge' in i:
                 if i.endswith('60'):
                     recordHit('Maximum Password Age', option+'value', '')
                 else:
-                    recordmiss('Minimum Password Age')
+                    recordMiss('Password Policy')
     elif option =='maxLoginTries':
         for i in content:
             if 'LockoutBadCount' in i:
                 if i.endswith('5'):
                     recordHit('Maximum Login Tries', option+'value', '')
                 else:
-                    recordmiss('Maximum Login Tries')
+                    recordMiss('Account Policy')
     elif option == 'checkPassLength':
         for i in content:
             if 'MinimumPasswordLength' in i:
                 if i.endswith('10'):
                     recordHit('Minimum Password Length', option+'value', '')
                 else:
-                    recordmiss('Minimum Password Length')
+                    recordMiss('Password Policy')
     elif option == 'checkPassHist':
         for i in content:
             if 'PasswordHistorySize' in i:
                 if i.endswith('5'):
                     recordHit('Password History Size', option+'value', '')
                 else:
-                    recordmiss('Password History Size')
+                    recordMiss('Password Policy')
     elif option == 'checkPassCompx':
         for i in content:
             if 'PasswordComplexity' in i:
                 if i.endswith('1'):
                     recordHit('Password Complexity', option+'value', '')
                 else:
-                    recordmiss('Password Complexity')
-                    
+                    recordMiss('Password Policy')
+    elif option == 'requireCTRL_ALT_DEL':
+        for i in content:
+            if 'DisableCAD' in i:
+                if i.endswith('1'):
+                    recordHit('Require CTRL + ALT + DEL', option+'value', '')
+                else:
+                    recordMiss('Security Policy')
+    elif option == 'DontDisplayLastUser':
+        for i in content:
+            if 'DontDisplayLastUserName' in i:
+                if i.endswith('1'):
+                    recordHit('Dont Display Last User Name', option+'value', '')
+                else:
+                    recordMiss('Security Policy')
 
 def checkUser(VariableName):
     f = open('user.bat', 'x')
