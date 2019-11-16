@@ -85,7 +85,6 @@ v307 = Vuln("goodGroup", "(Groups)", "This group must be created (Can take multi
 v308 = Vuln("badGroup", "(Groups)", "This group must be removed (Can take multiple entries)", False)
 v309 = Vuln("goodProgram", "(Programs)", "Score points by installing these programs (Can take multiple entries)", False)
 v310 = Vuln("badProgram", "(Programs)", "Score points by removing these programs (Can take multiple entries)", False)
-v311 = Vuln("goodService", "(Services)", "Service that needs to be started (Can take multiple entries)", False)
 v312 = Vuln("badService", "(Services)", "Service that needs to be stopped (Can take multiple entries)", False)
 v313 = Vuln("badFile", "(Location)", "Score points for deleting this file (Can take multiple entries)", False)
 v314 = Vuln("antivirus", "(Keywords)", "Antivirus programs to check for (Can take multiple entries)", False)
@@ -99,6 +98,7 @@ v401 = Vuln("taskScheduler", "(User)(Keyword)",
 v402 = Vuln("userInGroup", "(users)(Group)",
             "Users that need to be added to a group (Can take multiple entries)(If using multiple users be sure to include a group for each)",
             False)
+v403 = Vuln("goodService", "(Services)", "Service that needs to be started (Can take multiple entries)", False)
 # Variables for custom vulnerabilities
 v501 = Vuln("fileContainsText1", "",
             "Custom option for requiring a word or phrase to be added to a file.(Spaces will not be counted as separate entries)",
@@ -114,7 +114,7 @@ v504 = Vuln("fileNoLongerContains2", "",
             False)
 
 vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v216, v301,
-         v302, v303, v304, v305, v306, v307, v308, v309, v310, v311, v312, v313, v314, v315, v316, v401, v402, v501,
+         v302, v303, v304, v305, v306, v307, v308, v309, v310, v312, v313, v314, v315, v316, v401, v402, v403, v501,
          v502, v503, v504]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
@@ -122,9 +122,9 @@ vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "che
               "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
               "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "DontDisplayLastUser", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
-              "goodProgram", "badProgram", "goodService", "badService", "badFile", "antivirus", "checkHosts",
+              "goodProgram", "badProgram", "badService", "badFile", "antivirus", "checkHosts",
               "checkStartup", "Remove"]
-vulnNames4 = ["badCron", "userInGroup", "Remove"]
+vulnNames4 = ["badCron", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText1", "fileNoLongerContains1", "Remove"]
 
 
