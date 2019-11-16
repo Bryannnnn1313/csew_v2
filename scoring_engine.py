@@ -292,10 +292,8 @@ def checkUser(VariableName):
 def goodUser():
     userlists = checkUser(goodUserKeywords)
     for idx, item in enumerate(userlists):
-        if userlists[idx]:
-            recordHit('goodUser', goodUserValue[idx], '')
-        else:
-            recordMiss('Good User')
+        if not userlists[idx]:
+            recordPenalty('goodUser', goodUserValue[idx], '')
 
 def badUser():
     userlists = checkUser(badUserKeywords)
@@ -303,12 +301,12 @@ def badUser():
         if userlists[idx]:
             recordMiss('Remove User')
         else:
-            recordHit('badUser', badUserValue[idx], '')
+            recordHit('Remove User', badUserValue[idx], '')
 
 def newUser():
     userlists = checkUser(newUserKeywords)
     for idx, item in enumerate(userlists):
         if userlists[idx]:
-            recordHit('newUser',newUserValue[idx],'')
+            recordHit('newUser', newUserValue[idx], '')
         else:
             recordMiss('Add User')
