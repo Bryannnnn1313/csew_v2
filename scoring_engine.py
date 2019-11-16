@@ -3,34 +3,51 @@ import win32com.client
 import fileinput
 import balloontip
 
-Desktop = 'B:/Users/Shaun/Desktop/'
-silentMiss = 'y'
-FTPServer = 'y'
-forensicCount = []
-forensicsPath1 = 'B:/Users/Shaun/Desktop/Question1.txt'
-forensicAnswer = 'gb)'
-forensicValue = '5'
-disableGuest = 'y'
-disableGuestValue = '5'
-disableAdministrator = 'y'
-disableAdministratorValue = '7'
-requireCTRL_ALT_DEL = 'y'
-requireCTRL_ALT_DELValue = '7'
-checkFirewall = 'y'
-checkFirewallValue = '7'
-minPassAge = 'y'
-minPassAgeValue = '7'
-maxPassAge = 'y'
-maxPassAgeValue = '7'
-maxLoginTries = 'y'
-maxLoginTriesValue = '7'
-checkPassHist = 'y'
-checkPassHistValue = '7'
-checkPassCompx = 'y'
-checkPassCompxValue = '7'
-updateAutoInstall = 'y'
-updateAutoInstallValue = '6'
-index = 'C:/CyberPatriot/'
+##OPTIONVARIABLES##
+Desktop = ''
+silentMiss = True
+FTPServertrue = False
+forensicCount = [2]
+forensicsAnswer1 = ['w']
+checkForensicsQuestion1Value = [10]
+forensicsAnswer2 = ['a']
+checkForensicsQuestion2Value = [10]
+disableAdmin = False
+requireCTRL_ALT_DEL = False
+XXX = False
+checkFirewall = False
+XXX = False
+XXX = False
+minPassAge = False
+maxPassAge = False
+maxLoginTries = False
+checkPassLength = False
+checkPassHist = False
+checkPassCompx = False
+XXX = False
+updateAutoInstall = False
+goodUser = False
+badUser = False
+newUser = False
+changePassword = False
+goodAdmin = False
+badAdmin = False
+goodGroup = False
+badGroup = False
+goodProgram = False
+badProgram = False
+goodService = False
+badService = False
+badFile = False
+antivirus = False
+checkHosts = False
+checkStartup = False
+taskScheduler = False
+userInGroup = False
+fileContainsText1 = False
+fileContainsText2 = False
+fileNoLongerContains1 = False
+fileNoLongerContains2 = False
 
 # Program Base Variables
 posPoints = 0
@@ -38,6 +55,7 @@ posVuln = 0
 totalPoints = 0
 totalVuln = 0
 prePoints = 0
+index = 'C:/CyberPatriot/'
 scoreIndex = index, 'ScoreReport.html'
 
 '''if ctypes.windll.shell32.IsUserAnAdmin() == 0:
@@ -139,7 +157,7 @@ def disableGuest():
     f.close()
     runPowershell('guestCheck')
 
-    f = open('user.txt','r', encoding='utf-16-le')
+    f = open('user.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
     for c in content:
@@ -149,6 +167,24 @@ def disableGuest():
                 os.remove('user.txt')
             else:
                 recordMiss('Disable Guest')
+                os.remove('user.txt')
+
+def disableAdmin():
+    f = open('adminCheck.ps1', 'w+')
+    f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
+    f.close()
+    runPowershell('adminCheck')
+
+    f = open('user.txt', 'r', encoding='utf-16-le')
+    content = f.read().splitlines()
+    f.close()
+    for c in content:
+        if 'Administrator' in c:
+            if ' True' in c:
+                recordHit('Disable Admin', disableAdminValue, '')
+                os.remove('user.txt')
+            else:
+                recordMiss('Disable Admin')
                 os.remove('user.txt')
 
 def checkFirewall():
@@ -171,3 +207,5 @@ def checkFirewall():
         recordMiss('checkFirewall')
     os.remove('firewall.bat')
     os.remove('status.txt')
+
+def requireCTRL_ALT_DEL():
