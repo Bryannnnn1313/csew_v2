@@ -109,6 +109,12 @@ def scoreCheck():
         prePoints = totalPoints
         balloontip.balloon_tip('Score Update', 'You lost points!!')
 
+def runPowershell(fileName):
+    f = open('guestCheck.bat', 'w+')
+    f.write('PowerShell.exe -ExecutionPolicy Bypass -Command "& \'.\\' + fileName + '.ps1\'" > test.txt')
+    f.close()
+    subprocess.Popen([r'' + fileName + '.bat'])
+
 # Option Check
 def forensicQuestion():
     for fq in forensicCount:
@@ -124,9 +130,8 @@ def forensicQuestion():
                     recordMiss(name)
 
 def disableGuest():
-    f = open('guestCheck.ps1', 'x')
+    f = open('guestCheck.ps1', 'w+')
     f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize')
     f.close()
-    p = subprocess.Popen(['powershell.exe', 'guestCheck.ps1'], stdout=sys.stdout)
-    p.communicate()
+    runPowershell('guestCheck')
 
