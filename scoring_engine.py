@@ -156,7 +156,6 @@ def disableGuest():
     f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
     f.close()
     runPowershell('guestCheck')
-
     f = open('user.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
@@ -174,7 +173,6 @@ def disableAdmin():
     f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
     f.close()
     runPowershell('adminCheck')
-
     f = open('user.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
@@ -344,7 +342,7 @@ def badAdmin():
             recordMiss('Remove Admin')
         else:
             recordHit('badAdmin', badAdminValue[idx], '')
-            
+
 def groupCheck(VariableName):
     f = open('group.bat', 'x')
     f.write('@echo off\nnet localgroup > groups.txt')
@@ -397,3 +395,16 @@ def userInGroup():
         os.remove('UserGroup.bat')
         os.remove('UserGroups.txt')
 
+def checkStartup():
+    f = open('checkstartup.ps1', 'w+')
+    f.write('Get-CimInstance -ClassName Win32_StartupCommand | Select-Object -Property Command, Description, User, Location | Format-Table -AutoSize > startup.txt')
+    f.close()
+    runPowershell('checkstartup')
+    f = open('startup.txt', 'r', encoding='utf-16-le')
+    content = f.read().splitlines()
+    f.close()
+    for k in checkStartupKeywords:
+        if k in content:
+            recordHit('Program Removed from Startup', checkStartupValue, '')
+        else:
+            recordMiss('Startup')
