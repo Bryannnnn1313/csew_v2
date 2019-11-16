@@ -378,3 +378,22 @@ def badGroup():
             recordMiss('Remove Group')
         else:
             recordHit('badGroup', badGroupValue[idx], '')
+
+def userInGroup():
+    for idx, item in enumerate(userInGroupExtraKeywords):
+        f = open('UserGroup.bat', 'x')
+        f.write('@echo off\nnet localgroup'+ userInGroupExtraKeywords[idx] +' > UserGroups.txt\n')
+        f.close()
+        subprocess.Popen([r'UserGroup.bat'])
+        time.sleep(1)
+        with open('UserGroups.txt') as t:
+            content = t.read().splitlines()
+        t.close()
+        for cont in content:
+            if userInGroupKeywords[idx] in cont:
+                recordHit('userInGroup', userInGroupValue[idx], '')
+            else:
+                recordMiss('User Not In Group')
+        os.remove('UserGroup.bat')
+        os.remove('UserGroups.txt')
+
