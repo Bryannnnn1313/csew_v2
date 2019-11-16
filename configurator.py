@@ -496,13 +496,13 @@ def submitCallback():
     if errorFree:
         f = open('csel.cfg', 'w+')
         if silentMode.get() == 1:
-            f.write("silentMiss=true\n")
+            f.write("silentMiss = True\n")
         else:
-            f.write("silentMiss=false\n")
+            f.write("silentMiss = False\n")
         if ftpMode.get() == 1:
-            f.write("FTPServertrue\n")
+            f.write("FTPServer = True\n")
         else:
-            f.write("FTPServertrue=false\n")
+            f.write("FTPServertrue = False\n")
         f.close()
         createForQ()
         save_entry = []
@@ -571,9 +571,9 @@ def submitCallback():
                             buff_entry.append((s1, s2, s3, s4, s5))
                         save_entry = buff_entry
                 else:
-                    f.write(vuln.name + "=false\n")
+                    f.write(vuln.name + " = False\n")
         for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
-            f.write(s1 + "=true\n")
+            f.write(s1 + " = True\n")
             f.write(s2 + "]\n")
             if s3 != '':
                 f.write(s3 + "]\n")
