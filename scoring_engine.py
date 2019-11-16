@@ -254,4 +254,48 @@ def localGroupPolicy(option):
                     recordHit('Password Complexity', option+'value', '')
                 else:
                     recordmiss('Password Complexity')
-def requireCTRL_ALT_DEL():
+                    
+
+def checkUser(VariableName):
+    f = open('user.bat', 'x')
+    f.write('@echo off\nnet users > users.txt')
+    f.close()
+    subprocess.Popen([r'user.bat'])
+    time.sleep(1)
+    with open('users.txt') as t:
+        content = t.read().splitlines()
+    t.close()
+    userlist = []
+    for c in content:
+        for f in VariableName:
+            if f in c:
+                userlist.append[True]
+            else:
+                userlist.append[False]
+    return userlist
+    os.remove('user.bat')
+    os.remove('users.txt')
+
+def goodUser():
+    userlists = checkUser(goodUserKeywords)
+    for idx, item in enumerate(userlists):
+        if userlists[idx]:
+            recordHit('goodUser', goodUserValue[idx], '')
+        else:
+            recordMiss('Good User')
+
+def badUser():
+    userlists = checkUser(badUserKeywords)
+    for idx, item in enumerate(userlists):
+        if userlists[idx]:
+            recordMiss('Remove User')
+        else:
+            recordHit('badUser', badUserValue[idx], '')
+
+def newUser():
+    userlists = checkUser(newUserKeywords)
+    for idx, item in enumerate(userlists):
+        if userlists[idx]:
+            recordHit('newUser',newUserValue[idx],'')
+        else:
+            recordMiss('Add User')
