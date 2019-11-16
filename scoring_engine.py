@@ -198,10 +198,8 @@ def checkFirewall():
     t.close()
     statuson = 'true';
     for cont in content:
-        if cont != '':
-            status = cont.split('                       ')
-            if status[1] != 'ON':
-                statuson = 'false'
+        if 'OFF' in cont:
+            statuson = 'false'
     if statuson == 'true':
         recordHit('checkFirewall', checkFirewallValue, '')
     else:
