@@ -417,7 +417,7 @@ def checkStartup():
 def fileContainsText():
     f = open(fileContainsTextKeywords, 'r')
     content = f.read().splitlines()
-    infile = False;
+    infile = False
     for c in content:
         if fileContainsTextExtraKeywords in c:
             infile = True
@@ -428,7 +428,7 @@ def fileContainsText():
 
 def checkInstalled():
     softFile = open('softLog.log', 'w')
-
+    errorLog = open('errorLog.log', 'w')
     r = wmi.Registry()
     result, names = r.EnumKey(hDefKey=HKEY_LOCAL_MACHINE, sSubKeyName=r"Software\Microsoft\Windows\CurrentVersion\Uninstall")
 
@@ -489,7 +489,6 @@ def fileNoLongerContainsText():
         recordHit(fileNoLongerContainsTextMessage,fileNoLongerContainsTextValue,'')
     else:
         recordMiss('File Still Contains Text')
-
 
 def badService():
     m = open('getServices.ps1', 'w+')
