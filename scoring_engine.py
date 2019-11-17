@@ -408,3 +408,29 @@ def checkStartup():
             recordHit('Program Removed from Startup', checkStartupValue, '')
         else:
             recordMiss('Startup')
+            
+def fileContainsText():
+    f = open(fileContainsTextKeywords, 'r')
+    content = f.read().splitlines()
+    infile = False;
+    for c in content:
+        if fileContainsTextExtraKeywords in c:
+            infile = True
+    if infile:
+        recordHit(fileContainsTextMessage,fileContainsTextValue,'')
+    else:
+        recordMiss('File Does Not Contains Text')
+
+def fileNoLongerContainsText():
+    f = open(fileNoLongerContainsTextKeywords, 'r')
+    content = f.read().splitlines()
+    infile = False;
+    for c in content:
+        if fileNoLongerContainsTextExtraKeywords in c:
+            infile = True
+    if not infile:
+        recordHit(fileNoLongerContainsTextMessage,fileNoLongerContainsTextValue,'')
+    else:
+        recordMiss('File Still Contains Text')
+        
+
