@@ -434,3 +434,18 @@ def fileNoLongerContainsText():
         recordMiss('File Still Contains Text')
         
 
+def badService():
+    m = open('getServices.ps1', 'w+')
+    m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > service.txt')
+    m.close()
+    runPowerShell('getServices')
+    p = open('service.txt','r', encoding='utf-16-le')
+    content = p.read().splitlines()
+    p.close()
+    for c in content:
+        for bs in badServiceKeywords:
+            if bs in c:
+                if 'Disabled' in c and 'Stopped' in c:
+                    recordHit('Disabled Service', badServiceValue, '')
+                else:
+                    recordmiss('Service')
