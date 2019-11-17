@@ -2,6 +2,11 @@ import ctypes, os, sys, subprocess, time
 import win32com.client
 import fileinput
 import balloontip
+from io import StringIO
+import traceback
+import wmi
+from winreg import (HKEY_LOCAL_MACHINE, KEY_ALL_ACCESS,
+                     OpenKey, EnumValue, QueryValueEx)
 
 ##OPTIONVARIABLES##
 Desktop = ''
@@ -408,7 +413,7 @@ def checkStartup():
             recordHit('Program Removed from Startup', checkStartupValue, '')
         else:
             recordMiss('Startup')
-            
+
 def fileContainsText():
     f = open(fileContainsTextKeywords, 'r')
     content = f.read().splitlines()
@@ -421,6 +426,58 @@ def fileContainsText():
     else:
         recordMiss('File Does Not Contains Text')
 
+def checkInstalled():
+    softFile = open('softLog.log', 'w')
+
+    r = wmi.Registry()
+    result, names = r.EnumKey(hDefKey=HKEY_LOCAL_MACHINE, sSubKeyName=r"Software\Microsoft\Windows\CurrentVersion\Uninstall")
+
+    separator = "*" * 80
+    keyPath = r"Software\Microsoft\Windows\CurrentVersion\Uninstall"
+
+    for subkey in names:
+        try:
+            softFile.write(separator + '\n\n')
+            path = keyPath + "\\" + subkey
+            key = OpenKey(HKEY_LOCAL_MACHINE, path, 0, KEY_ALL_ACCESS)
+            try:
+                temp = QueryValueEx(key, 'DisplayName')
+                display = str(temp[0])
+                softFile.write('Display Name: ' + display + '\nRegkey: ' + subkey + '\n')
+            except:
+                softFile.write('Regkey: ' + subkey + '\n')
+
+        except:
+            fp = StringIO.StringIO()
+            traceback.print_exc(file=fp)
+            errorMessage = fp.getvalue()
+            error = 'Error for ' + key + '. Message follows:\n' + errorMessage
+            errorLog.write(error)
+            errorLog.write("\n\n")
+
+    softFile.close()
+    errorLog.close()
+
+def goodPrograms():
+    f = open('softFile.log')
+    content = f.read().splitlines()
+    f.close()
+    for i in goodProgramKeywords:
+        if i in content:
+            recordHit('Program Installed', goodProgramValue, '')
+        else:
+            recordMiss('Programs')
+
+def badPrograms():
+    f = open('softFile.log')
+    content = f.read().splitlines()
+    f.close()
+    for i in badProgramKeywords:
+        if i in content:
+            recordMiss('Programs')
+        else:
+            recordHit('Program Uninstalled', badProgramValue, '')
+
 def fileNoLongerContainsText():
     f = open(fileNoLongerContainsTextKeywords, 'r')
     content = f.read().splitlines()
@@ -432,5 +489,5 @@ def fileNoLongerContainsText():
         recordHit(fileNoLongerContainsTextMessage,fileNoLongerContainsTextValue,'')
     else:
         recordMiss('File Still Contains Text')
-        
+
 
