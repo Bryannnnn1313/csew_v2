@@ -492,10 +492,10 @@ def fileNoLongerContainsText():
 
 def badService():
     m = open('getServices.ps1', 'w+')
-    m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > service.txt')
+    m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > services.txt')
     m.close()
     runPowerShell('getServices')
-    p = open('service.txt','r', encoding='utf-16-le')
+    p = open('services.txt','r', encoding='utf-16-le')
     content = p.read().splitlines()
     p.close()
     for c in content:
@@ -505,3 +505,39 @@ def badService():
                     recordHit('Disabled Service', badServiceValue, '')
                 else:
                     recordmiss('Service')
+    if os.path.exists('getServices.ps1'):
+        os.remove('getServices.ps1')
+    if os.path.exists('services.txt'):
+        os.remove('services.txt')
+                    
+                    
+def programs():
+    m = open('getPrograms.ps1', 'w+')
+    m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize > programs.txt')
+    m.close()
+    runPowershell('getPrograms')
+    k = open('programs.txt', 'r', encoding='utf-16-le')
+    content = k.read().splitlines()
+    k.close()
+    for gp in goodProgramKeywords:
+        installed=False
+        for c in content:
+            if gp in c:
+                installed=True
+        if installed:
+            recordHit('Good program installed', goodProgramValue, '')
+        else:
+            recordmiss('Program')
+    for bp in badProgramKeywords:
+        installed=False
+        for c in content:
+            if bp in c:
+                installed=True
+        if not installed:
+            recordHit('Bad program uninstalled', badProgramValue, '')
+        else:
+            recordmiss('Program')
+    if os.path.exists('getPrograms.ps1'):
+        os.remove('getPrograms.ps1')
+    if os.path.exists('programs.txt'):
+        os.remove('programs.txt')
