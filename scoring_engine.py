@@ -513,7 +513,7 @@ def badService():
                     
 def programs():
     m = open('getPrograms.ps1', 'w+')
-    m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table â€“AutoSize > programs.txt')
+    m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize > programs.txt')
     m.close()
     runPowershell('getPrograms')
     k = open('programs.txt', 'r', encoding='utf-16-le')
@@ -541,3 +541,26 @@ def programs():
         os.remove('getPrograms.ps1')
     if os.path.exists('programs.txt'):
         os.remove('programs.txt')
+
+def antivirus():
+    protections = ['AntispywareEnabled', 'AntivirusEnabled', 'BehaviorMonitorEnabled', 'IoavProtectionEnabled', 'IsTamperProtected', 'NISEnabled', 'OnAccessProtectionEnabled', 'RealTimeProtectionEnabled']
+    m = open('getSecurity.ps1', 'w+')
+    m.write('Get-MpComputerStatus > security.txt')
+    m.close()
+    runPowershell('getSecurity')
+    z = open('security.txt', 'r', encoding='utf-16-le')
+    content = z.read().splitlines()
+    z.close()
+    protected = True
+    for c in content:
+        for p in protections:
+            if (p in c) and ('False' in c):
+                protected = False
+    if protected:
+        recordHit('Virus & threat protection enabled', antivirusValue, '')
+    else:
+        recordMiss('Virus & threat protection')
+    if os.path.exists('getSecurity.ps1'):
+        os.remove('getSecurity.ps1')
+    if os.path.exists('security.txt'):
+        os.remove('security.txt')
