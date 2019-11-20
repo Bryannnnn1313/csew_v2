@@ -101,10 +101,10 @@ v402 = Vuln("userInGroup", "(users)(Group)",
 v403 = Vuln("goodService", "(Services)", "Service that needs to be started (Can take multiple entries)", False)
 # Variables for custom vulnerabilities
 v501 = Vuln("fileContainsText", "",
-            "Custom option for requiring a word or phrase to be added to a file.(Spaces will not be counted as separate entries)",
+            "Custom option for requiring a word or phrase to be added to a file.(FilePath)(Text)(Message)(Spaces will not be counted as separate entries)",
             False)
 v502 = Vuln("fileNoLongerContains", "",
-            "Custom option for requiring a word or phrase to be removed from a file.(Spaces will not be counted as separate entries)",
+            "Custom option for requiring a word or phrase to be removed from a file.(FilePath)(Text)(Message)(Spaces will not be counted as separate entries)",
             False)
 
 vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v216, v301,
@@ -118,7 +118,7 @@ vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "che
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
               "goodProgram", "badProgram", "badService", "badFile", "antivirus", "checkHosts",
               "checkStartup", "Remove"]
-vulnNames4 = ["badCron", "userInGroup", "goodService", "Remove"]
+vulnNames4 = ["taskScheduler", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
 
 
