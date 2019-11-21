@@ -6,21 +6,25 @@ from io import StringIO
 import traceback
 import wmi
 from winreg import (HKEY_LOCAL_MACHINE, KEY_ALL_ACCESS,
-                     OpenKey, EnumValue, QueryValueEx)
+                    OpenKey, EnumValue, QueryValueEx)
 
 ##OPTIONVARIABLES##
 Desktop = ''
 silentMiss = True
 FTPServertrue = False
+forensicQuestion = True
 forensicCount = [2]
-forensicsAnswer1 = ['w']
-checkForensicsQuestion1Value = [10]
-forensicsAnswer2 = ['a']
-checkForensicsQuestion2Value = [10]
+forensicAnswer = ['w']
+forensicValue = [10]
+disableGuest = False
+disableGuestValue = [9]
 disableAdmin = False
+disableAdminValue = [0]
 requireCTRL_ALT_DEL = False
+dontDisplayLastUser = False
 XXX = False
 checkFirewall = False
+checkFirewallValue = [9]
 XXX = False
 XXX = False
 minPassAge = False
@@ -32,27 +36,59 @@ checkPassCompx = False
 XXX = False
 updateAutoInstall = False
 goodUser = False
+goodUserValue = [8]
+goodUserKeywords = ['']
 badUser = False
+badUserValue = [8]
+badUserKeywords = ['']
 newUser = False
+newUserValue = [9]
+newUserKeywords = ['']
 changePassword = False
 goodAdmin = False
+goodAdminValue = [8]
+goodAdminKeywords = ['']
 badAdmin = False
+badAdminValue = [0]
+badAdminKeywords = ['']
 goodGroup = False
+goodGroupValue = [9]
+goodGroupKeywords = ['']
 badGroup = False
+badGroupValue = [9]
+badGroupKeywords = ['']
 goodProgram = False
+goodProgramValue = [9]
+goodProgramKeywords = ['']
 badProgram = False
+badProgramValue = [4]
+badProgramKeywords = ['']
 goodService = False
 badService = False
+badServiceValue = [9]
+badServiceKeywords = ['']
 badFile = False
-antivirus = False
+antiVirus = False
+antiVirusValue = [5]
 checkHosts = False
 checkStartup = False
+checkStartupValue = [8]
+checkStartupKeywords = ['']
 taskScheduler = False
 userInGroup = False
-fileContainsText1 = False
-fileContainsText2 = False
-fileNoLongerContains1 = False
-fileNoLongerContains2 = False
+userInGroupValue = [0]
+userInGroupKeywords = ['']
+userInGroupExtraKeywords = ['']
+fileContainsText = False
+fileContainsTextValue = [9]
+fileContainsTextKeywords = ['']
+fileContainsTextExtraKeywords = ['']
+fileContainsTextMessage = ['']
+fileNoLongerContains = False
+fileNoLongerContainsValue = [8]
+fileNoLongerContainsKeywords = ['']
+fileNoLongerContainsExtraKeywords = ['']
+fileNoLongerContainsMessage = ['']
 
 # Program Base Variables
 posPoints = 0
@@ -63,49 +99,49 @@ prePoints = 0
 index = 'C:/CyberPatriot/'
 scoreIndex = index, 'ScoreReport.html'
 
-'''if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-    exit()'''
+if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+    exit()
+
 
 # Scoring Report creation
-def drawHead():
+def drawhead():
     f = open(scoreIndex, 'w+')
     f.write('<!doctype html><html><head><title>CSEL Score Report</title><meta http-equiv="refresh" content="30"></head><body style="background-color:powderblue;">''\n')
     f.write('<table align="center" cellpadding="10"><tr><td><img src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/iguana.png"></td><td><img src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Linux v2.0</H2></div></td><td><img '
             'src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/SoCalCCCC.png"></td><td><img src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
     f.close()
 
-def recordHit(name, points, message):
+
+def recordhit(name, points, message):
     global totalPoints
     global totalVuln
-    f = open(scoreIndex, 'a')
-    f.write('<p style="color:green">', name, '(', points, 'points)</p>')
-    f.close()
+    writetohtml(('<p style="color:green">', name, '(', points, 'points)</p>'))
     totalPoints += points
     totalVuln += 1
 
-def recordMiss(name):
-    if not silentMiss:
-        f = open(scoreIndex, 'a')
-        f.write('<p style="color:red">MISS', name, 'Issue</p>')
-        f.close()
 
-def recordPenalty(name, points, message):
+def recordmiss(name):
+    if not silentMiss:
+        writetohtml(('<p style="color:red">MISS', name, 'Issue</p>'))
+
+
+def recordpenalty(name, points, message):
     global totalPoints
-    f = open(scoreIndex, 'a')
-    f.write('<p style="color:red">', name, '(', points, 'points)</p>')
-    f.close()
+    writetohtml(('<p style="color:red">', name, '(', points, 'points)</p>'))
     totalPoints -= points
 
-def replaceSec(filename, text_to_search, replacement_text):
+
+def replacesec(filename, text_to_search, replacement_text):
     with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
         for line in file:
             print(line.replace(text_to_search, replacement_text), end='')
 
-def drawTail():
-    f = open(scoreIndex, 'a')
-    f.write('<hr><div align="center"><br>Developed by Josh Davis<br><b>Eastern Oklahoma County Technology Center/Coastline Collage</b><br>Feedback welcome: <a href="mailto:jdavis@eoctech.edu?Subject=CSEL" target="_top">jdavis@eoctech.edu</a><br>Modified/Updated by Shaun Martin</br><b>Coastline Collage</b><br>Feedback '
-            'welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEL Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>')
-    f.close()
+
+def drawtail():
+    writetohtml(('<hr><div align="center"><br>Developed by Josh Davis<br><b>Eastern Oklahoma County Technology Center/Coastline Collage</b><br>Feedback welcome: <a href="mailto:jdavis@eoctech.edu?Subject=CSEL" target="_top">jdavis@eoctech.edu</a><br>Modified/Updated by Shaun Martin</br><b>Coastline Collage</b><br>Feedback '
+            'welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEL Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>'))
+    replacements = {'#TotalScore#':totalPoints, '#PossiblePoints#':posPoints, '#TotalVuln#':totalVuln, '#PossibleVuln#':posVuln}
+    replacesec(index, replacements)
 
     path = os.path.join(Desktop, 'ScoreReport.html')
     target = scoreIndex
@@ -117,13 +153,9 @@ def drawTail():
     shortcut.WindowStyle = 7  # 7 - Minimized, 3 - Maximized, 1 - Normal
     shortcut.save()
 
-    replaceSec(index, '#TotalScore#', totalPoints)
-    replaceSec(index, '#PossiblePoints#', posPoints)
-    replaceSec(index, '#TotalVuln#', totalVuln)
-    replaceSec(index, '#PossibleVuln#', posVuln)
 
-# Extra Checks
-def scoreCheck():
+# Extra Functions
+def scorecheck():
     global totalPoints
     global prePoints
     if totalPoints > prePoints:
@@ -133,7 +165,8 @@ def scoreCheck():
         prePoints = totalPoints
         balloontip.balloon_tip('Score Update', 'You lost points!!')
 
-def runPowershell(fileName):
+
+def runpowershell(fileName):
     f = open('powerRun.bat', 'x')
     f.write('PowerShell.exe -ExecutionPolicy Bypass -Command "& \'.\\' + fileName + '.ps1\'"')
     f.close()
@@ -142,8 +175,27 @@ def runPowershell(fileName):
     os.remove(fileName + '.ps1')
     os.remove('powerRun.bat')
 
+
+def writetohtml(message):
+    f = open(scoreIndex, 'a')
+    f.write(message)
+    f.close()
+
+
+def replacesec(loc, replaceList):
+    lines = []
+    with open(loc) as file:
+        for line in file:
+            for search, replace in replaceList.iteritems():
+                line = line.replace(search, replace)
+            lines.append(line)
+    with open(loc, 'w') as file:
+        for line in lines:
+            file.write(line)
+
+
 # Option Check
-def forensicQuestion():
+def forensicquestion():
     for fq in forensicCount:
         path = Desktop + 'Question' + fq + '.txt'
         name = 'Forensic Question', fq
@@ -152,45 +204,48 @@ def forensicQuestion():
         for c in content:
             if 'ANSWER:' in c:
                 if forensicAnswer[fq] in c:
-                    recordHit(name, forensicValue[fq], '')
+                    recordhit(name, forensicValue[fq], '')
                 else:
-                    recordMiss(name)
+                    recordmiss(name)
 
-def disableGuest():
+
+def disableguest():
     f = open('guestCheck.ps1', 'w+')
     f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
     f.close()
-    runPowershell('guestCheck')
+    runpowershell('guestCheck')
     f = open('user.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
     for c in content:
         if 'Guest' in c:
             if ' True' in c:
-                recordHit('Disable Guest', disableGuestValue, '')
+                recordhit('Disable Guest', disableGuestValue, '')
                 os.remove('user.txt')
             else:
-                recordMiss('Disable Guest')
+                recordmiss('Disable Guest')
                 os.remove('user.txt')
 
-def disableAdmin():
+
+def disableadmin():
     f = open('adminCheck.ps1', 'w+')
     f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
     f.close()
-    runPowershell('adminCheck')
+    runpowershell('adminCheck')
     f = open('user.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
     for c in content:
         if 'Administrator' in c:
             if ' True' in c:
-                recordHit('Disable Admin', disableAdminValue, '')
+                recordhit('Disable Admin', disableAdminValue, '')
                 os.remove('user.txt')
             else:
-                recordMiss('Disable Admin')
+                recordmiss('Disable Admin')
                 os.remove('user.txt')
 
-def checkFirewall():
+
+def checkfirewall():
     f = open('firewall.bat', 'x')
     f.write('@echo off\nnetsh advfirewall show private > status.txt\nnetsh advfirewall show public >> status.txt\necho working')
     f.close()
@@ -204,75 +259,77 @@ def checkFirewall():
         if 'OFF' in cont:
             statuson = 'false'
     if statuson == 'true':
-        recordHit('checkFirewall', checkFirewallValue, '')
+        recordhit('checkFirewall', checkFirewallValue, '')
     else:
-        recordMiss('checkFirewall')
+        recordmiss('checkFirewall')
     os.remove('firewall.bat')
     os.remove('status.txt')
 
-def localGroupPolicy(option):
+
+def localgrouppolicy(option):
     os.system('secedit /export /cfg group-policy.txt')
-    p = open('group-policy.txt','r', encoding='utf-16-le')
+    p = open('group-policy.txt', 'r', encoding='utf-16-le')
     content = p.read().split('\n')
     p.close()
     if option == 'minPassAge':
         for i in content:
             if 'MinimumPasswordAge' in i:
                 if i.endswith('30'):
-                    recordHit('Minimum Password Age', option+'value', '')
+                    recordhit('Minimum Password Age', option + 'value', '')
                 else:
-                    recordMiss('Password Policy')
-    elif option =='maxPassAge':
+                    recordmiss('Password Policy')
+    elif option == 'maxPassAge':
         for i in content:
             if 'MaximumPasswordAge' in i:
                 if i.endswith('60'):
-                    recordHit('Maximum Password Age', option+'value', '')
+                    recordhit('Maximum Password Age', option + 'value', '')
                 else:
-                    recordMiss('Password Policy')
-    elif option =='maxLoginTries':
+                    recordmiss('Password Policy')
+    elif option == 'maxLoginTries':
         for i in content:
             if 'LockoutBadCount' in i:
                 if i.endswith('5'):
-                    recordHit('Maximum Login Tries', option+'value', '')
+                    recordhit('Maximum Login Tries', option + 'value', '')
                 else:
-                    recordMiss('Account Policy')
+                    recordmiss('Account Policy')
     elif option == 'checkPassLength':
         for i in content:
             if 'MinimumPasswordLength' in i:
                 if i.endswith('10'):
-                    recordHit('Minimum Password Length', option+'value', '')
+                    recordhit('Minimum Password Length', option + 'value', '')
                 else:
-                    recordMiss('Password Policy')
+                    recordmiss('Password Policy')
     elif option == 'checkPassHist':
         for i in content:
             if 'PasswordHistorySize' in i:
                 if i.endswith('5'):
-                    recordHit('Password History Size', option+'value', '')
+                    recordhit('Password History Size', option + 'value', '')
                 else:
-                    recordMiss('Password Policy')
+                    recordmiss('Password Policy')
     elif option == 'checkPassCompx':
         for i in content:
             if 'PasswordComplexity' in i:
                 if i.endswith('1'):
-                    recordHit('Password Complexity', option+'value', '')
+                    recordhit('Password Complexity', option + 'value', '')
                 else:
-                    recordMiss('Password Policy')
+                    recordmiss('Password Policy')
     elif option == 'requireCTRL_ALT_DEL':
         for i in content:
             if 'DisableCAD' in i:
                 if i.endswith('1'):
-                    recordHit('Require CTRL + ALT + DEL', option+'value', '')
+                    recordhit('Require CTRL + ALT + DEL', option + 'value', '')
                 else:
-                    recordMiss('Security Policy')
+                    recordmiss('Security Policy')
     elif option == 'DontDisplayLastUser':
         for i in content:
-            if 'DontDisplayLastUserName' in i:
+            if 'dontDisplayLastUserName' in i:
                 if i.endswith('1'):
-                    recordHit('Dont Display Last User Name', option+'value', '')
+                    recordhit('Dont Display Last User Name', option + 'value', '')
                 else:
-                    recordMiss('Security Policy')
+                    recordmiss('Security Policy')
 
-def checkUser(VariableName):
+
+def checkuser(VariableName):
     f = open('user.bat', 'x')
     f.write('@echo off\nnet users > users.txt')
     f.close()
@@ -292,29 +349,33 @@ def checkUser(VariableName):
     os.remove('user.bat')
     os.remove('users.txt')
 
-def goodUser():
-    userlists = checkUser(goodUserKeywords)
+
+def gooduser():
+    userlists = checkuser(goodUserKeywords)
     for idx, item in enumerate(userlists):
         if not userlists[idx]:
-            recordPenalty('goodUser', goodUserValue[idx], '')
+            recordpenalty('Removed User', goodUserValue[idx], '')
 
-def badUser():
-    userlists = checkUser(badUserKeywords)
+
+def baduser():
+    userlists = checkuser(badUserKeywords)
     for idx, item in enumerate(userlists):
         if userlists[idx]:
-            recordMiss('Remove User')
+            recordmiss('Users')
         else:
-            recordHit('Remove User', badUserValue[idx], '')
+            recordhit('Remove User', badUserValue[idx], '')
 
-def newUser():
-    userlists = checkUser(newUserKeywords)
+
+def newuser():
+    userlists = checkuser(newUserKeywords)
     for idx, item in enumerate(userlists):
         if userlists[idx]:
-            recordHit('newUser', newUserValue[idx], '')
+            recordhit('Add User', newUserValue[idx], '')
         else:
-            recordMiss('Add User')
+            recordmiss('Users')
 
-def adminCheck(VariableName):
+
+def admincheck(VariableName):
     f = open('admin.bat', 'x')
     f.write('@echo off\nnet localgroup Administrators > admins.txt')
     f.close()
@@ -334,21 +395,26 @@ def adminCheck(VariableName):
     os.remove('admin.bat')
     os.remove('admins.txt')
 
-def goodAdmin():
-    adminlists = adminCheck(goodAdminKeywords)
-    for idx, item in enumerate(adminlists):
-        if not adminlists[idx]:
-            recordPenalty('goodAdmin', goodAdminValue[idx], '')
 
-def badAdmin():
-    adminlists = adminCheck(badAdminKeywords)
+def goodadmin():
+    adminlists = admincheck(goodAdminKeywords)
     for idx, item in enumerate(adminlists):
         if adminlists[idx]:
-            recordMiss('Remove Admin')
+            recordhit('Add Admin', goodAdminValue[idx], '')
         else:
-            recordHit('badAdmin', badAdminValue[idx], '')
+            recordmiss('Users')
 
-def groupCheck(VariableName):
+
+def badadmin():
+    adminlists = admincheck(badAdminKeywords)
+    for idx, item in enumerate(adminlists):
+        if adminlists[idx]:
+            recordmiss('Users')
+        else:
+            recordhit('Remove Admin', badAdminValue[idx], '')
+
+
+def groupcheck(VariableName):
     f = open('group.bat', 'x')
     f.write('@echo off\nnet localgroup > groups.txt')
     f.close()
@@ -368,24 +434,27 @@ def groupCheck(VariableName):
     os.remove('group.bat')
     os.remove('groups.txt')
 
-def goodGroup():
-    grouplists = groupCheck(goodGroupKeywords)
+
+def goodgroup():
+    grouplists = groupcheck(goodGroupKeywords)
     for idx, item in enumerate(grouplists):
         if not grouplists[idx]:
-            recordPenalty('goodGroup', goodGroupValue[idx], '')
+            recordpenalty('goodGroup', goodGroupValue[idx], '')
 
-def badGroup():
-    grouplists = groupCheck(badGroupKeywords)
+
+def badgroup():
+    grouplists = groupcheck(badGroupKeywords)
     for idx, item in enumerate(grouplists):
         if grouplists[idx]:
-            recordMiss('Remove Group')
+            recordmiss('Remove Group')
         else:
-            recordHit('badGroup', badGroupValue[idx], '')
+            recordhit('badGroup', badGroupValue[idx], '')
 
-def userInGroup():
+
+def useringroup():
     for idx, item in enumerate(userInGroupExtraKeywords):
         f = open('UserGroup.bat', 'x')
-        f.write('@echo off\nnet localgroup'+ userInGroupExtraKeywords[idx] +' > UserGroups.txt\n')
+        f.write('@echo off\nnet localgroup' + userInGroupExtraKeywords[idx] + ' > UserGroups.txt\n')
         f.close()
         subprocess.Popen([r'UserGroup.bat'])
         time.sleep(1)
@@ -394,27 +463,29 @@ def userInGroup():
         t.close()
         for cont in content:
             if userInGroupKeywords[idx] in cont:
-                recordHit('userInGroup', userInGroupValue[idx], '')
+                recordhit('userInGroup', userInGroupValue[idx], '')
             else:
-                recordMiss('User Not In Group')
+                recordmiss('User Not In Group')
         os.remove('UserGroup.bat')
         os.remove('UserGroups.txt')
 
-def checkStartup():
+
+def checkstartup():
     f = open('checkstartup.ps1', 'w+')
     f.write('Get-CimInstance -ClassName Win32_StartupCommand | Select-Object -Property Command, Description, User, Location | Format-Table -AutoSize > startup.txt')
     f.close()
-    runPowershell('checkstartup')
+    runpowershell('checkstartup')
     f = open('startup.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
     for k in checkStartupKeywords:
         if k in content:
-            recordHit('Program Removed from Startup', checkStartupValue, '')
+            recordhit('Program Removed from Startup', checkStartupValue, '')
         else:
-            recordMiss('Startup')
+            recordmiss('Startup')
 
-def fileContainsText():
+
+def filecontainstext():
     f = open(fileContainsTextKeywords, 'r')
     content = f.read().splitlines()
     infile = False
@@ -422,11 +493,12 @@ def fileContainsText():
         if fileContainsTextExtraKeywords in c:
             infile = True
     if infile:
-        recordHit(fileContainsTextMessage,fileContainsTextValue,'')
+        recordhit(fileContainsTextMessage, fileContainsTextValue, '')
     else:
-        recordMiss('File Does Not Contains Text')
+        recordmiss('File Does Not Contains Text')
 
-def checkInstalled():
+
+def checkinstalled():
     softFile = open('softLog.log', 'w')
     errorLog = open('errorLog.log', 'w')
     r = wmi.Registry()
@@ -458,96 +530,103 @@ def checkInstalled():
     softFile.close()
     errorLog.close()
 
-def goodPrograms():
+
+def goodprograms():
     f = open('softFile.log')
     content = f.read().splitlines()
     f.close()
     for i in goodProgramKeywords:
         if i in content:
-            recordHit('Program Installed', goodProgramValue, '')
+            recordhit('Program Installed', goodProgramValue, '')
         else:
-            recordMiss('Programs')
+            recordmiss('Programs')
 
-def badPrograms():
+
+def badprograms():
     f = open('softFile.log')
     content = f.read().splitlines()
     f.close()
     for i in badProgramKeywords:
         if i in content:
-            recordMiss('Programs')
+            recordmiss('Programs')
         else:
-            recordHit('Program Uninstalled', badProgramValue, '')
+            recordhit('Program Uninstalled', badProgramValue, '')
 
-def fileNoLongerContainsText():
-    f = open(fileNoLongerContainsTextKeywords, 'r')
+
+def filenolongercontains():
+    f = open(fileNoLongerContainsKeywords, 'r')
     content = f.read().splitlines()
     infile = False;
     for c in content:
-        if fileNoLongerContainsTextExtraKeywords in c:
+        if fileNoLongerContainsExtraKeywords in c:
             infile = True
     if not infile:
-        recordHit(fileNoLongerContainsTextMessage,fileNoLongerContainsTextValue,'')
+        recordhit(fileNoLongerContainsMessage, fileNoLongerContainsValue, '')
     else:
-        recordMiss('File Still Contains Text')
+        recordmiss('File Still Contains Text')
 
-def badService():
+
+def badservice():
     m = open('getServices.ps1', 'w+')
     m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > services.txt')
     m.close()
-    runPowerShell('getServices')
-    p = open('services.txt','r', encoding='utf-16-le')
+    runpowershell('getServices')
+    p = open('services.txt', 'r', encoding='utf-16-le')
     content = p.read().splitlines()
     p.close()
     for c in content:
         for bs in badServiceKeywords:
             if bs in c:
                 if 'Disabled' in c and 'Stopped' in c:
-                    recordHit('Disabled Service', badServiceValue, '')
+                    recordhit('Disabled Service', badServiceValue, '')
                 else:
                     recordmiss('Service')
     if os.path.exists('getServices.ps1'):
         os.remove('getServices.ps1')
     if os.path.exists('services.txt'):
         os.remove('services.txt')
-                    
-                    
-def programs():
+
+
+def programs(option):
     m = open('getPrograms.ps1', 'w+')
     m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize > programs.txt')
     m.close()
-    runPowershell('getPrograms')
+    runpowershell('getPrograms')
     k = open('programs.txt', 'r', encoding='utf-16-le')
     content = k.read().splitlines()
     k.close()
-    for gp in goodProgramKeywords:
-        installed=False
-        for c in content:
-            if gp in c:
-                installed=True
-        if installed:
-            recordHit('Good program installed', goodProgramValue, '')
-        else:
-            recordmiss('Program')
-    for bp in badProgramKeywords:
-        installed=False
-        for c in content:
-            if bp in c:
-                installed=True
-        if not installed:
-            recordHit('Bad program uninstalled', badProgramValue, '')
-        else:
-            recordmiss('Program')
+    if option == 'goodProgram':
+        for gp in goodProgramKeywords:
+            installed = False
+            for c in content:
+                if gp in c:
+                    installed = True
+            if installed:
+                recordhit('Good program installed', goodProgramValue, '')
+            else:
+                recordmiss('Program')
+    if option == 'badProgram':
+        for bp in badProgramKeywords:
+            installed = False
+            for c in content:
+                if bp in c:
+                    installed = True
+            if not installed:
+                recordhit('Bad program uninstalled', badProgramValue, '')
+            else:
+                recordmiss('Program')
     if os.path.exists('getPrograms.ps1'):
         os.remove('getPrograms.ps1')
     if os.path.exists('programs.txt'):
         os.remove('programs.txt')
+
 
 def antivirus():
     protections = ['AntispywareEnabled', 'AntivirusEnabled', 'BehaviorMonitorEnabled', 'IoavProtectionEnabled', 'IsTamperProtected', 'NISEnabled', 'OnAccessProtectionEnabled', 'RealTimeProtectionEnabled']
     m = open('getSecurity.ps1', 'w+')
     m.write('Get-MpComputerStatus > security.txt')
     m.close()
-    runPowershell('getSecurity')
+    runpowershell('getSecurity')
     z = open('security.txt', 'r', encoding='utf-16-le')
     content = z.read().splitlines()
     z.close()
@@ -557,10 +636,107 @@ def antivirus():
             if (p in c) and ('False' in c):
                 protected = False
     if protected:
-        recordHit('Virus & threat protection enabled', antivirusValue, '')
+        recordhit('Virus & threat protection enabled', antiVirusValue, '')
     else:
-        recordMiss('Virus & threat protection')
+        recordmiss('Virus & threat protection')
     if os.path.exists('getSecurity.ps1'):
         os.remove('getSecurity.ps1')
     if os.path.exists('security.txt'):
         os.remove('security.txt')
+
+
+def usermanagement():
+    writetohtml(('<H3>USER MANAGEMENT</H3>'))
+    if goodUser:
+        gooduser()
+    if badUser:
+        baduser()
+    if newUser:
+        newuser()
+    if changePassword:
+        '''changepassword()'''
+    if goodAdmin:
+        goodadmin()
+    if badAdmin:
+        badadmin()
+    if goodGroup:
+        goodgroup()
+    if badGroup:
+        badgroup()
+    if userInGroup:
+        useringroup()
+
+
+def securitypolicies():
+    writetohtml(('<H3>SECURITY POLICIES</H3>'))
+    if disableGuest:
+        disableguest()
+    if disableAdmin:
+        disableadmin()
+    if checkFirewall:
+        checkfirewall()
+    if minPassAge:
+        localgrouppolicy('minPassAge')
+    if maxPassAge:
+        localgrouppolicy('maxPassAge')
+    if maxLoginTries:
+        localgrouppolicy('maxLoginTries')
+    if checkPassLength:
+        localgrouppolicy('checkPassLength')
+    if checkPassHist:
+        localgrouppolicy('checkPassHist')
+    if checkPassCompx:
+        localgrouppolicy('checkPassCompx')
+    if requireCTRL_ALT_DEL:
+        localgrouppolicy('requireCTRL_ALT_DEL')
+    if dontDisplayLastUser:
+        localgrouppolicy('dontDisplayLastUser')
+    if updateAutoInstall:
+        '''updateautoinstall()'''
+
+
+def programmanagement():
+    writetohtml(('<H3>PROGRAMS</H3>'))
+    if goodProgram:
+        programs('goodProgram')
+    if badProgram:
+        programs('badProgram')
+    if goodService:
+        '''goodservice()'''
+    if badService:
+        badservice()
+
+
+def filemanagement():
+    writetohtml(('<H3>FILE MANAGEMENT</H3>'))
+    if forensicQuestion:
+        forensicquestion()
+    if badFile:
+        '''badfile()'''
+    if checkHosts:
+        '''checkhosts()'''
+    if fileContainsText:
+        filecontainstext()
+    if fileNoLongerContains:
+        filenolongercontains()
+
+
+def miscpoints():
+    writetohtml(('<H3>MISCELLANEOUS</H3>'))
+    if checkStartup:
+        checkstartup()
+    if taskScheduler:
+        '''taskscheduler()'''
+    if antivirus:
+        antivirus()
+
+
+
+
+# TODO add Functions:
+#  changepassword
+#  updateautoinstall
+#  goodservice
+#  badfile
+#  checkhosts
+#  taskscheduler

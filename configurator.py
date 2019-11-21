@@ -69,7 +69,7 @@ v213 = Vuln("checkPassCompx", "", "Has password complexity been implemented in L
 v214 = Vuln("XXX", "", "Has the update check period been set to daily? (apt/apt.conf.d/10periodic)",
             False)
 v215 = Vuln("updateAutoInstall", "", "Automaticaly download and install security updates.", False)
-v216 = Vuln("DontDisplayLastUser","","Enable the Local Security Policy for requiring Don't Display Last User", False)
+v216 = Vuln("dontDisplayLastUser","","Enable the Local Security Policy for requiring Don't Display Last User", False)
 # Variables for vulnerabilities with one input box
 v301 = Vuln("goodUser", "(Users)",
             "Lose points for removing this user (use negative number) (Can take multiple entries)", False)
@@ -87,7 +87,7 @@ v309 = Vuln("goodProgram", "(Programs)", "Score points by installing these progr
 v310 = Vuln("badProgram", "(Programs)", "Score points by removing these programs (Can take multiple entries)", False)
 v312 = Vuln("badService", "(Services)", "Service that needs to be stopped (Can take multiple entries)", False)
 v313 = Vuln("badFile", "(Location)", "Score points for deleting this file (Can take multiple entries)", False)
-v314 = Vuln("antivirus", "(Keywords)", "Antivirus programs to check for (Can take multiple entries)", False)
+v314 = Vuln("antiVirus", "(Keywords)", "Antivirus programs to check for (Can take multiple entries)", False)
 v315 = Vuln("checkHosts", "(Keywords)", "Check /etc/hosts for a specific string (Can take multiple entries)", False)
 v316 = Vuln("checkStartup", "(Keywords)", "Check Startup tab for a specific string (Can take multiple entries)", False)
 
@@ -114,9 +114,9 @@ vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210,
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
 vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
               "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
-              "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "DontDisplayLastUser", "Remove"]
+              "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "dontDisplayLastUser", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
-              "goodProgram", "badProgram", "badService", "badFile", "antivirus", "checkHosts",
+              "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts",
               "checkStartup", "Remove"]
 vulnNames4 = ["badCron", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
