@@ -646,7 +646,7 @@ def antivirus():
     if os.path.exists('security.txt'):
         os.remove('security.txt')
 
-def badFile():
+def badfile():
     for idx, item in enumerate(badFileKeywords):
         f = open('badfile.bat', 'x')
         f.write('@echo off\nif EXIST \"' + badFileKeywords[idx] + '\" echo y > check.txt\nif NOT EXIST \"' + badFileKeywords[idx] + 'echo n > check.txt')
@@ -730,7 +730,7 @@ def filemanagement():
     if forensicQuestion:
         forensicquestion()
     if badFile:
-        '''badfile()'''
+        badfile()
     if checkHosts:
         '''checkhosts()'''
     if fileContainsText:
@@ -755,6 +755,5 @@ def miscpoints():
 #  changepassword
 #  updateautoinstall
 #  goodservice
-#  badfile
 #  checkhosts
 #  taskscheduler
