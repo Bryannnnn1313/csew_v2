@@ -101,8 +101,7 @@ prePoints = 0
 index = 'C:/CyberPatriot/'
 scoreIndex = index, 'ScoreReport.html'
 
-if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-    exit()
+
 
 
 # Scoring Report creation
@@ -133,12 +132,6 @@ def recordpenalty(name, points, message):
     totalPoints -= points
 
 
-def replacesec(filename, text_to_search, replacement_text):
-    with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
-        for line in file:
-            print(line.replace(text_to_search, replacement_text), end='')
-
-
 def drawtail():
     writetohtml(('<hr><div align="center"><br>Developed by Josh Davis<br><b>Eastern Oklahoma County Technology Center/Coastline Collage</b><br>Feedback welcome: <a href="mailto:jdavis@eoctech.edu?Subject=CSEL" target="_top">jdavis@eoctech.edu</a><br>Modified/Updated by Shaun Martin</br><b>Coastline Collage</b><br>Feedback '
             'welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEL Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>'))
@@ -157,6 +150,11 @@ def drawtail():
 
 
 # Extra Functions
+def checkrunas():
+    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+        exit()
+
+
 def scorecheck():
     global totalPoints
     global prePoints
@@ -749,7 +747,17 @@ def miscpoints():
         antivirus()
 
 
-
+#--------- Main Loop ---------#
+while True:
+    checkrunas()
+    drawhead()
+    usermanagement()
+    securitypolicies()
+    filemanagement()
+    miscpoints()
+    scorecheck()
+    drawtail()
+    time.sleep(60)
 
 # TODO add Functions:
 #  changepassword

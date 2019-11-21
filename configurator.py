@@ -112,15 +112,15 @@ vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210,
          v502]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
-vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall",
-              "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist",
-              "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "dontDisplayLastUser", "Remove"]
-vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
-              "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts",
-              "checkStartup", "Remove"]
+vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall", "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist", "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "dontDisplayLastUser", "Remove"]
+vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup", "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts", "checkStartup", "Remove"]
 vulnNames4 = ["taskScheduler", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
-
+vulnDict = {"silentMiss": {'enable': False}, "FTPServer": {'enable': False},"disableGuest": {'enable': False}, "disableAdmin": {'enable': False}, "requireCTRL_ALT_DEL": {'enable': False}, "XXX": {'enable': False}, "checkFirewall": {'enable': False}, "XXX": {'enable': False}, "avUpdated": {'enable': False},
+            "minPassAge": {'enable': False}, "maxPassAge": {'enable': False}, "maxLoginTries": {'enable': False}, "checkPassHist": {'enable': False}, "checkPassCompx": {'enable': False}, "updateCheckPeriod": {'enable': False}, "updateAutoInstall": {'enable': False}, "dontDisplayLastUser": {'enable': False},
+            "goodUser": {'enable': False}, "badUser": {'enable': False}, "newUser": {'enable': False}, "changePassword": {'enable': False}, "goodAdmin": {'enable': False}, "badAdmin": {'enable': False}, "goodGroup": {'enable': False}, "badGroup": {'enable': False}, "goodProgram": {'enable': False},
+            "badProgram": {'enable': False}, "badService": {'enable': False}, "badFile": {'enable': False}, "antiVirus": {'enable': False}, "checkHosts": {'enable': False}, "checkStartup": {'enable': False}, "taskScheduler": {'enable': False}, "userInGroup": {'enable': False}, "goodService": {'enable': False},
+            "fileContainsText": {'enable': False}, "fileNoLongerContains": {'enable': False}}
 
 def addOptionMenu(loc, bRow, bColumn, list, optSet):
     eSave = len(all_entries)
@@ -429,7 +429,7 @@ def createForQ():
 def submitCallback():
     # We wanna use those fancy variable lists
     if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-        Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator with sudo.')
+        Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator as Administrator.')
         return
     errorFree = True
     errorMessage = 'Please complete the following:'
@@ -535,6 +535,7 @@ def submitCallback():
                                         s5 = s5 + ", '" + kt[t] + "'"
                         vuln.saved = True
                         save_entry.append((s1, s2, s3, s4, s5))
+                        vulnDict[vuln.name] = True
                     else:
                         buff_entry = []
                         for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
@@ -564,8 +565,7 @@ def submitCallback():
                                                 s5 = s5 + ", '" + kt[t] + "'"
                             buff_entry.append((s1, s2, s3, s4, s5))
                         save_entry = buff_entry
-                else:
-                    f.write(vuln.name + " = False\n")
+
         for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
             f.write(s1 + " = True\n")
             f.write(s2 + "]\n")
@@ -577,9 +577,6 @@ def submitCallback():
                 f.write(s5 + "]\n")
         for vuln in vulns:
             vuln.saved = False
-        # Fix for Windows
-        #configFooter = "index=(C:\Users\Default\Documents\ScoreReport.html)\nindexD=(" + usrDsktp.get() + ")\nindexR=(C:\Users\Default\Documents)\n::These values will change during install\nimageScore=0\nposPoints=0\nrelease=\"\"\n\ninstallDate=(%INSTALLDATE%)\n"
-        #f.write(configFooter)
         f.close()
         #subprocess.Popen(['./install.sh'])
         time.sleep(2)
