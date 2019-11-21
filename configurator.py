@@ -72,39 +72,39 @@ v215 = Vuln("updateAutoInstall", "", "Automaticaly download and install security
 v216 = Vuln("dontDisplayLastUser","","Enable the Local Security Policy for requiring Don't Display Last User", False)
 # Variables for vulnerabilities with one input box
 v301 = Vuln("goodUser", "(Users)",
-            "Lose points for removing this user (use negative number) (Can take multiple entries)", False)
-v302 = Vuln("badUser", "(Users)", "Remove these users to score (Can take multiple entries)", False)
-v303 = Vuln("newUser", "(Users)", "This user must be created (Can take multiple entries)", False)
+            "Lose points for removing these users (Can take multiple entries)", False)
+v302 = Vuln("badUser", "(Users)", "Gain points for removing these users (Can take multiple entries)", False)
+v303 = Vuln("newUser", "(Users)", "Gain points for adding these users (Can take multiple entries)", False)
 v304 = Vuln("changePassword", "(Users)",
-            "User who must change password (Can take multiple entries)(Set the desired passwords before submitting)",
+            "Gain points for changing the passwords on these users (Can take multiple entries)(Set the desired passwords before submitting)",
             False)
-v305 = Vuln("goodAdmin", "(Users)", "Add these users to the Administrators group (Can take multiple entries)", False)
-v306 = Vuln("badAdmin", "(Users)", "Remove these users from the Administrators group (Can take multiple entries)",
+v305 = Vuln("goodAdmin", "(Users)", "Lose points for removing these users from the Administrators group (Can take multiple entries)", False)
+v306 = Vuln("badAdmin", "(Users)", "Gain points for removing these users from the Administrators group (Can take multiple entries)",
             False)
-v307 = Vuln("goodGroup", "(Groups)", "This group must be created (Can take multiple entries)", False)
-v308 = Vuln("badGroup", "(Groups)", "This group must be removed (Can take multiple entries)", False)
-v309 = Vuln("goodProgram", "(Programs)", "Score points by installing these programs (Can take multiple entries)", False)
-v310 = Vuln("badProgram", "(Programs)", "Score points by removing these programs (Can take multiple entries)", False)
+v307 = Vuln("goodGroup", "(Groups)", "Lose points for removing these groups (Can take multiple entries)", False)
+v308 = Vuln("badGroup", "(Groups)", "Gain points for removing these groups (Can take multiple entries)", False)
+v309 = Vuln("goodProgram", "(Programs)", "Gain points by installing these programs (Can take multiple entries)", False)
+v310 = Vuln("badProgram", "(Programs)", "Gain points by removing these programs (Can take multiple entries)", False)
 v312 = Vuln("badService", "(Services)", "Service that needs to be stopped (Can take multiple entries)", False)
-v313 = Vuln("badFile", "(Location)", "Score points for deleting this file (Can take multiple entries)", False)
+v313 = Vuln("badFile", "(Location)", "Gain points for deleting this file (Can take multiple entries)", False)
 v314 = Vuln("antiVirus", "(Keywords)", "Antivirus programs to check for (Can take multiple entries)", False)
 v315 = Vuln("checkHosts", "(Keywords)", "Check /etc/hosts for a specific string (Can take multiple entries)", False)
-v316 = Vuln("checkStartup", "(Keywords)", "Check Startup tab for a specific string (Can take multiple entries)", False)
+v316 = Vuln("checkStartup", "(Keywords)", "Gain points for removing lines from startup tab (Can take multiple entries)", False)
 
 # Variables for vulnerabilities with two input boxes
-v401 = Vuln("taskScheduler", "(User)(Keyword)",
+v401 = Vuln("taskScheduler", "(Users)(Keywords)",
             "Check the Task Scheduler for a specific string (Can take multiple entries)(If using multiple users be sure to include a keyword for each)",
             False)
-v402 = Vuln("userInGroup", "(users)(Group)",
-            "Users that need to be added to a group (Can take multiple entries)(If using multiple users be sure to include a group for each)",
+v402 = Vuln("userInGroup", "(Users)(Groups)",
+            "Gain points for adding users to their group (Can take multiple entries)(If using multiple users be sure to include a group for each)",
             False)
 v403 = Vuln("goodService", "(Services)", "Service that needs to be started (Can take multiple entries)", False)
 # Variables for custom vulnerabilities
-v501 = Vuln("fileContainsText", "",
-            "Custom option for requiring a word or phrase to be added to a file.(Spaces will not be counted as separate entries)",
+v501 = Vuln("fileContainsText", "(FilePath)(Text)(Message)",
+            "Custom option for requiring a word or phrase to be added to a file (Spaces will not be counted as separate entries)",
             False)
-v502 = Vuln("fileNoLongerContains", "",
-            "Custom option for requiring a word or phrase to be removed from a file.(Spaces will not be counted as separate entries)",
+v502 = Vuln("fileNoLongerContains", "(FilePath)(Text)(Message)",
+            "Custom option for requiring a word or phrase to be removed from a file (Spaces will not be counted as separate entries)",
             False)
 
 vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v216, v301,
@@ -118,7 +118,7 @@ vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "che
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup",
               "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts",
               "checkStartup", "Remove"]
-vulnNames4 = ["badCron", "userInGroup", "goodService", "Remove"]
+vulnNames4 = ["taskScheduler", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
 
 

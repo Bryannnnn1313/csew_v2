@@ -68,6 +68,8 @@ badService = False
 badServiceValue = [9]
 badServiceKeywords = ['']
 badFile = False
+badFileValue = [9]
+badFileKeywords = ['']
 antiVirus = False
 antiVirusValue = [5]
 checkHosts = False
@@ -589,7 +591,7 @@ def badservice():
 
 def programs(option):
     m = open('getPrograms.ps1', 'w+')
-    m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize > programs.txt')
+    m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table ï¿½AutoSize > programs.txt')
     m.close()
     runpowershell('getPrograms')
     k = open('programs.txt', 'r', encoding='utf-16-le')
@@ -643,6 +645,22 @@ def antivirus():
         os.remove('getSecurity.ps1')
     if os.path.exists('security.txt'):
         os.remove('security.txt')
+
+def badFile():
+    for idx, item in enumerate(badFileKeywords):
+        f = open('badfile.bat', 'x')
+        f.write('@echo off\nif EXIST \"' + badFileKeywords[idx] + '\" echo y > check.txt\nif NOT EXIST \"' + badFileKeywords[idx] + 'echo n > check.txt')
+        f.close()
+        subprocess.Popen([r'badfile.bat'])
+        time.sleep(1)
+        with open('check.txt') as t:
+            if 'n' in t.read():
+                recordhit('badFile', badFileValue[idx], '')
+            else:
+                recordmiss('Remove bad file')
+        t.close()
+        os.remove('badfile.bat')
+        os.remove('check.txt')
 
 
 def usermanagement():
