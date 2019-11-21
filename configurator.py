@@ -424,8 +424,68 @@ def createForQ():
 #     if message != '':
 #         f.write(name + 'Message=[' + str(message) + ']\n')
 #     f.close()
-
-
+def submitCallback():
+    # We wanna use those fancy variable lists
+    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+        Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator as Administrator.')
+        return
+    errorFree = True
+    errorMessage = 'Please complete the following:'
+    if not dupFree:
+        errorFree = False
+        errorMessage = errorMessage + '\n  Remove any duplicates in the first section.'
+    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
+        frame.config(bg=root.cget('bg'))
+        error.grid_remove()
+        if entry_select[number].get() not in dontCheck:
+            if entry_textBox[ent2].get() == '':
+                errorFree = False
+                frame.config(bg='red')
+                error.grid(row=2, column=3)
+                errorMessage = errorMessage + '\n  Fill in the points catagory for: ' + entry_select[number].get()
+            if ent3 > 0 and entry_textBox[ent3].get() == '':
+                errorFree = False
+                frame.config(bg='red')
+                error.grid(row=2, column=3)
+                errorMessage = errorMessage + '\n  Fill in the keywords catagory for: ' + entry_select[number].get()
+            if ent4 > 0 and entry_textBox[ent4].get() == '':
+                errorFree = False
+                frame.config(bg='red')
+                error.grid(row=2, column=3)
+                errorMessage = errorMessage + '\n  Fill in the extra keywords catagory for: ' + entry_select[
+                    number].get()
+            if ent5 > 0 and entry_textBox[ent5].get() == '':
+                errorFree = False
+                frame.config(bg='red')
+                error.grid(row=2, column=3)
+                errorMessage = errorMessage + '\n  Fill in the message catagory for: ' + entry_select[number].get()
+            if entry_select[number].get() in vulnNames4:
+                entry3Test = entry_textBox[ent3].get()
+                entry3Test = entry3Test.split(' ')
+                entry4Test = entry_textBox[ent4].get()
+                entry4Test = entry4Test.split(' ')
+                if len(entry3Test) != len(entry4Test):
+                    errorFree = False
+                    frame.config(bg='red')
+                    error.grid(row=2, column=3)
+                    errorMessage = errorMessage + '\n  Enter an equal number of entries in each catagory for: ' + \
+                                   entry_select[number].get()
+            if entry_select[number].get() in vulnNames5:
+                entry3Test = entry_textBox[ent3].get()
+                entry3Test = entry3Test.split(' ')
+                entry4Test = entry_textBox[ent4].get()
+                entry4Test = entry4Test.split(' ')
+                entry5Test = entry_textBox[ent5].get()
+                entry5Test = entry5Test.split(' ')
+                if len(entry3Test) != len(entry4Test) or len(entry3Test) != len(entry5Test):
+                    errorFree = False
+                    frame.config(bg='red')
+                    error.grid(row=2, column=3)
+                    errorMessage = errorMessage + '\n  Enter an equal number of entries in each catagory for: ' + \
+                                   entry_select[number].get()
+    if not errorFree:
+        Mbox('Error', errorMessage)
+'''
 def submitCallback():
     # We wanna use those fancy variable lists
     if ctypes.windll.shell32.IsUserAnAdmin() == 0:
@@ -581,7 +641,7 @@ def submitCallback():
         #subprocess.Popen(['./install.sh'])
         time.sleep(2)
         exit()
-
+'''
 
 def saveConfig():
     # We wanna use those fancy variable lists
