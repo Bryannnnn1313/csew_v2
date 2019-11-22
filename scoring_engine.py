@@ -566,11 +566,11 @@ def filenolongercontains():
         recordmiss('File Still Contains Text')
 
 
-def badservice():
+def services():
     m = open('getServices.ps1', 'w+')
     m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > services.txt')
     m.close()
-    runpowershell('getServices')
+    runPowershell('getServices')
     p = open('services.txt', 'r', encoding='utf-16-le')
     content = p.read().splitlines()
     p.close()
@@ -578,7 +578,13 @@ def badservice():
         for bs in badServiceKeywords:
             if bs in c:
                 if 'Disabled' in c and 'Stopped' in c:
-                    recordhit('Disabled Service', badServiceValue, '')
+                    recordhit('Disabled '+bs, badServiceValue, '')
+                else:
+                    recordmiss('Service')
+        for i in range(len(goodServiceKeywords)):
+            if goodServiceKeywords[i] in c:
+                if goodServiceExtraKeywords[i] in c and goodServiceMessage[i] in c:
+                    recordhit('Configured '+goodServiceKeywords[i]+" service correctly", goodServiceValue, '')
                 else:
                     recordmiss('Service')
     if os.path.exists('getServices.ps1'):
