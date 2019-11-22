@@ -340,14 +340,16 @@ def checkuser(VariableName):
     with open('users.txt') as t:
         content = t.read().splitlines()
     t.close()
+    check = False
     userlist = []
-    for c in content:
-        for f in VariableName:
+    for f in VariableName:
+        for c in content:
             if f in c:
                 userlist.append(True)
-            else:
-                userlist.append(False)
-
+                check = True
+        if not check:
+            userlist.append(False)
+            check = False
     os.remove('user.bat')
     os.remove('users.txt')
     return userlist
@@ -389,13 +391,15 @@ def admincheck(VariableName):
         content = t.read().splitlines()
     t.close()
     adminlist = []
-    for c in content:
-        for f in VariableName:
+    check = False
+    for f in VariableName:
+        for c in content:
             if f in c:
-                adminlist.append(True)
-            else:
-                adminlist.append(False)
-
+                userlist.append(True)
+                check = True
+        if not check:
+            userlist.append(False)
+            check = False
     os.remove('admin.bat')
     os.remove('admins.txt')
     return adminlist
@@ -429,12 +433,15 @@ def groupcheck(VariableName):
         content = t.read().splitlines()
     t.close()
     grouplist = []
-    for c in content:
-        for f in VariableName:
+    check = False
+    for f in VariableName:
+        for c in content:
             if f in c:
-                grouplist.append(True)
-            else:
-                grouplist.append(False)
+                userlist.append(True)
+                check = True
+        if not check:
+            userlist.append(False)
+            check = False
     os.remove('group.bat')
     os.remove('groups.txt')
     return grouplist
