@@ -503,10 +503,10 @@ def filecontainstext():
         content = f.read().splitlines()
         infile = False
         for c in content:
-            if fileContainsTextExtraKeywords in c:
+            if fileContainsTextExtraKeywords[idx] in c:
                 infile = True
         if infile:
-            recordhit(fileContainsTextMessage, fileContainsTextValue, '')
+            recordhit(fileContainsTextMessage[idx], fileContainsTextValue[idx], '')
         else:
             recordmiss('File Does Not Contains Text')
 
@@ -517,10 +517,10 @@ def filenolongercontains():
         content = f.read().splitlines()
         infile = False;
         for c in content:
-            if fileNoLongerContainsExtraKeywords in c:
+            if fileNoLongerContainsExtraKeywords[idx] in c:
                 infile = True
         if not infile:
-            recordhit(fileNoLongerContainsMessage, fileNoLongerContainsValue, '')
+            recordhit(fileNoLongerContainsMessage[idx], fileNoLongerContainsValue[idx], '')
         else:
             recordmiss('File Still Contains Text')
 
