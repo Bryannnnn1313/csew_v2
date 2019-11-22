@@ -498,61 +498,6 @@ def filecontainstext():
         recordmiss('File Does Not Contains Text')
 
 
-def checkinstalled():
-    softFile = open('softLog.log', 'w')
-    errorLog = open('errorLog.log', 'w')
-    r = wmi.Registry()
-    result, names = r.EnumKey(hDefKey=HKEY_LOCAL_MACHINE, sSubKeyName=r"Software\Microsoft\Windows\CurrentVersion\Uninstall")
-
-    separator = "*" * 80
-    keyPath = r"Software\Microsoft\Windows\CurrentVersion\Uninstall"
-
-    for subkey in names:
-        try:
-            softFile.write(separator + '\n\n')
-            path = keyPath + "\\" + subkey
-            key = OpenKey(HKEY_LOCAL_MACHINE, path, 0, KEY_ALL_ACCESS)
-            try:
-                temp = QueryValueEx(key, 'DisplayName')
-                display = str(temp[0])
-                softFile.write('Display Name: ' + display + '\nRegkey: ' + subkey + '\n')
-            except:
-                softFile.write('Regkey: ' + subkey + '\n')
-
-        except:
-            fp = StringIO.StringIO()
-            traceback.print_exc(file=fp)
-            errorMessage = fp.getvalue()
-            error = 'Error for ' + key + '. Message follows:\n' + errorMessage
-            errorLog.write(error)
-            errorLog.write("\n\n")
-
-    softFile.close()
-    errorLog.close()
-
-
-def goodprograms():
-    f = open('softFile.log')
-    content = f.read().splitlines()
-    f.close()
-    for i in goodProgramKeywords:
-        if i in content:
-            recordhit('Program Installed', goodProgramValue, '')
-        else:
-            recordmiss('Programs')
-
-
-def badprograms():
-    f = open('softFile.log')
-    content = f.read().splitlines()
-    f.close()
-    for i in badProgramKeywords:
-        if i in content:
-            recordmiss('Programs')
-        else:
-            recordhit('Program Uninstalled', badProgramValue, '')
-
-
 def filenolongercontains():
     f = open(fileNoLongerContainsKeywords, 'r')
     content = f.read().splitlines()

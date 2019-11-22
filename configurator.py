@@ -116,11 +116,14 @@ vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "che
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup", "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts", "checkStartup", "Remove"]
 vulnNames4 = ["taskScheduler", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
-vulnDict = {"silentMiss": {'enable': False}, "FTPServer": {'enable': False},"disableGuest": {'enable': False}, "disableAdmin": {'enable': False}, "requireCTRL_ALT_DEL": {'enable': False}, "XXX": {'enable': False}, "checkFirewall": {'enable': False}, "XXX": {'enable': False}, "avUpdated": {'enable': False},
-            "minPassAge": {'enable': False}, "maxPassAge": {'enable': False}, "maxLoginTries": {'enable': False}, "checkPassHist": {'enable': False}, "checkPassCompx": {'enable': False}, "updateCheckPeriod": {'enable': False}, "updateAutoInstall": {'enable': False}, "dontDisplayLastUser": {'enable': False},
-            "goodUser": {'enable': False}, "badUser": {'enable': False}, "newUser": {'enable': False}, "changePassword": {'enable': False}, "goodAdmin": {'enable': False}, "badAdmin": {'enable': False}, "goodGroup": {'enable': False}, "badGroup": {'enable': False}, "goodProgram": {'enable': False},
-            "badProgram": {'enable': False}, "badService": {'enable': False}, "badFile": {'enable': False}, "antiVirus": {'enable': False}, "checkHosts": {'enable': False}, "checkStartup": {'enable': False}, "taskScheduler": {'enable': False}, "userInGroup": {'enable': False}, "goodService": {'enable': False},
-            "fileContainsText": {'enable': False}, "fileNoLongerContains": {'enable': False}}
+vulnDict = {"silentMiss": {'enable': False}, "FTPServer": {'enable': False},"disableGuest": {'points': [], 'enable': False}, "disableAdmin": {'points': [], 'enable': False}, "requireCTRL_ALT_DEL": {'points': [], 'enable': False}, "XXX": {'points': [], 'enable': False}, "checkFirewall": {'points': [], 'enable': False},
+            "XXX": {'points': [], 'enable': False}, "avUpdated": {'points': [], 'enable': False}, "minPassAge": {'points': [], 'enable': False}, "maxPassAge": {'points': [], 'enable': False}, "maxLoginTries": {'points': [], 'enable': False}, "checkPassHist": {'points': [], 'enable': False},
+            "checkPassCompx": {'points': [], 'enable': False}, "updateCheckPeriod": {'points': [], 'enable': False}, "updateAutoInstall": {'points': [], 'enable': False}, "dontDisplayLastUser": {'points': [], 'enable': False}, "goodUser": {'points': [], 'keywords': [], 'enable': False},
+            "badUser": {'points': [], 'keywords': [], 'enable': False}, "newUser": {'points': [], 'keywords': [], 'enable': False}, "changePassword": {'points': [], 'keywords': [], 'enable': False}, "goodAdmin": {'points': [], 'keywords': [], 'enable': False}, "badAdmin": {'points': [], 'keywords': [], 'enable': False},
+            "goodGroup": {'points': [], 'keywords': [], 'enable': False}, "badGroup": {'points': [], 'keywords': [], 'enable': False}, "goodProgram": {'points': [], 'keywords': [], 'enable': False}, "badProgram": {'points': [], 'keywords': [], 'enable': False}, "badService": {'points': [], 'keywords': [], 'enable': False},
+            "badFile": {'points': [], 'keywords': [], 'enable': False}, "antiVirus": {'points': [], 'keywords': [], 'enable': False}, "checkHosts": {'points': [], 'keywords': [], 'enable': False}, "checkStartup": {'points': [], 'keywords': [], 'enable': False},
+            "taskScheduler": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "userInGroup": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "goodService": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False},
+            "fileContainsText": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, "fileNoLongerContains": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}}
 
 def addOptionMenu(loc, bRow, bColumn, list, optSet):
     eSave = len(all_entries)
@@ -426,9 +429,9 @@ def createForQ():
 #     f.close()
 def submitCallback():
     # We wanna use those fancy variable lists
-    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+    '''if ctypes.windll.shell32.IsUserAnAdmin() == 0:
         Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator as Administrator.')
-        return
+        return'''
     errorFree = True
     errorMessage = 'Please complete the following:'
     if not dupFree:
@@ -485,6 +488,64 @@ def submitCallback():
                                    entry_select[number].get()
     if not errorFree:
         Mbox('Error', errorMessage)
+    if errorFree:
+        for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
+            name = entry_select[number].get()
+            point = entry_textBox[ent2].get()
+            if not vulnDict[name]['enable']:
+                vulnDict[name]['enable'] = True
+                vulnDict[name]['points'].append(point)
+                if ent3 > -1:
+                    if entry_textBox[ent3].get() != '':
+                        kt = entry_textBox[ent3].get().split(', ')
+                        vulnDict[name]['keywords'].append(kt[0])
+                        if len(kt) > 1:
+                            for t in range(1, len(kt)):
+                                vulnDict[name]['keywords'].append(kt[t])
+                                vulnDict[name]['points'].append(point)
+                if ent4 > -1:
+                    if entry_textBox[ent4].get() != '':
+                        kt = entry_textBox[ent4].get().split(', ')
+                        vulnDict[name]['extrakeywords'].append(kt[0])
+                        if len(kt) > 1:
+                            for t in range(1, len(kt)):
+                                vulnDict[name]['extrakeywords'].append(kt[t])
+                if ent5 > -1:
+                    if entry_textBox[ent5].get() != '':
+                        kt = entry_textBox[ent5].get().split(', ')
+                        vulnDict[name]['message'].append(kt[0])
+                        if len(kt) > 1:
+                            for t in range(1, len(kt)):
+                                vulnDict[name]['message'].append(kt[t])
+            '''if vulnDict[name]['enable']:
+                if ent3 > -1:
+                    if entry_textBox[ent3].get() != '':
+                        kt = entry_textBox[ent3].get().split(', ')
+                        for t in range(0, len(kt)):
+                            vulnDict[name]['keywords'].append(kt[t])
+                            vulnDict[name]['points'].append(point)
+                if ent4 > -1:
+                    if entry_textBox[ent4].get() != '':
+                        kt = entry_textBox[ent4].get().split(', ')
+                        for t in range(0, len(kt)):
+                            vulnDict[name]['extrakeywords'].append(kt[t])
+                if ent5 > -1:
+                    if entry_textBox[ent5].get() != '':
+                        kt = entry_textBox[ent5].get().split(', ')
+                        for t in range(0, len(kt)):
+                            vulnDict[name]['message'].append(kt[t])'''
+        f = open('csew.cfg', 'w+')
+        f.write('vulnDict = ' + str(vulnDict))
+        ''''
+        for c in vulnDict:
+            if c['enable']:
+                f.write(c)
+                if c['keywords'] != '':
+                    '''
+        f.close()
+        # subprocess.Popen(['./install.sh'])
+        time.sleep(2)
+        exit()
 '''
 def submitCallback():
     # We wanna use those fancy variable lists
