@@ -517,7 +517,7 @@ def submitCallback():
                         if len(kt) > 1:
                             for t in range(1, len(kt)):
                                 vulnDict[name]['message'].append(kt[t])
-            '''if vulnDict[name]['enable']:
+            if vulnDict[name]['enable']:
                 if ent3 > -1:
                     if entry_textBox[ent3].get() != '':
                         kt = entry_textBox[ent3].get().split(', ')
@@ -533,176 +533,14 @@ def submitCallback():
                     if entry_textBox[ent5].get() != '':
                         kt = entry_textBox[ent5].get().split(', ')
                         for t in range(0, len(kt)):
-                            vulnDict[name]['message'].append(kt[t])'''
+                            vulnDict[name]['message'].append(kt[t])
         f = open('csew.cfg', 'w+')
         f.write('vulnDict = ' + str(vulnDict))
-        ''''
-        for c in vulnDict:
-            if c['enable']:
-                f.write(c)
-                if c['keywords'] != '':
-                    '''
         f.close()
         # subprocess.Popen(['./install.sh'])
         time.sleep(2)
         exit()
-'''
-def submitCallback():
-    # We wanna use those fancy variable lists
-    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-        Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator as Administrator.')
-        return
-    errorFree = True
-    errorMessage = 'Please complete the following:'
-    if not dupFree:
-        errorFree = False
-        errorMessage = errorMessage + '\n  Remove any duplicates in the first section.'
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        frame.config(bg=root.cget('bg'))
-        error.grid_remove()
-        if entry_select[number].get() not in dontCheck:
-            if entry_textBox[ent2].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the points catagory for: ' + entry_select[number].get()
-            if ent3 > 0 and entry_textBox[ent3].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the keywords catagory for: ' + entry_select[number].get()
-            if ent4 > 0 and entry_textBox[ent4].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the extra keywords catagory for: ' + entry_select[
-                    number].get()
-            if ent5 > 0 and entry_textBox[ent5].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the message catagory for: ' + entry_select[number].get()
-            if entry_select[number].get() in vulnNames4:
-                entry3Test = entry_textBox[ent3].get()
-                entry3Test = entry3Test.split(' ')
-                entry4Test = entry_textBox[ent4].get()
-                entry4Test = entry4Test.split(' ')
-                if len(entry3Test) != len(entry4Test):
-                    errorFree = False
-                    frame.config(bg='red')
-                    error.grid(row=2, column=3)
-                    errorMessage = errorMessage + '\n  Enter an equal number of entries in each catagory for: ' + \
-                                   entry_select[number].get()
-            if entry_select[number].get() in vulnNames5:
-                entry3Test = entry_textBox[ent3].get()
-                entry3Test = entry3Test.split(' ')
-                entry4Test = entry_textBox[ent4].get()
-                entry4Test = entry4Test.split(' ')
-                entry5Test = entry_textBox[ent5].get()
-                entry5Test = entry5Test.split(' ')
-                if len(entry3Test) != len(entry4Test) or len(entry3Test) != len(entry5Test):
-                    errorFree = False
-                    frame.config(bg='red')
-                    error.grid(row=2, column=3)
-                    errorMessage = errorMessage + '\n  Enter an equal number of entries in each catagory for: ' + \
-                                   entry_select[number].get()
-    if not errorFree:
-        Mbox('Error', errorMessage)
-    if errorFree:
-        f = open('csew.cfg', 'w+')
-        if silentMode.get() == 1:
-            f.write("silentMiss = True\n")
-        else:
-            f.write("silentMiss = False\n")
-        if ftpMode.get() == 1:
-            f.write("FTPServer = True\n")
-        else:
-            f.write("FTPServertrue = false\n")
-        f.close()
-        createForQ()
-        save_entry = []
-        buff_entry = []
-        f = open('csew.cfg', 'a')
-        for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-            for vuln in vulns:
-                if vuln.name == entry_select[number].get() and vuln.name != "<Select One>":
-                    if not vuln.saved:
-                        s1 = vuln.name
-                        s2 = vuln.name + "Value=['" + entry_textBox[ent2].get() + "'"
-                        s3 = ''
-                        s4 = ''
-                        s5 = ''
-                        if ent3 > -1:
-                            if entry_textBox[ent3].get() != '':
-                                kt = entry_textBox[ent3].get().split(', ')
-                                s3 = vuln.name + "Keywords=['" + kt[0] + "'"
-                                if len(kt) > 1:
-                                    for t in range(1, len(kt)):
-                                        s3 = s3 + ", '" + kt[t] + "'"
-                                        s2 = s2 + ", '" + entry_textBox[ent2].get() + "'"
-                        if ent4 > -1:
-                            if entry_textBox[ent4].get() != '':
-                                kt = entry_textBox[ent4].get().split(', ')
-                                s4 = vuln.name + "ExtraKeywords=['" + kt[0] + "'"
-                                if len(kt) > 1:
-                                    for t in range(1, len(kt)):
-                                        s4 = s4 + ", '" + kt[t] + "'"
-                        if ent5 > -1:
-                            if entry_textBox[ent5].get() != '':
-                                kt = entry_textBox[ent5].get().split(', ')
-                                s5 = vuln.name + "Message=['" + kt[0] + "'"
-                                if len(kt) > 1:
-                                    for t in range(1, len(kt)):
-                                        s5 = s5 + ", '" + kt[t] + "'"
-                        vuln.saved = True
-                        save_entry.append((s1, s2, s3, s4, s5))
-                        vulnDict[vuln.name] = True
-                    else:
-                        buff_entry = []
-                        for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
-                            if vuln.name == s1:
-                                s2 = s2 + ", '" + entry_textBox[ent2].get() + "'"
-                                if s3 != '':
-                                    if entry_textBox[ent3].get() != '':
-                                        kt = entry_textBox[ent3].get().split(', ')
-                                        s3 = s3 + ", '" + kt[0] + "'"
-                                        if len(kt) > 1:
-                                            for t in range(1, len(kt)):
-                                                s3 = s3 + ", '" + kt[t] + "'"
-                                                s2 = s2 + ", '" + entry_textBox[ent2].get() + "'"
-                                if s4 != '':
-                                    if entry_textBox[ent4].get() != '':
-                                        kt = entry_textBox[ent4].get().split(', ')
-                                        s4 = s4 + ", '" + kt[0] + "'"
-                                        if len(kt) > 1:
-                                            for t in range(1, len(kt)):
-                                                s4 = s4 + ", '" + kt[t] + "'"
-                                if s5 != '':
-                                    if entry_textBox[ent5].get() != '':
-                                        kt = entry_textBox[ent5].get().split(', ')
-                                        s5 = s5 + ", '" + kt[0] + "'"
-                                        if len(kt) > 1:
-                                            for t in range(1, len(kt)):
-                                                s5 = s5 + ", '" + kt[t] + "'"
-                            buff_entry.append((s1, s2, s3, s4, s5))
-                        save_entry = buff_entry
 
-        for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
-            f.write(s1 + " = True\n")
-            f.write(s2 + "]\n")
-            if s3 != '':
-                f.write(s3 + "]\n")
-            if s4 != '':
-                f.write(s4 + "]\n")
-            if s5 != '':
-                f.write(s5 + "]\n")
-        for vuln in vulns:
-            vuln.saved = False
-        f.close()
-        #subprocess.Popen(['./install.sh'])
-        time.sleep(2)
-        exit()
-'''
 
 def saveConfig():
     # We wanna use those fancy variable lists
