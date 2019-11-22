@@ -498,29 +498,31 @@ def checkstartup():
 
 
 def filecontainstext():
-    f = open(fileContainsTextKeywords, 'r')
-    content = f.read().splitlines()
-    infile = False
-    for c in content:
-        if fileContainsTextExtraKeywords in c:
-            infile = True
-    if infile:
-        recordhit(fileContainsTextMessage, fileContainsTextValue, '')
-    else:
-        recordmiss('File Does Not Contains Text')
+    for idx, item in enumerate(fileContainsTextKeywords):
+        f = open(fileContainsTextKeywords[idx], 'r')
+        content = f.read().splitlines()
+        infile = False
+        for c in content:
+            if fileContainsTextExtraKeywords in c:
+                infile = True
+        if infile:
+            recordhit(fileContainsTextMessage, fileContainsTextValue, '')
+        else:
+            recordmiss('File Does Not Contains Text')
 
 
 def filenolongercontains():
-    f = open(fileNoLongerContainsKeywords, 'r')
-    content = f.read().splitlines()
-    infile = False;
-    for c in content:
-        if fileNoLongerContainsExtraKeywords in c:
-            infile = True
-    if not infile:
-        recordhit(fileNoLongerContainsMessage, fileNoLongerContainsValue, '')
-    else:
-        recordmiss('File Still Contains Text')
+    for idx, item in enumerate(fileContainsTextKeywords):
+        f = open(fileNoLongerContainsKeywords[idx], 'r')
+        content = f.read().splitlines()
+        infile = False;
+        for c in content:
+            if fileNoLongerContainsExtraKeywords in c:
+                infile = True
+        if not infile:
+            recordhit(fileNoLongerContainsMessage, fileNoLongerContainsValue, '')
+        else:
+            recordmiss('File Still Contains Text')
 
 
 def services():
