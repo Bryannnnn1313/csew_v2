@@ -16,9 +16,9 @@ forensicQuestion = False
 forensicCount = [2]
 forensicAnswer = ['w']
 forensicValue = [10]
-disableGuest = True
+disableGuest = False
 disableGuestValue = [9]
-disableAdmin = True
+disableAdmin = False
 disableAdminValue = [4]
 requireCTRL_ALT_DEL = True
 requireCTRL_ALT_DELValue = [4]
@@ -261,7 +261,7 @@ def checkfirewall():
         if 'OFF' in cont:
             statuson = 'false'
     if statuson == 'true':
-        recordhit('checkFirewall', checkFirewallValue, '')
+        recordhit('checkFirewall', checkFirewallValue[0], '')
     else:
         recordmiss('checkFirewall')
     os.remove('firewall.bat')
@@ -604,10 +604,10 @@ def antivirus():
 def badfile():
     for idx, item in enumerate(badFileKeywords):
         f = open('badfile.bat', 'x')
-        f.write('@echo off\nif EXIST \"' + badFileKeywords[idx] + '\" echo y > check.txt\nif NOT EXIST \"' + badFileKeywords[idx] + 'echo n > check.txt')
+        f.write('@echo off\nif EXIST "' + badFileKeywords[idx] + '" echo y > check.txt\nif NOT EXIST "' + badFileKeywords[idx] + '" echo n > check.txt')
         f.close()
         subprocess.Popen([r'badfile.bat'])
-        time.sleep(1)
+        time.sleep(20)
         with open('check.txt') as t:
             if 'n' in t.read():
                 recordhit('badFile', badFileValue[idx], '')
