@@ -9,88 +9,91 @@ from winreg import (HKEY_LOCAL_MACHINE, KEY_ALL_ACCESS,
                     OpenKey, EnumValue, QueryValueEx)
 
 ##OPTIONVARIABLES##
-Desktop = ''
+Desktop = 'C:/Users/CyberPatriot/Desktop/'
 silentMiss = True
 FTPServertrue = False
-forensicQuestion = True
+forensicQuestion = False
 forensicCount = [2]
 forensicAnswer = ['w']
 forensicValue = [10]
-disableGuest = False
+disableGuest = True
 disableGuestValue = [9]
-disableAdmin = False
-disableAdminValue = [0]
-requireCTRL_ALT_DEL = False
-dontDisplayLastUser = False
+disableAdmin = True
+disableAdminValue = [4]
+requireCTRL_ALT_DEL = True
+requireCTRL_ALT_DELValue = [4]
+dontDisplayLastUser = True
+dontDisplayLastUserValue = [4]
 XXX = False
-checkFirewall = False
+checkFirewall = True
 checkFirewallValue = [9]
 XXX = False
 XXX = False
-minPassAge = False
-maxPassAge = False
-maxLoginTries = False
-checkPassLength = False
-checkPassHist = False
-checkPassCompx = False
+minPassAge = True
+minPassAgeValue = [7]
+maxPassAge = True
+maxLoginTries = True
+checkPassLength = True
+checkPassHist = True
+checkPassCompx = True
 XXX = False
 updateAutoInstall = False
 goodUser = False
-goodUserValue = [8]
-goodUserKeywords = ['']
+goodUserValue = [8, 8]
+goodUserKeywords = ['hi', 'bye']
 badUser = False
 badUserValue = [8]
-badUserKeywords = ['']
+badUserKeywords = ['hi']
 newUser = False
 newUserValue = [9]
-newUserKeywords = ['']
+newUserKeywords = ['hi']
 changePassword = False
 goodAdmin = False
 goodAdminValue = [8]
-goodAdminKeywords = ['']
+goodAdminKeywords = ['hi']
 badAdmin = False
-badAdminValue = [0]
-badAdminKeywords = ['']
+badAdminValue = [4]
+badAdminKeywords = ['hi']
 goodGroup = False
 goodGroupValue = [9]
-goodGroupKeywords = ['']
+goodGroupKeywords = ['hi']
 badGroup = False
 badGroupValue = [9]
-badGroupKeywords = ['']
-goodProgram = False
+badGroupKeywords = ['hi']
+goodProgram = True
 goodProgramValue = [9]
-goodProgramKeywords = ['']
-badProgram = False
+goodProgramKeywords = ['hi']
+badProgram = True
 badProgramValue = [4]
-badProgramKeywords = ['']
+badProgramKeywords = ['hi']
 goodService = False
-badService = False
+badService = True
 badServiceValue = [9]
-badServiceKeywords = ['']
-badFile = False
+badServiceKeywords = ['hi']
+badFile = True
 badFileValue = [9]
-badFileKeywords = ['']
-antiVirus = False
+badFileKeywords = ['hi']
+antiVirus = True
 antiVirusValue = [5]
 checkHosts = False
-checkStartup = False
+checkStartup = True
 checkStartupValue = [8]
-checkStartupKeywords = ['']
+checkStartupKeywords = ['hi']
 taskScheduler = False
-userInGroup = False
-userInGroupValue = [0]
-userInGroupKeywords = ['']
-userInGroupExtraKeywords = ['']
-fileContainsText = False
+userInGroup = True
+userInGroupValue = [4]
+userInGroupKeywords = ['hi']
+userInGroupExtraKeywords = ['hi']
+fileContainsText = True
 fileContainsTextValue = [9]
-fileContainsTextKeywords = ['']
-fileContainsTextExtraKeywords = ['']
-fileContainsTextMessage = ['']
-fileNoLongerContains = False
+fileContainsTextKeywords = ['hi']
+fileContainsTextExtraKeywords = ['hi']
+fileContainsTextMessage = ['ag']
+fileNoLongerContains = True
 fileNoLongerContainsValue = [8]
-fileNoLongerContainsKeywords = ['']
-fileNoLongerContainsExtraKeywords = ['']
-fileNoLongerContainsMessage = ['']
+fileNoLongerContainsKeywords = ['hi']
+fileNoLongerContainsExtraKeywords = ['hi']
+fileNoLongerContainsMessage = ['erg']
 
 # Program Base Variables
 posPoints = 0
@@ -99,9 +102,7 @@ totalPoints = 0
 totalVuln = 0
 prePoints = 0
 index = 'C:/CyberPatriot/'
-scoreIndex = index, 'ScoreReport.html'
-
-
+scoreIndex = index + 'ScoreReport.html'
 
 
 # Scoring Report creation
@@ -116,26 +117,26 @@ def drawhead():
 def recordhit(name, points, message):
     global totalPoints
     global totalVuln
-    writetohtml(('<p style="color:green">', name, '(', points, 'points)</p>'))
+    writetohtml(('<p style="color:green">' + name + '(' + str(points) + 'points)</p>'))
     totalPoints += points
     totalVuln += 1
 
 
 def recordmiss(name):
     if not silentMiss:
-        writetohtml(('<p style="color:red">MISS', name, 'Issue</p>'))
+        writetohtml(('<p style="color:red">MISS' + name + 'Issue</p>'))
 
 
 def recordpenalty(name, points, message):
     global totalPoints
-    writetohtml(('<p style="color:red">', name, '(', points, 'points)</p>'))
+    writetohtml(('<p style="color:red">' + name + '(' + str(points) + 'points)</p>'))
     totalPoints -= points
 
 
 def drawtail():
     writetohtml(('<hr><div align="center"><br>Developed by Josh Davis<br><b>Eastern Oklahoma County Technology Center/Coastline Collage</b><br>Feedback welcome: <a href="mailto:jdavis@eoctech.edu?Subject=CSEL" target="_top">jdavis@eoctech.edu</a><br>Modified/Updated by Shaun Martin</br><b>Coastline Collage</b><br>Feedback '
-            'welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEL Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>'))
-    replacements = {'#TotalScore#':totalPoints, '#PossiblePoints#':posPoints, '#TotalVuln#':totalVuln, '#PossibleVuln#':posVuln}
+                 'welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEL Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>'))
+    replacements = {'#TotalScore#': totalPoints, '#PossiblePoints#': posPoints, '#TotalVuln#': totalVuln, '#PossibleVuln#': posVuln}
     replacesec(index, replacements)
 
     path = os.path.join(Desktop, 'ScoreReport.html')
@@ -214,6 +215,7 @@ def disableguest():
     f.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt')
     f.close()
     runpowershell('guestCheck')
+    time.sleep(10)
     f = open('user.txt', 'r', encoding='utf-16-le')
     content = f.read().splitlines()
     f.close()
@@ -342,17 +344,19 @@ def checkuser(VariableName):
     for c in content:
         for f in VariableName:
             if f in c:
-                userlist.append[True]
+                userlist.append(True)
             else:
-                userlist.append[False]
-    return userlist
+                userlist.append(False)
+
     os.remove('user.bat')
     os.remove('users.txt')
+    return userlist
 
 
 def gooduser():
     userlists = checkuser(goodUserKeywords)
     for idx, item in enumerate(userlists):
+        print(idx)
         if not userlists[idx]:
             recordpenalty('Removed User', goodUserValue[idx], '')
 
@@ -388,12 +392,13 @@ def admincheck(VariableName):
     for c in content:
         for f in VariableName:
             if f in c:
-                adminlist.append[True]
+                adminlist.append(True)
             else:
-                adminlist.append[False]
-    return adminlist
+                adminlist.append(False)
+
     os.remove('admin.bat')
     os.remove('admins.txt')
+    return adminlist
 
 
 def goodadmin():
@@ -427,12 +432,12 @@ def groupcheck(VariableName):
     for c in content:
         for f in VariableName:
             if f in c:
-                grouplist.append[True]
+                grouplist.append(True)
             else:
-                grouplist.append[False]
-    return grouplist
+                grouplist.append(False)
     os.remove('group.bat')
     os.remove('groups.txt')
+    return grouplist
 
 
 def goodgroup():
@@ -515,7 +520,7 @@ def services():
     m = open('getServices.ps1', 'w+')
     m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > services.txt')
     m.close()
-    runPowershell('getServices')
+    runpowershell('getServices')
     p = open('services.txt', 'r', encoding='utf-16-le')
     content = p.read().splitlines()
     p.close()
@@ -523,13 +528,13 @@ def services():
         for bs in badServiceKeywords:
             if bs in c:
                 if 'Disabled' in c and 'Stopped' in c:
-                    recordhit('Disabled '+bs, badServiceValue, '')
+                    recordhit('Disabled ' + bs, badServiceValue, '')
                 else:
                     recordmiss('Service')
         for i in range(len(goodServiceKeywords)):
             if goodServiceKeywords[i] in c:
                 if goodServiceExtraKeywords[i] in c and goodServiceMessage[i] in c:
-                    recordhit('Configured '+goodServiceKeywords[i]+" service correctly", goodServiceValue, '')
+                    recordhit('Configured ' + goodServiceKeywords[i] + " service correctly", goodServiceValue, '')
                 else:
                     recordmiss('Service')
     if os.path.exists('getServices.ps1'):
@@ -594,6 +599,7 @@ def antivirus():
         os.remove('getSecurity.ps1')
     if os.path.exists('security.txt'):
         os.remove('security.txt')
+
 
 def badfile():
     for idx, item in enumerate(badFileKeywords):
@@ -670,8 +676,8 @@ def programmanagement():
         programs('badProgram')
     if goodService:
         '''goodservice()'''
-    if badService:
-        badservice()
+    # if badService:
+    # badservice()
 
 
 def filemanagement():
@@ -698,17 +704,17 @@ def miscpoints():
         antivirus()
 
 
-#--------- Main Loop ---------#
-while True:
-    checkrunas()
-    drawhead()
-    usermanagement()
-    securitypolicies()
-    filemanagement()
-    miscpoints()
-    scorecheck()
-    drawtail()
-    time.sleep(60)
+# --------- Main Loop ---------#
+
+checkrunas()
+drawhead()
+usermanagement()
+securitypolicies()
+filemanagement()
+miscpoints()
+scorecheck()
+drawtail()
+time.sleep(60)
 
 # TODO add Functions:
 #  changepassword
