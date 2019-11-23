@@ -380,8 +380,10 @@ def groupcheck(VariableName):
 def goodgroup():
     grouplists = groupcheck(vulnDict['goodGroup']['keywords'])
     for idx, item in enumerate(grouplists):
-        if not grouplists[idx]:
-            recordpenalty('goodGroup', vulnDict['badGroup']['points'][idx], '')
+        if grouplists[idx]:
+            recordhit('Add Group', vulnDict['goodGroup']['points'][idx], '')
+        else:
+            recordmiss('Users', vulnDict['goodGroup']['points'][idx])
 
 
 def badgroup():
