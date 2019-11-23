@@ -167,15 +167,15 @@ def replacesec(loc, search, replace):
 
 # Option Check
 def forensicquestion():
-    for fq in forensicCount:
+    for fq in vulnDict['forensics']['count']:
         path = Desktop + 'Question' + fq + '.txt'
         name = 'Forensic Question', fq
         f = open(path, 'r')
         content = f.read().splitlines()
         for c in content:
             if 'ANSWER:' in c:
-                if forensicAnswer[fq] in c:
-                    recordhit(name, forensicValue[fq], '')
+                if vulnDict['forensics']['answer'][fq] in c:
+                    recordhit(name, vulnDict['forensics']['points'][fq], '')
                 else:
                     recordmiss(name)
 
