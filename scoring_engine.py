@@ -9,96 +9,13 @@ from winreg import (HKEY_LOCAL_MACHINE, KEY_ALL_ACCESS,
                     OpenKey, EnumValue, QueryValueEx)
 
 ##OPTIONVARIABLES##
-Desktop = 'C:/Users/CyberPatriot/Desktop/'
-silentMiss = True
-FTPServertrue = False
+
+vulnDict = {"silentMiss": {'enable': False}, "FTPServer": {'enable': False}, "disableGuest": {'points': [], 'enable': False}, "disableAdmin": {'points': [], 'enable': False}, "requireCTRL_ALT_DEL": {'points': [], 'enable': False}, "XXX": {'points': [], 'enable': False}, "checkFirewall": {'points': [], 'enable': False}, "XXX": {'points': [], 'enable': False}, "avUpdated": {'points': [], 'enable': False}, "minPassAge": {'points': [], 'enable': False}, "maxPassAge": {'points': [], 'enable': False}, "maxLoginTries": {'points': [], 'enable': False}, "checkPassHist": {'points': [], 'enable': False}, "checkPassCompx": {'points': [], 'enable': False}, "updateCheckPeriod": {'points': [], 'enable': False}, "updateAutoInstall": {'points': [], 'enable': False}, "dontDisplayLastUser": {'points': [], 'enable': False}, "goodUser": {'points': [], 'keywords': [], 'enable': False}, "badUser": {'points': [], 'keywords': [], 'enable': False}, "newUser": {'points': [], 'keywords': [], 'enable': False}, "changePassword": {'points': [], 'keywords': [], 'enable': False}, "goodAdmin": {'points': [], 'keywords': [], 'enable': False}, "badAdmin": {'points': [], 'keywords': [], 'enable': False}, "goodGroup": {'points': [], 'keywords': [], 'enable': False}, "badGroup": {'points': [], 'keywords': [], 'enable': False}, "goodProgram": {'points': [], 'keywords': [], 'enable': False}, "badProgram": {'points': [], 'keywords': [], 'enable': False}, "badService": {'points': [], 'keywords': [], 'enable': False}, "badFile": {'points': [], 'keywords': [], 'enable': False}, "antiVirus": {'points': [], 'keywords': [], 'enable': False}, "checkHosts": {'points': [], 'keywords': [], 'enable': False}, "checkStartup": {'points': [], 'keywords': [], 'enable': False}, "taskScheduler": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "userInGroup": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "goodService": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "fileContainsText": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, "fileNoLongerContains": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}}
 forensicQuestion = False
 forensicCount = [2]
 forensicAnswer = ['w']
 forensicValue = [10]
-disableGuest = False
-disableGuestValue = [9]
-disableAdmin = False
-disableAdminValue = [4]
-requireCTRL_ALT_DEL = True
-requireCTRL_ALT_DELValue = [4]
-dontDisplayLastUser = True
-dontDisplayLastUserValue = [4]
-XXX = False
-checkFirewall = True
-checkFirewallValue = [9]
-XXX = False
-XXX = False
-minPassAge = True
-minPassAgeValue = [7]
-maxPassAge = True
-maxPassAgeValue = [4]
-maxLoginTries = True
-maxLoginTriesValue = [4]
-checkPassLength = True
-checkPassLengthValue = [4]
-checkPassHist = True
-checkPassHistValue = [4]
-checkPassCompx = True
-checkPassCompxValue = [4]
-XXX = False
-updateAutoInstall = False
-goodUser = True
-goodUserValue = [8, 8]
-goodUserKeywords = ['hi', 'bye']
-badUser = True
-badUserValue = [8]
-badUserKeywords = ['hi']
-newUser = True
-newUserValue = [9]
-newUserKeywords = ['hi']
-changePassword = False
-goodAdmin = True
-goodAdminValue = [8]
-goodAdminKeywords = ['hi']
-badAdmin = True
-badAdminValue = [4]
-badAdminKeywords = ['hi']
-goodGroup = True
-goodGroupValue = [9]
-goodGroupKeywords = ['hi']
-badGroup = True
-badGroupValue = [9]
-badGroupKeywords = ['hi']
-goodProgram = True
-goodProgramValue = [9]
-goodProgramKeywords = ['hi']
-badProgram = True
-badProgramValue = [4]
-badProgramKeywords = ['hi']
-goodService = False
-badService = True
-badServiceValue = [9]
-badServiceKeywords = ['hi']
-badFile = True
-badFileValue = [9]
-badFileKeywords = ['hi']
-antiVirus = False
-antiVirusValue = [5]
-checkHosts = False
-checkStartup = False
-checkStartupValue = [8]
-checkStartupKeywords = ['hi']
-taskScheduler = False
-userInGroup = True
-userInGroupValue = [4]
-userInGroupKeywords = ['hi']
-userInGroupExtraKeywords = ['hi']
-fileContainsText = False
-fileContainsTextValue = [9]
-fileContainsTextKeywords = ['hi']
-fileContainsTextExtraKeywords = ['hi']
-fileContainsTextMessage = ['ag']
-fileNoLongerContains = False
-fileNoLongerContainsValue = [8]
-fileNoLongerContainsKeywords = ['hi']
-fileNoLongerContainsExtraKeywords = ['hi']
-fileNoLongerContainsMessage = ['erg']
+
 
 # Program Base Variables
 posPoints = 0
@@ -106,6 +23,7 @@ posVuln = 0
 totalPoints = 0
 totalVuln = 0
 prePoints = 0
+Desktop = vulnDict['Desktop']
 index = 'C:/CyberPatriot/'
 scoreIndex = index + 'ScoreReport.html'
 
@@ -114,8 +32,7 @@ scoreIndex = index + 'ScoreReport.html'
 def drawhead():
     f = open(scoreIndex, 'w+')
     f.write('<!doctype html><html><head><title>CSEL Score Report</title><meta http-equiv="refresh" content="30"></head><body style="background-color:powderblue;">''\n')
-    f.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/iguana.png"></td><td><img src="C:/CyberPatriot/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v2.0</H2></div></td><td><img '
-            'src="C:/CyberPatriot/SoCalCCCC.png"></td><td><img src="C:/CyberPatriot/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
+    f.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/iguana.png"></td><td><img src="C:/CyberPatriot/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v2.0</H2></div></td><td><img ' 'src="C:/CyberPatriot/SoCalCCCC.png"></td><td><img src="C:/CyberPatriot/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
     f.close()
 
 
@@ -128,7 +45,7 @@ def recordhit(name, points, message):
 
 
 def recordmiss(name):
-    if not silentMiss:
+    if not vulnDict['silentMiss']['enable']:
         writetohtml(('<p style="color:red">MISS' + name + 'Issue</p>'))
 
 
@@ -229,7 +146,7 @@ def disableguest():
     for c in content:
         if 'Guest' in c:
             if ' True' in c:
-                recordhit('Disable Guest', vuldDict['disableGuest']['points'][0], '')
+                recordhit('Disable Guest', vulnDict['disableGuest']['points'][0], '')
                 os.remove('user.txt')
             else:
                 recordmiss('Disable Guest')
@@ -247,7 +164,7 @@ def disableadmin():
     for c in content:
         if 'Administrator' in c:
             if ' True' in c:
-                recordhit('Disable Admin', vuldDict['disableAdmin']['points'][0], '')
+                recordhit('Disable Admin', vulnDict['disableAdmin']['points'][0], '')
                 os.remove('user.txt')
             else:
                 recordmiss('Disable Admin')
@@ -268,7 +185,7 @@ def checkfirewall():
         if 'OFF' in cont:
             statuson = 'false'
     if statuson == 'true':
-        recordhit('checkFirewall', vuldDict['checkFirewall']['points'][0], '')
+        recordhit('checkFirewall', vulnDict['checkFirewall']['points'][0], '')
     else:
         recordmiss('checkFirewall')
     os.remove('firewall.bat')
@@ -284,56 +201,56 @@ def localgrouppolicy(option):
         for i in content:
             if 'MinimumPasswordAge' in i:
                 if i.endswith('30'):
-                    recordhit('Minimum Password Age', vuldDict[option]['points'][0], '')
+                    recordhit('Minimum Password Age', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Password Policy')
     elif option == 'maxPassAge':
         for i in content:
             if 'MaximumPasswordAge' in i:
                 if i.endswith('60'):
-                    recordhit('Maximum Password Age', vuldDict[option]['points'][0], '')
+                    recordhit('Maximum Password Age', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Password Policy')
     elif option == 'maxLoginTries':
         for i in content:
             if 'LockoutBadCount' in i:
                 if i.endswith('5'):
-                    recordhit('Maximum Login Tries', vuldDict[option]['points'][0], '')
+                    recordhit('Maximum Login Tries', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Account Policy')
     elif option == 'checkPassLength':
         for i in content:
             if 'MinimumPasswordLength' in i:
                 if i.endswith('10'):
-                    recordhit('Minimum Password Length', vuldDict[option]['points'][0], '')
+                    recordhit('Minimum Password Length', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Password Policy')
     elif option == 'checkPassHist':
         for i in content:
             if 'PasswordHistorySize' in i:
                 if i.endswith('5'):
-                    recordhit('Password History Size', vuldDict[option]['points'][0], '')
+                    recordhit('Password History Size', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Password Policy')
     elif option == 'checkPassCompx':
         for i in content:
             if 'PasswordComplexity' in i:
                 if i.endswith('1'):
-                    recordhit('Password Complexity', vuldDict[option]['points'][0], '')
+                    recordhit('Password Complexity', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Password Policy')
     elif option == 'requireCTRL_ALT_DEL':
         for i in content:
             if 'DisableCAD' in i:
                 if i.endswith('1'):
-                    recordhit('Require CTRL + ALT + DEL', vuldDict[option]['points'][0], '')
+                    recordhit('Require CTRL + ALT + DEL', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Security Policy')
     elif option == 'DontDisplayLastUser':
         for i in content:
             if 'dontDisplayLastUserName' in i:
                 if i.endswith('1'):
-                    recordhit('Dont Display Last User Name', vuldDict[option]['points'][0], '')
+                    recordhit('Dont Display Last User Name', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Security Policy')
 
@@ -363,14 +280,14 @@ def checkuser(VariableName):
 
 
 def gooduser():
-    userlists = checkuser(vuldDict['goodUser']['keywords'])
+    userlists = checkuser(vulnDict['goodUser']['keywords'])
     for idx, item in enumerate(userlists):
         if not userlists[idx]:
             recordpenalty('Removed User', vulnDict['goodUser']['points'][idx], '')
 
 
 def baduser():
-    userlists = checkuser(vuldDict['badUser']['keywords'])
+    userlists = checkuser(vulnDict['badUser']['keywords'])
     for idx, item in enumerate(userlists):
         if userlists[idx]:
             recordmiss('Users')
@@ -379,7 +296,7 @@ def baduser():
 
 
 def newuser():
-    userlists = checkuser(vuldDict['newUser']['keywords'])
+    userlists = checkuser(vulnDict['newUser']['keywords'])
     for idx, item in enumerate(userlists):
         if userlists[idx]:
             recordhit('Add User', vulnDict['newUser']['points'][idx], '')
@@ -640,87 +557,87 @@ def badfile():
 
 def usermanagement():
     writetohtml(('<H3>USER MANAGEMENT</H3>'))
-    if goodUser:
+    if vulnDict['goodUser']['enable']:
         gooduser()
-    if badUser:
+    if vulnDict['badUser']['enable']:
         baduser()
-    if newUser:
+    if vulnDict['newUser']['enable']:
         newuser()
-    if changePassword:
+    if vulnDict['changePassword']['enable']:
         '''changepassword()'''
-    if goodAdmin:
+    if vulnDict['goodAdmin']['enable']:
         goodadmin()
-    if badAdmin:
+    if vulnDict['badAdmin']['enable']:
         badadmin()
-    if goodGroup:
+    if vulnDict['goodGroup']['enable']:
         goodgroup()
-    if badGroup:
+    if vulnDict['badGroup']['enable']:
         badgroup()
-    if userInGroup:
+    if vulnDict['userInGroup']['enable']:
         useringroup()
 
 
 def securitypolicies():
     writetohtml(('<H3>SECURITY POLICIES</H3>'))
-    if disableGuest:
+    if vulnDict['disableGuest']['enable']:
         disableguest()
-    if disableAdmin:
+    if vulnDict['disableAdmin']['enable']:
         disableadmin()
-    if checkFirewall:
+    if vulnDict['checkFirewall']['enable']:
         checkfirewall()
-    if minPassAge:
+    if vulnDict['minPassAge']['enable']:
         localgrouppolicy('minPassAge')
-    if maxPassAge:
+    if vulnDict['maxPassAge']['enable']:
         localgrouppolicy('maxPassAge')
-    if maxLoginTries:
+    if vulnDict['maxLoginTries']['enable']:
         localgrouppolicy('maxLoginTries')
-    if checkPassLength:
+    if vulnDict['checkPassLength']['enable']:
         localgrouppolicy('checkPassLength')
-    if checkPassHist:
+    if vulnDict['checkPassHist']['enable']:
         localgrouppolicy('checkPassHist')
-    if checkPassCompx:
+    if vulnDict['checkPassCompx']['enable']:
         localgrouppolicy('checkPassCompx')
-    if requireCTRL_ALT_DEL:
+    if vulnDict['requireCTRL_ALT_DEL']['enable']:
         localgrouppolicy('requireCTRL_ALT_DEL')
-    if dontDisplayLastUser:
+    if vulnDict['dontDisplayLastUser']['enable']:
         localgrouppolicy('dontDisplayLastUser')
-    if updateAutoInstall:
+    if vulnDict['updateAutoInstall']['enable']:
         '''updateautoinstall()'''
 
 
 def programmanagement():
     writetohtml(('<H3>PROGRAMS</H3>'))
-    if goodProgram:
+    if vulnDict['goodProgram']['enable']:
         programs('goodProgram')
-    if badProgram:
+    if vulnDict['badProgram']['enable']:
         programs('badProgram')
-    if goodService:
+    if vulnDict['goodService']['enable']:
         '''goodservice()'''
-    # if badService:
+    # if vulnDict['badService']['enable']:
     # badservice()
 
 
 def filemanagement():
     writetohtml(('<H3>FILE MANAGEMENT</H3>'))
-    if forensicQuestion:
+    if vulnDict['forensicQuestion']['enable']:
         forensicquestion()
-    if badFile:
+    if vulnDict['badFile']['enable']:
         badfile()
-    if checkHosts:
+    if vulnDict['checkHosts']['enable']:
         '''checkhosts()'''
-    if fileContainsText:
+    if vulnDict['fileContainsText']['enable']:
         filecontainstext()
-    if fileNoLongerContains:
+    if vulnDict['fileNoLongerContains']['enable']:
         filenolongercontains()
 
 
 def miscpoints():
     writetohtml(('<H3>MISCELLANEOUS</H3>'))
-    if checkStartup:
+    if vulnDict['checkStartup']['enable']:
         checkstartup()
-    if taskScheduler:
+    if vulnDict['taskScheduler']['enable']:
         '''taskscheduler()'''
-    if antiVirus:
+    if vulnDict['antiVirus']['enable']:
         antivirus()
 
 
