@@ -32,32 +32,37 @@ XXX = False
 minPassAge = True
 minPassAgeValue = [7]
 maxPassAge = True
+maxPassAgeValue = [4]
 maxLoginTries = True
+maxLoginTriesValue = [4]
 checkPassLength = True
+checkPassLengthValue = [4]
 checkPassHist = True
+checkPassHistValue = [4]
 checkPassCompx = True
+checkPassCompxValue = [4]
 XXX = False
 updateAutoInstall = False
-goodUser = False
+goodUser = True
 goodUserValue = [8, 8]
 goodUserKeywords = ['hi', 'bye']
-badUser = False
+badUser = True
 badUserValue = [8]
 badUserKeywords = ['hi']
-newUser = False
+newUser = True
 newUserValue = [9]
 newUserKeywords = ['hi']
 changePassword = False
-goodAdmin = False
+goodAdmin = True
 goodAdminValue = [8]
 goodAdminKeywords = ['hi']
-badAdmin = False
+badAdmin = True
 badAdminValue = [4]
 badAdminKeywords = ['hi']
-goodGroup = False
+goodGroup = True
 goodGroupValue = [9]
 goodGroupKeywords = ['hi']
-badGroup = False
+badGroup = True
 badGroupValue = [9]
 badGroupKeywords = ['hi']
 goodProgram = True
@@ -73,10 +78,10 @@ badServiceKeywords = ['hi']
 badFile = True
 badFileValue = [9]
 badFileKeywords = ['hi']
-antiVirus = True
+antiVirus = False
 antiVirusValue = [5]
 checkHosts = False
-checkStartup = True
+checkStartup = False
 checkStartupValue = [8]
 checkStartupKeywords = ['hi']
 taskScheduler = False
@@ -84,12 +89,12 @@ userInGroup = True
 userInGroupValue = [4]
 userInGroupKeywords = ['hi']
 userInGroupExtraKeywords = ['hi']
-fileContainsText = True
+fileContainsText = False
 fileContainsTextValue = [9]
 fileContainsTextKeywords = ['hi']
 fileContainsTextExtraKeywords = ['hi']
 fileContainsTextMessage = ['ag']
-fileNoLongerContains = True
+fileNoLongerContains = False
 fileNoLongerContainsValue = [8]
 fileNoLongerContainsKeywords = ['hi']
 fileNoLongerContainsExtraKeywords = ['hi']
@@ -109,8 +114,8 @@ scoreIndex = index + 'ScoreReport.html'
 def drawhead():
     f = open(scoreIndex, 'w+')
     f.write('<!doctype html><html><head><title>CSEL Score Report</title><meta http-equiv="refresh" content="30"></head><body style="background-color:powderblue;">''\n')
-    f.write('<table align="center" cellpadding="10"><tr><td><img src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/iguana.png"></td><td><img src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Linux v2.0</H2></div></td><td><img '
-            'src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/SoCalCCCC.png"></td><td><img src="/etc/CYBERPATRIOT_DO_NOT_REMOVE/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
+    f.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/iguana.png"></td><td><img src="C:/CyberPatriot/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v2.0</H2></div></td><td><img '
+            'src="C:/CyberPatriot/SoCalCCCC.png"></td><td><img src="C:/CyberPatriot/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
     f.close()
 
 
@@ -136,16 +141,19 @@ def recordpenalty(name, points, message):
 def drawtail():
     writetohtml(('<hr><div align="center"><br>Developed by Josh Davis<br><b>Eastern Oklahoma County Technology Center/Coastline Collage</b><br>Feedback welcome: <a href="mailto:jdavis@eoctech.edu?Subject=CSEL" target="_top">jdavis@eoctech.edu</a><br>Modified/Updated by Shaun Martin</br><b>Coastline Collage</b><br>Feedback '
                  'welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEL Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>'))
-    replacements = {'#TotalScore#': totalPoints, '#PossiblePoints#': posPoints, '#TotalVuln#': totalVuln, '#PossibleVuln#': posVuln}
-    replacesec(index, replacements)
+    print(str(totalPoints) + ' / ' + str(posPoints) + '\n' + str(totalVuln) + ' / ' + str(posVuln))
+    replacesec(scoreIndex, '#TotalScore#', str(totalPoints))
+    replacesec(scoreIndex, '#PossiblePoints#', str(posPoints))
+    replacesec(scoreIndex, '#TotalVuln#', str(totalVuln))
+    replacesec(scoreIndex, '#PossibleVuln#', str(posVuln))
 
-    path = os.path.join(Desktop, 'ScoreReport.html')
+    path = os.path.join(Desktop, 'ScoreReport.lnk')
     target = scoreIndex
-    icon = index, 'scoreIcon.ico'
+    # icon = index, 'scoreIcon.ico'
     shell = win32com.client.Dispatch("WScript.Shell")
     shortcut = shell.CreateShortCut(path)
     shortcut.Targetpath = target
-    shortcut.IconLocation = icon
+    # shortcut.IconLocation = icon
     shortcut.WindowStyle = 7  # 7 - Minimized, 3 - Maximized, 1 - Normal
     shortcut.save()
 
@@ -183,12 +191,11 @@ def writetohtml(message):
     f.close()
 
 
-def replacesec(loc, replaceList):
+def replacesec(loc, search, replace):
     lines = []
     with open(loc) as file:
         for line in file:
-            for search, replace in replaceList.iteritems():
-                line = line.replace(search, replace)
+            line = line.replace(search, replace)
             lines.append(line)
     with open(loc, 'w') as file:
         for line in lines:
@@ -358,7 +365,6 @@ def checkuser(VariableName):
 def gooduser():
     userlists = checkuser(vuldDict['goodUser']['keywords'])
     for idx, item in enumerate(userlists):
-        print(idx)
         if not userlists[idx]:
             recordpenalty('Removed User', vulnDict['goodUser']['points'][idx], '')
 
@@ -395,10 +401,10 @@ def admincheck(VariableName):
     for f in VariableName:
         for c in content:
             if f in c:
-                userlist.append(True)
+                adminlist.append(True)
                 check = True
         if not check:
-            userlist.append(False)
+            adminlist.append(False)
             check = False
     os.remove('admin.bat')
     os.remove('admins.txt')
@@ -437,10 +443,10 @@ def groupcheck(VariableName):
     for f in VariableName:
         for c in content:
             if f in c:
-                userlist.append(True)
+                grouplist.append(True)
                 check = True
         if not check:
-            userlist.append(False)
+            grouplist.append(False)
             check = False
     os.remove('group.bat')
     os.remove('groups.txt')
@@ -621,7 +627,7 @@ def badfile():
         f.write('@echo off\nif EXIST "' + vulnDict['badFile']['keywords'][idx] + '" echo y > check.txt\nif NOT EXIST "' + vulnDict['badFile']['keywords'][idx] + '" echo n > check.txt')
         f.close()
         subprocess.Popen([r'badfile.bat'])
-        time.sleep(20)
+        time.sleep(1)
         with open('check.txt') as t:
             if 'n' in t.read():
                 recordhit('badFile', vulnDict['badFile']['points'][idx], '')
@@ -714,7 +720,7 @@ def miscpoints():
         checkstartup()
     if taskScheduler:
         '''taskscheduler()'''
-    if antivirus:
+    if antiVirus:
         antivirus()
 
 
@@ -736,3 +742,4 @@ time.sleep(60)
 #  goodservice
 #  checkhosts
 #  taskscheduler
+# TODO add points to all missess and add total
