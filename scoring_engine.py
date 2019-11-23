@@ -39,14 +39,19 @@ def drawhead():
 
 
 def recordhit(name, points, message):
-    global totalPoints
-    global totalVuln
+    global totalPoints, posPoints
+    global totalVuln, posVuln
     writetohtml(('<p style="color:green">' + name + '(' + str(points) + 'points)</p>'))
     totalPoints += int(points)
+    posPoints += int(points)
     totalVuln += 1
+    posVuln += 1
 
 
-def recordmiss(name):
+def recordmiss(name, points):
+    global posPoints, posVuln
+    posPoints += int(points)
+    posVuln += 1
     if not vulnDict['silentMiss']['enable']:
         writetohtml(('<p style="color:red">MISS' + name + 'Issue</p>'))
 
@@ -133,7 +138,7 @@ def forensicquestion():
                 if vulnDict['forensics']['answer'][fq] in c:
                     recordhit(name, vulnDict['forensics']['points'][fq], '')
                 else:
-                    recordmiss(name)
+                    recordmiss(name, vulnDict['forensics']['points'][fq])
 
 
 def disableguest():
@@ -151,7 +156,7 @@ def disableguest():
                 recordhit('Disable Guest', vulnDict['disableGuest']['points'][0], '')
                 os.remove('user.txt')
             else:
-                recordmiss('Disable Guest')
+                recordmiss('Disable Guest', vulnDict['disableGuest']['points'][0])
                 os.remove('user.txt')
 
 
@@ -169,7 +174,7 @@ def disableadmin():
                 recordhit('Disable Admin', vulnDict['disableAdmin']['points'][0], '')
                 os.remove('user.txt')
             else:
-                recordmiss('Disable Admin')
+                recordmiss('Disable Admin', vulnDict['disableAdmin']['points'][0])
                 os.remove('user.txt')
 
 
@@ -189,7 +194,7 @@ def checkfirewall():
     if statuson == 'true':
         recordhit('checkFirewall', vulnDict['checkFirewall']['points'][0], '')
     else:
-        recordmiss('checkFirewall')
+        recordmiss('checkFirewall', vulnDict['checkFirewall']['points'][0])
     os.remove('firewall.bat')
     os.remove('status.txt')
 
@@ -205,56 +210,56 @@ def localgrouppolicy(option):
                 if i.endswith('30'):
                     recordhit('Minimum Password Age', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Password Policy')
+                    recordmiss('Password Policy', vulnDict[option]['points'][0])
     elif option == 'maxPassAge':
         for i in content:
             if 'MaximumPasswordAge' in i:
                 if i.endswith('60'):
                     recordhit('Maximum Password Age', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Password Policy')
+                    recordmiss('Password Policy', vulnDict[option]['points'][0])
     elif option == 'maxLoginTries':
         for i in content:
             if 'LockoutBadCount' in i:
                 if i.endswith('5'):
                     recordhit('Maximum Login Tries', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Account Policy')
+                    recordmiss('Account Policy', vulnDict[option]['points'][0])
     elif option == 'checkPassLength':
         for i in content:
             if 'MinimumPasswordLength' in i:
                 if i.endswith('10'):
                     recordhit('Minimum Password Length', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Password Policy')
+                    recordmiss('Password Policy', vulnDict[option]['points'][0])
     elif option == 'checkPassHist':
         for i in content:
             if 'PasswordHistorySize' in i:
                 if i.endswith('5'):
                     recordhit('Password History Size', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Password Policy')
+                    recordmiss('Password Policy', vulnDict[option]['points'][0])
     elif option == 'checkPassCompx':
         for i in content:
             if 'PasswordComplexity' in i:
                 if i.endswith('1'):
                     recordhit('Password Complexity', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Password Policy')
+                    recordmiss('Password Policy', vulnDict[option]['points'][0])
     elif option == 'requireCTRL_ALT_DEL':
         for i in content:
             if 'DisableCAD' in i:
                 if i.endswith('1'):
                     recordhit('Require CTRL + ALT + DEL', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Security Policy')
+                    recordmiss('Security Policy', vulnDict[option]['points'][0])
     elif option == 'DontDisplayLastUser':
         for i in content:
             if 'dontDisplayLastUserName' in i:
                 if i.endswith('1'):
                     recordhit('Dont Display Last User Name', vulnDict[option]['points'][0], '')
                 else:
-                    recordmiss('Security Policy')
+                    recordmiss('Security Policy', vulnDict[option]['points'][0])
 
 
 def checkuser(VariableName):
@@ -292,7 +297,7 @@ def baduser():
     userlists = checkuser(vulnDict['badUser']['keywords'])
     for idx, item in enumerate(userlists):
         if userlists[idx]:
-            recordmiss('Users')
+            recordmiss('Users', vulnDict['badUser']['points'][idx])
         else:
             recordhit('Remove User', vulnDict['badUser']['points'][idx], '')
 
@@ -303,7 +308,7 @@ def newuser():
         if userlists[idx]:
             recordhit('Add User', vulnDict['newUser']['points'][idx], '')
         else:
-            recordmiss('Users')
+            recordmiss('Users', vulnDict['newUser']['points'][idx])
 
 
 def admincheck(VariableName):
@@ -336,14 +341,14 @@ def goodadmin():
         if adminlists[idx]:
             recordhit('Add Admin', vulnDict['goodAdmin']['points'][idx], '')
         else:
-            recordmiss('Users')
+            recordmiss('Users', vulnDict['goodAdmin']['points'][idx])
 
 
 def badadmin():
     adminlists = admincheck(vulnDict['badAdmin']['keywords'])
     for idx, item in enumerate(adminlists):
         if adminlists[idx]:
-            recordmiss('Users')
+            recordmiss('Users', vulnDict['badAdmin']['points'][idx])
         else:
             recordhit('Remove Admin', vulnDict['badAdmin']['points'][idx], '')
 
@@ -383,7 +388,7 @@ def badgroup():
     grouplists = groupcheck(vulnDict['badGroup']['keywords'])
     for idx, item in enumerate(grouplists):
         if grouplists[idx]:
-            recordmiss('Remove Group')
+            recordmiss('Remove Group', vulnDict['badGroup']['points'][idx])
         else:
             recordhit('badGroup', vulnDict['badGroup']['points'][idx], '')
 
@@ -402,7 +407,7 @@ def useringroup():
             if vulnDict['userInGroup']['keywords'][idx] in cont:
                 recordhit('userInGroup', vulnDict['userInGroup']['points'][idx], '')
             else:
-                recordmiss('User Not In Group')
+                recordmiss('User Not In Group', vulnDict['userInGroup']['points'][idx])
         os.remove('UserGroup.bat')
         os.remove('UserGroups.txt')
 
@@ -419,7 +424,7 @@ def checkstartup():
         if k in content:
             recordhit('Program Removed from Startup', vulnDict['checkStartup']['points'][0], '')
         else:
-            recordmiss('Startup')
+            recordmiss('Startup', vulnDict['checkStartup']['points'][0])
 
 
 def filecontainstext():
@@ -433,7 +438,7 @@ def filecontainstext():
         if infile:
             recordhit(vulnDict['fileContainsText']['message'][idx], vulnDict['fileContainsText']['points'][idx], '')
         else:
-            recordmiss('File Does Not Contains Text')
+            recordmiss('File Does Not Contains Text', vulnDict['fileContainsText']['points'][idx])
 
 
 def filenolongercontains():
@@ -447,10 +452,10 @@ def filenolongercontains():
         if not infile:
             recordhit(vulnDict['fileNoLongerContains']['message'][idx], vulnDict['fileNoLongerContains']['points'][idx], '')
         else:
-            recordmiss('File Still Contains Text')
+            recordmiss('File Still Contains Text', vulnDict['fileNoLongerContains']['points'][idx])
 
 
-def services():
+def services(option):
     m = open('getServices.ps1', 'w+')
     m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > services.txt')
     m.close()
@@ -459,18 +464,20 @@ def services():
     content = p.read().splitlines()
     p.close()
     for c in content:
-        for idx, bs in vulnDict['badService']['keywords']:
-            if bs in c:
-                if 'Disabled' in c and 'Stopped' in c:
-                    recordhit('Disabled ' + bs, vulnDict['badService']['points'][idx], '')
-                else:
-                    recordmiss('Service')
-        for i in range(len(vulnDict['goodService']['keywords'])):
-            if vulnDict['goodService']['keywords'][i] in c:
-                if vulnDict['goodService']['extrakeywords'][i] in c and vulnDict['goodService']['message'][i] in c:
-                    recordhit('Configured ' + vulnDict['goodService']['keywords'][i] + " service correctly", vulnDict['goodService']['points'][i], '')
-                else:
-                    recordmiss('Service')
+        if option == 'badService':
+            for idx, bs in vulnDict['badService']['keywords']:
+                if bs in c:
+                    if 'Disabled' in c and 'Stopped' in c:
+                        recordhit('Disabled ' + bs, vulnDict['badService']['points'][idx], '')
+                    else:
+                        recordmiss('Service', vulnDict['badService']['points'][idx])
+        if option == 'goodService':
+            for i in range(len(vulnDict['goodService']['keywords'])):
+                if vulnDict['goodService']['keywords'][i] in c:
+                    if vulnDict['goodService']['extrakeywords'][i] in c and vulnDict['goodService']['message'][i] in c:
+                        recordhit('Configured ' + vulnDict['goodService']['keywords'][i] + " service correctly", vulnDict['goodService']['points'][i], '')
+                    else:
+                        recordmiss('Service', vulnDict['goodService']['points'][i])
     if os.path.exists('getServices.ps1'):
         os.remove('getServices.ps1')
     if os.path.exists('services.txt'):
@@ -494,7 +501,7 @@ def programs(option):
             if installed:
                 recordhit('Good program installed', vulnDict['goodProgram']['points'][idx], '')
             else:
-                recordmiss('Program')
+                recordmiss('Program', vulnDict['goodProgram']['points'][idx])
     if option == 'badProgram':
         for idx, bp in vulnDict['badProgram']['keywords']:
             installed = False
@@ -504,7 +511,7 @@ def programs(option):
             if not installed:
                 recordhit('Bad program uninstalled', vulnDict['badProgram']['points'][idx], '')
             else:
-                recordmiss('Program')
+                recordmiss('Program', vulnDict['badProgram']['points'][idx])
     if os.path.exists('getPrograms.ps1'):
         os.remove('getPrograms.ps1')
     if os.path.exists('programs.txt'):
@@ -528,7 +535,7 @@ def antivirus():
     if protected:
         recordhit('Virus & threat protection enabled', vulnDict['antiVirus']['points'][0], '')
     else:
-        recordmiss('Virus & threat protection')
+        recordmiss('Virus & threat protection', vulnDict['antiVirus']['points'][0])
     if os.path.exists('getSecurity.ps1'):
         os.remove('getSecurity.ps1')
     if os.path.exists('security.txt'):
@@ -546,7 +553,7 @@ def badfile():
             if 'n' in t.read():
                 recordhit('badFile', vulnDict['badFile']['points'][idx], '')
             else:
-                recordmiss('Remove bad file')
+                recordmiss('Remove bad file', vulnDict['badFile']['points'][idx])
         t.close()
         os.remove('badfile.bat')
         os.remove('check.txt')
@@ -609,9 +616,9 @@ def programmanagement():
     if vulnDict['badProgram']['enable']:
         programs('badProgram')
     if vulnDict['goodService']['enable']:
-        '''goodservice()'''
-    # if vulnDict['badService']['enable']:
-    # badservice()
+        services('goodservice')
+    if vulnDict['badService']['enable']:
+        services('badservice')
 
 
 def filemanagement():
@@ -622,8 +629,8 @@ def filemanagement():
         badfile()
     if vulnDict['checkHosts']['enable']:
         '''checkhosts()'''
-    # if vulnDict['fileContainsText']['enable']:
-        # filecontainstext()
+    if vulnDict['fileContainsText']['enable']:
+        filecontainstext()
     if vulnDict['fileNoLongerContains']['enable']:
         filenolongercontains()
 
@@ -653,7 +660,6 @@ while True:
 # TODO add Functions:
 #  changepassword
 #  updateautoinstall
-#  goodservice
 #  checkhosts
 #  taskscheduler
 # TODO add points to all missess and add total
