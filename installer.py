@@ -1,7 +1,6 @@
 import os
 import sys
 import subprocess
-import time
 import shutil
 import shlex
 import tempfile
@@ -10,6 +9,16 @@ from PyInstaller import __main__ as pyi
 
 def setup():
     os.makedirs('C:/CyberPatriot/')
+    output_directory = 'C:/CyberPatriot/'
+    shutil.move('CCC_logo.png', os.path.join(output_directory, 'CCC_logo.png'))
+    shutil.move('iguana.png', os.path.join(output_directory, 'iguana.png'))
+    shutil.move('logo.png', os.path.join(output_directory, 'logo.png'))
+    shutil.move('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
+    shutil.copy('scoring_engine.py', 'scoring_engine_temp.py')
+    f = open('csew.cfg')
+    r = f.read()
+    f.close()
+    replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
 
 
 def autoTasks():
@@ -55,11 +64,13 @@ def convert(command):
     move_project(dist_path, output_directory)
     shutil.rmtree(temporary_directory)
 
-'''
-f = open('install.bat', 'x')
-f.write('pyinstaller -y -F -w --add-data "C:/Users/CyberPatriot/Desktop/Scoring_engine/balloontip.py";"." "C:/Users/CyberPatriot/Desktop/Scoring_engine/scoring_engine.py"')
-f.close()
-subprocess.Popen([r'install.bat'])
-time.sleep(15)
-os.remove('install.bat')
-'''
+
+def replacesec(loc, search, replace):
+    lines = []
+    with open(loc) as file:
+        for line in file:
+            line = line.replace(search, replace)
+            lines.append(line)
+    with open(loc, 'w') as file:
+        for line in lines:
+            file.write(line)
