@@ -1,7 +1,7 @@
 import os
 import ctypes
-import subprocess
 import time
+import installer
 from tkinter import *
 from tkinter import messagebox
 
@@ -394,44 +394,11 @@ def createForQ():
     f.close()
 
 
-# What happens when you click Submit?
-# def writeToConfig(name, points, keywords, keywordsExtra, message):
-#     f = open('csel.cfg', 'a')
-#     """if name == 'changePassword':
-#         v = open('passGet.bat', 'w+')
-#         ## Fix to Windows (Fixing, but not done)
-#         v.write(
-#             "@echo off\n\nnames=\'" + keywords + "\'\necho '' > name.txt\nIFS=\' \'\nread -ra NAME <<< \"$names\"\nfor i in \"${NAME[@]}\"; do\ngetent shadow | grep \"$i\" >> name.txt\ndone")
-#         v.close()
-#         subprocess.call(['./passGet.bat'])
-#         with open('name.txt') as t:
-#             content = t.read().splitlines()
-#         t.close()
-#         passwdO = ''
-#         for cont in content:
-#             if cont != '':
-#                 passwd = cont.split(':')
-#                 if passwdO != '':
-#                     passwdO = passwdO + ' ' + passwd[2]
-#                 else:
-#                     passwdO = passwd[2]
-#         keywordsExtra = passwdO.replace('$', '\$')
-#         os.remove('passGet.bat')
-#         os.remove('name.txt')"""
-#     f.write(name + '=true\n')
-#     f.write(name + 'Value=[' + str(points) + ']\n')
-#     if keywords != '':
-#         f.write(name + 'Keywords=[' + str(keywords) + ']\n')
-#     if keywordsExtra != '':
-#         f.write(name + 'ExtraKeywords=[' + str(keywordsExtra) + ']\n')
-#     if message != '':
-#         f.write(name + 'Message=[' + str(message) + ']\n')
-#     f.close()
 def submitCallback():
     # We wanna use those fancy variable lists
-    '''if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
         Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator as Administrator.')
-        return'''
+        return
     errorFree = True
     errorMessage = 'Please complete the following:'
     if not dupFree:
@@ -489,6 +456,7 @@ def submitCallback():
     if not errorFree:
         Mbox('Error', errorMessage)
     if errorFree:
+        installer.setup()
         vulnDict['Desktop'] = usrDsktp.get()
         for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
             name = entry_select[number].get()
@@ -539,6 +507,11 @@ def submitCallback():
         f.write('vulnDict = ' + str(vulnDict))
         f.close()
         # subprocess.Popen(['./install.sh'])
+        balloonPath = os.path.abspath('balloontip.py')
+        scoringPath = os.path.abspath('scoring_engine.py')
+        command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
+        installer.convert(command)
+        installer.autoTasks()
         time.sleep(2)
         exit()
 
