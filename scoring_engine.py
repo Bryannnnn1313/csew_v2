@@ -10,7 +10,7 @@ import time
 
 ##OPTIONVARIABLES##
 
-vulnDict = {"silentMiss": {'enable': False}, "FTPServer": {'enable': False}, "disableGuest": {'points': [], 'enable': False}, "disableAdmin": {'points': [], 'enable': False}, "requireCTRL_ALT_DEL": {'points': [], 'enable': False}, "XXX": {'points': [], 'enable': False}, "checkFirewall": {'points': [], 'enable': False}, "XXX": {'points': [], 'enable': False}, "avUpdated": {'points': [], 'enable': False}, "minPassAge": {'points': [], 'enable': False}, "maxPassAge": {'points': [], 'enable': False}, "maxLoginTries": {'points': [], 'enable': False}, "checkPassHist": {'points': [], 'enable': False}, "checkPassCompx": {'points': [], 'enable': False}, "updateCheckPeriod": {'points': [], 'enable': False}, "updateAutoInstall": {'points': [], 'enable': False}, "dontDisplayLastUser": {'points': [], 'enable': False}, "goodUser": {'points': [], 'keywords': [], 'enable': False}, "badUser": {'points': [], 'keywords': [], 'enable': False}, "newUser": {'points': [], 'keywords': [], 'enable': False}, "changePassword": {'points': [], 'keywords': [], 'enable': False}, "goodAdmin": {'points': [], 'keywords': [], 'enable': False}, "badAdmin": {'points': [], 'keywords': [], 'enable': False}, "goodGroup": {'points': [], 'keywords': [], 'enable': False}, "badGroup": {'points': [], 'keywords': [], 'enable': False}, "goodProgram": {'points': [], 'keywords': [], 'enable': False}, "badProgram": {'points': [], 'keywords': [], 'enable': False}, "badService": {'points': [], 'keywords': [], 'enable': False}, "badFile": {'points': [], 'keywords': [], 'enable': False}, "antiVirus": {'points': [], 'keywords': [], 'enable': False}, "checkHosts": {'points': [], 'keywords': [], 'enable': False}, "checkStartup": {'points': [], 'keywords': [], 'enable': False}, "taskScheduler": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "userInGroup": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "goodService": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "fileContainsText": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, "fileNoLongerContains": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}}
+vulnDict = {'Desktop': 'C:/Users/CyberPatriot/Desktop/', 'silentMiss': {'enable': False}, 'FTPServer': {'enable': False}, 'disableGuest': {'points': [], 'enable': False}, 'disableAdmin': {'points': [], 'enable': False}, 'requireCTRL_ALT_DEL': {'points': [], 'enable': False}, 'XXX': {'points': [], 'enable': False}, 'checkFirewall': {'points': ['3'], 'enable': True}, 'avUpdated': {'points': [], 'enable': False}, 'minPassAge': {'points': [], 'enable': False}, 'maxPassAge': {'points': [], 'enable': False}, 'maxLoginTries': {'points': [], 'enable': False}, "checkPassLength": {'points': [], 'enable': False}, 'checkPassHist': {'points': [], 'enable': False}, 'checkPassCompx': {'points': [], 'enable': False}, 'updateCheckPeriod': {'points': [], 'enable': False}, 'updateAutoInstall': {'points': [], 'enable': False}, 'dontDisplayLastUser': {'points': [], 'enable': False}, 'goodUser': {'points': [], 'keywords': [], 'enable': False}, 'badUser': {'points': [], 'keywords': [], 'enable': False}, 'newUser': {'points': [], 'keywords': [], 'enable': False}, 'changePassword': {'points': [], 'keywords': [], 'enable': False}, 'goodAdmin': {'points': ['3', '3'], 'keywords': ['sdf', 'sdf'], 'enable': True}, 'badAdmin': {'points': [], 'keywords': [], 'enable': False}, 'goodGroup': {'points': [], 'keywords': [], 'enable': False}, 'badGroup': {'points': [], 'keywords': [], 'enable': False}, 'goodProgram': {'points': [], 'keywords': [], 'enable': False}, 'badProgram': {'points': [], 'keywords': [], 'enable': False}, 'badService': {'points': [], 'keywords': [], 'enable': False}, 'badFile': {'points': [], 'keywords': [], 'enable': False}, 'antiVirus': {'points': [], 'keywords': [], 'enable': False}, 'checkHosts': {'points': [], 'keywords': [], 'enable': False}, 'checkStartup': {'points': [], 'keywords': [], 'enable': False}, 'taskScheduler': {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, 'userInGroup': {'points': ['3', '3'], 'keywords': ['asd', 'asd'], 'extrakeywords': ['sdf', 'sdf'], 'enable': True}, 'goodService': {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, 'fileContainsText': {'points': ['3', '3'], 'keywords': ['asdf', 'asdf'], 'extrakeywords': ['asf', 'asf'], 'message': ['df', 'df'], 'enable': True}, 'fileNoLongerContains': {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}}
 forensicQuestion = False
 forensicCount = [2]
 forensicAnswer = ['w']
@@ -77,7 +77,8 @@ def balloon_tip(title, msg):
 def drawhead():
     f = open(scoreIndex, 'w+')
     f.write('<!doctype html><html><head><title>CSEL Score Report</title><meta http-equiv="refresh" content="30"></head><body style="background-color:powderblue;">''\n')
-    f.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/iguana.png"></td><td><img src="C:/CyberPatriot/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v2.0</H2></div></td><td><img ' 'src="C:/CyberPatriot/SoCalCCCC.png"></td><td><img src="C:/CyberPatriot/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
+    f.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/iguana.png"></td><td><img src="C:/CyberPatriot/logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v2.0</H2></div></td><td><img ' 
+            'src="C:/CyberPatriot/SoCalCCCC.png"></td><td><img src="C:/CyberPatriot/CCC_logo.png"></td></tr></table><br><H2>Your Score: #TotalScore#/#PossiblePoints#</H2><H2>Vulnerabilities: #TotalVuln#/#PossibleVuln#</H2><hr>')
     f.close()
 
 
@@ -85,7 +86,7 @@ def recordhit(name, points, message):
     global totalPoints
     global totalVuln
     writetohtml(('<p style="color:green">' + name + '(' + str(points) + 'points)</p>'))
-    totalPoints += points
+    totalPoints += int(points)
     totalVuln += 1
 
 
@@ -97,7 +98,7 @@ def recordmiss(name):
 def recordpenalty(name, points, message):
     global totalPoints
     writetohtml(('<p style="color:red">' + name + '(' + str(points) + 'points)</p>'))
-    totalPoints -= points
+    totalPoints -= int(points)
 
 
 def drawtail():
@@ -131,10 +132,10 @@ def scorecheck():
     global prePoints
     if totalPoints > prePoints:
         prePoints = totalPoints
-        WindowsBalloonTip.balloon_tip('Score Update', 'You gained points!!')
+        balloon_tip('Score Update', 'You gained points!!')
     if totalPoints < prePoints:
         prePoints = totalPoints
-        WindowsBalloonTip.balloon_tip('Score Update', 'You lost points!!')
+        balloon_tip('Score Update', 'You lost points!!')
 
 
 def runpowershell(fileName):
@@ -659,14 +660,14 @@ def programmanagement():
 
 def filemanagement():
     writetohtml(('<H3>FILE MANAGEMENT</H3>'))
-    if vulnDict['forensicQuestion']['enable']:
-        forensicquestion()
+    # if vulnDict['forensicQuestion']['enable']:
+        # forensicquestion()
     if vulnDict['badFile']['enable']:
         badfile()
     if vulnDict['checkHosts']['enable']:
         '''checkhosts()'''
-    if vulnDict['fileContainsText']['enable']:
-        filecontainstext()
+    # if vulnDict['fileContainsText']['enable']:
+        # filecontainstext()
     if vulnDict['fileNoLongerContains']['enable']:
         filenolongercontains()
 
@@ -682,16 +683,16 @@ def miscpoints():
 
 
 # --------- Main Loop ---------#
-
-checkrunas()
-drawhead()
-usermanagement()
-securitypolicies()
-filemanagement()
-miscpoints()
-scorecheck()
-drawtail()
-time.sleep(60)
+while True:
+    # checkrunas()
+    drawhead()
+    usermanagement()
+    securitypolicies()
+    filemanagement()
+    miscpoints()
+    scorecheck()
+    drawtail()
+    time.sleep(60)
 
 # TODO add Functions:
 #  changepassword

@@ -1,4 +1,4 @@
-Desktop=C:/Users/Shaun/Desktop/
+Desktop=C:/Users/CyberPatriot/Desktop/
 checkFirewall='y'
 checkFirewallValue='3'
 goodAdmin='y'
