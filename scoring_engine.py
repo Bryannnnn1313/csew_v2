@@ -457,17 +457,16 @@ def services():
     content = p.read().splitlines()
     p.close()
     for c in content:
-        for bs in vulnDict['badService']['keywords']:
+        for idx, bs in vulnDict['badService']['keywords']:
             if bs in c:
                 if 'Disabled' in c and 'Stopped' in c:
-                    recordhit('Disabled ' + bs, vulnDict['badService']['points'][0], '')
-                    #original: recordhit('Disabled ' + bs, badServiceValue, '')
+                    recordhit('Disabled ' + bs, vulnDict['badService']['points'][idx], '')
                 else:
                     recordmiss('Service')
         for i in range(len(vulnDict['goodService']['keywords'])):
             if vulnDict['goodService']['keywords'][i] in c:
                 if vulnDict['goodService']['extrakeywords'][i] in c and vulnDict['goodService']['message'][i] in c:
-                    recordhit('Configured ' + vulnDict['goodService']['keywords'][i] + " service correctly", vulnDict['goodService']['points'][0], '')
+                    recordhit('Configured ' + vulnDict['goodService']['keywords'][i] + " service correctly", vulnDict['goodService']['points'][i], '')
                 else:
                     recordmiss('Service')
     if os.path.exists('getServices.ps1'):
@@ -485,27 +484,23 @@ def programs(option):
     content = k.read().splitlines()
     k.close()
     if option == 'goodProgram':
-        for gp in vulnDict['goodProgram']['keywords']:
+        for idx, gp in vulnDict['goodProgram']['keywords']:
             installed = False
             for c in content:
                 if gp in c:
                     installed = True
             if installed:
-                recordhit('Good program installed', vulnDict['goodProgram']['points'][0], '')
-                # What? it just gets the base value? Even if there are multiple services?
-                # original: recordhit('Bad program uninstalled', goodProgramValue, '')
+                recordhit('Good program installed', vulnDict['goodProgram']['points'][idx], '')
             else:
                 recordmiss('Program')
     if option == 'badProgram':
-        for bp in vulnDict['badProgram']['keywords']:
+        for idx, bp in vulnDict['badProgram']['keywords']:
             installed = False
             for c in content:
                 if bp in c:
                     installed = True
             if not installed:
-                recordhit('Bad program uninstalled', vulnDict['badProgram']['points'][0], '')
-                #What? it just gets the base value? Even if there are multiple services?
-                #original: recordhit('Bad program uninstalled', badProgramValue, '')
+                recordhit('Bad program uninstalled', vulnDict['badProgram']['points'][idx], '')
             else:
                 recordmiss('Program')
     if os.path.exists('getPrograms.ps1'):
