@@ -456,7 +456,6 @@ def submitCallback():
     if not errorFree:
         Mbox('Error', errorMessage)
     if errorFree:
-        installer.setup()
         vulnDict['Desktop'] = usrDsktp.get()
         for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
             name = entry_select[number].get()
@@ -507,12 +506,10 @@ def submitCallback():
         f.write('vulnDict = ' + str(vulnDict))
         f.close()
         # subprocess.Popen(['./install.sh'])
-        balloonPath = os.path.abspath('balloontip.py')
-        scoringPath = os.path.abspath('scoring_engine.py')
-        command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
-        installer.convert(command)
-        installer.autoTasks()
-        time.sleep(2)
+        f = open('csew.cfg')
+        r = f.read()
+        f.close()
+        installer.replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
         exit()
 
 

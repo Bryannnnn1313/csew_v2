@@ -15,10 +15,6 @@ def setup():
     shutil.move('logo.png', os.path.join(output_directory, 'logo.png'))
     shutil.move('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
     shutil.copy('scoring_engine.py', 'scoring_engine_temp.py')
-    f = open('csew.cfg')
-    r = f.read()
-    f.close()
-    replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
 
 
 def autoTasks():
@@ -64,6 +60,13 @@ def convert(command):
     move_project(dist_path, output_directory)
     shutil.rmtree(temporary_directory)
 
+balloonPath = os.path.abspath('balloontip.py')
+scoringPath = os.path.abspath('scoring_engine.py')
+command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
+setup()
+convert(command)
+autoTasks()
+Time.sleep(2)
 
 def replacesec(loc, search, replace):
     lines = []
