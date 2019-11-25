@@ -510,6 +510,11 @@ def submitCallback():
         r = f.read()
         f.close()
         installer.replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
+        balloonPath = os.path.abspath('balloontip.py')
+        scoringPath = os.path.abspath('scoring_engine.py')
+        command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
+        convert(command)
+        time.sleep(2)
         exit()
 
 

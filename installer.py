@@ -4,6 +4,7 @@ import subprocess
 import shutil
 import shlex
 import tempfile
+import time
 from PyInstaller import __main__ as pyi
 
 
@@ -60,11 +61,7 @@ def convert(command):
     move_project(dist_path, output_directory)
     shutil.rmtree(temporary_directory)
 
-balloonPath = os.path.abspath('balloontip.py')
-scoringPath = os.path.abspath('scoring_engine.py')
-command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
 setup()
-convert(command)
 autoTasks()
 Time.sleep(2)
 
