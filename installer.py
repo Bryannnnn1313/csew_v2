@@ -63,7 +63,7 @@ def convert(command):
 
 setup()
 autoTasks()
-Time.sleep(2)
+time.sleep(2)
 
 def replacesec(loc, search, replace):
     lines = []
