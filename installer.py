@@ -4,7 +4,6 @@ import subprocess
 import shutil
 import shlex
 import tempfile
-import time
 from PyInstaller import __main__ as pyi
 
 
@@ -62,8 +61,7 @@ def convert(command):
     shutil.rmtree(temporary_directory)
 
 setup()
-autoTasks()
-time.sleep(2)
+autotasks()
 
 def replacesec(loc, search, replace):
     lines = []

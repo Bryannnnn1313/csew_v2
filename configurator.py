@@ -506,10 +506,6 @@ def submitCallback():
         f.write('vulnDict = ' + str(vulnDict))
         f.close()
         # subprocess.Popen(['./install.sh'])
-        f = open('csew.cfg')
-        r = f.read()
-        f.close()
-        installer.replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
         balloonPath = os.path.abspath('balloontip.py')
         scoringPath = os.path.abspath('scoring_engine.py')
         command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
