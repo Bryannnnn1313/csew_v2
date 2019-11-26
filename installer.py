@@ -16,7 +16,6 @@ def setup():
     shutil.move('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
     shutil.copy('scoring_engine.py', 'scoring_engine_temp.py')
 
-
 def autoTasks():
     f = open('Run.bat', 'x')
     f.write('@echo off\nschtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST\nschtasks/create /SC MINUTE /MO 2 /TN C:\\CyberPatriot\\RepeatScoring.ps1 /RL HIGHEST')
@@ -61,7 +60,7 @@ def convert(command):
     shutil.rmtree(temporary_directory)
 
 setup()
-autotasks()
+autoTasks()
 
 def replacesec(loc, search, replace):
     lines = []
