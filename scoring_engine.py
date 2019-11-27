@@ -10,6 +10,7 @@ import time
 import balloontip
 
 ##OPTIONVARIABLES##
+vulnDict = {'Desktop': 'C:/Users/CyberPatriot/Desktop/', 'silentMiss': {'enable': False}, 'FTPServer': {'enable': False}, 'disableGuest': {'points': [], 'enable': False}, 'disableAdmin': {'points': [], 'enable': False}, 'requireCTRL_ALT_DEL': {'points': ['4'], 'enable': True}, 'XXX': {'points': [], 'enable': False}, 'checkFirewall': {'points': [], 'enable': False}, 'avUpdated': {'points': [], 'enable': False}, 'minPassAge': {'points': [], 'enable': False}, 'maxPassAge': {'points': [], 'enable': False}, 'maxLoginTries': {'points': [], 'enable': False}, 'checkPassLength': {'points': [], 'enable': False}, 'checkPassHist': {'points': [], 'enable': False}, 'checkPassCompx': {'points': [], 'enable': False}, 'updateCheckPeriod': {'points': [], 'enable': False}, 'updateAutoInstall': {'points': [], 'enable': False}, 'dontDisplayLastUser': {'points': [], 'enable': False}, 'goodUser': {'points': ['5', '5'], 'keywords': ['Joe', 'Joe'], 'enable': True}, 'badUser': {'points': [], 'keywords': [], 'enable': False}, 'newUser': {'points': [], 'keywords': [], 'enable': False}, 'changePassword': {'points': [], 'keywords': [], 'enable': False}, 'goodAdmin': {'points': [], 'keywords': [], 'enable': False}, 'badAdmin': {'points': [], 'keywords': [], 'enable': False}, 'goodGroup': {'points': [], 'keywords': [], 'enable': False}, 'badGroup': {'points': [], 'keywords': [], 'enable': False}, 'goodProgram': {'points': [], 'keywords': [], 'enable': False}, 'badProgram': {'points': [], 'keywords': [], 'enable': False}, 'badService': {'points': [], 'keywords': [], 'enable': False}, 'badFile': {'points': [], 'keywords': [], 'enable': False}, 'antiVirus': {'points': [], 'keywords': [], 'enable': False}, 'checkHosts': {'points': [], 'keywords': [], 'enable': False}, 'checkStartup': {'points': [], 'keywords': [], 'enable': False}, 'taskScheduler': {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, 'userInGroup': {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, 'goodService': {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, 'fileContainsText': {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, 'fileNoLongerContains': {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, 'forensics': {'count': 0, 'points': [], 'answer': [], 'enable': False}}
 
 
 forensicQuestion = False
@@ -53,7 +54,7 @@ def recordmiss(name, points):
     posPoints += int(points)
     posVuln += 1
     if not vulnDict['silentMiss']['enable']:
-        writetohtml(('<p style="color:red">MISS' + name + 'Issue</p>'))
+        writetohtml(('<p style="color:red">MISS ' + name + 'Issue</p>'))
 
 
 def recordpenalty(name, points, message):
@@ -93,10 +94,10 @@ def scorecheck():
     global prePoints
     if totalPoints > prePoints:
         prePoints = totalPoints
-        balloontip.balloon_tip('Score Update', 'You gained points!!')
+        w.ShowWindow('Score Update', 'You gained points!!')
     if totalPoints < prePoints:
         prePoints = totalPoints
-        balloontip.balloon_tip('Score Update', 'You lost points!!')
+        w.ShowWindow('Score Update', 'You lost points!!')
 
 
 def runpowershell(fileName):
@@ -253,6 +254,8 @@ def localgrouppolicy(option):
                     recordhit('Require CTRL + ALT + DEL', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Security Policy', vulnDict[option]['points'][0])
+            else:
+                recordmiss('Security Policy', vulnDict[option]['points'][0])
     elif option == 'DontDisplayLastUser':
         for i in content:
             if 'dontDisplayLastUserName' in i:
@@ -260,6 +263,7 @@ def localgrouppolicy(option):
                     recordhit('Dont Display Last User Name', vulnDict[option]['points'][0], '')
                 else:
                     recordmiss('Security Policy', vulnDict[option]['points'][0])
+    os.remove('group-policy.txt')
 
 
 def checkuser(VariableName):
@@ -625,8 +629,8 @@ def programmanagement():
 
 def filemanagement():
     writetohtml(('<H3>FILE MANAGEMENT</H3>'))
-    # if vulnDict['forensicQuestion']['enable']:
-        # forensicquestion()
+    if vulnDict['forensics']['enable']:
+        forensicquestion()
     if vulnDict['badFile']['enable']:
         badfile()
     if vulnDict['checkHosts']['enable']:
@@ -648,8 +652,13 @@ def miscpoints():
 
 
 # --------- Main Loop ---------#
+w = balloontip.WindowsBalloonTip()
 while True:
-    # checkrunas()
+    checkrunas()
+    posPoints = 0
+    posVuln = 0
+    totalPoints = 0
+    totalVuln = 0
     drawhead()
     usermanagement()
     securitypolicies()

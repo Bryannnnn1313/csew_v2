@@ -8,24 +8,27 @@ from PyInstaller import __main__ as pyi
 
 
 def setup():
-    os.makedirs('C:/CyberPatriot/')
     output_directory = 'C:/CyberPatriot/'
-    shutil.move('CCC_logo.png', os.path.join(output_directory, 'CCC_logo.png'))
-    shutil.move('iguana.png', os.path.join(output_directory, 'iguana.png'))
-    shutil.move('logo.png', os.path.join(output_directory, 'logo.png'))
-    shutil.move('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+    shutil.copy('CCC_logo.png', os.path.join(output_directory, 'CCC_logo.png'))
+    shutil.copy('iguana.png', os.path.join(output_directory, 'iguana.png'))
+    shutil.copy('logo.png', os.path.join(output_directory, 'logo.png'))
+    shutil.copy('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
     shutil.copy('scoring_engine.py', 'scoring_engine_temp.py')
 
 def autoTasks():
-    f = open('Run.bat', 'x')
+    f = open('Run.bat', 'w+')
     f.write('@echo off\nschtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST\nschtasks/create /SC MINUTE /MO 2 /TN C:\\CyberPatriot\\RepeatScoring.ps1 /RL HIGHEST')
     f.close()
-    r = open(r'C:\\CyberPatriot\\RunScoring.bat', 'x')
+    r = open(r'C:\\CyberPatriot\\RunScoring.bat', 'w+')
     r.write('@echo off\ncd C:\\CyberPatriot\n.\scoring_engine.exe')
     r.close()
     q = open(r"C:\\CyberPatriot\\RepeatScoring.ps1", 'w+')
     q.write('Get-Process WinStore.app > test.txt\n$Text = Get-Content -Path C:\\Users\\CyberPatriot\\test.txt\n$Text.GetType() | Format-Table -AutoSize\n$new = $Text[3].split()| where {$_}\nif ($new[6] -eq \'0\'){\n\t.\scoring_engine.exe\n}')
     q.close()
+    # os.remove('scoring_engine.py')
+    # shutil.copy('scoring_engine_temp.py', 'scoring_engine.py')
     subprocess.Popen([r'Run.bat'])
     os.remove('Run.bat')
 
@@ -48,6 +51,7 @@ def move_project(src, dst):
         # Move file
         shutil.move(os.path.join(src, file_or_folder), dst)
 
+
 def convert(command):
     temporary_directory = tempfile.mkdtemp()
     dist_path = os.path.join(temporary_directory, 'application')
@@ -59,8 +63,6 @@ def convert(command):
     move_project(dist_path, output_directory)
     shutil.rmtree(temporary_directory)
 
-setup()
-autoTasks()
 
 def replacesec(loc, search, replace):
     lines = []
