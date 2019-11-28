@@ -1,3 +1,0 @@
-serverName='23'
-userName='dsf'
-password='sdf'
