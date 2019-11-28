@@ -73,11 +73,11 @@ def drawtail():
 
     path = os.path.join(Desktop, 'ScoreReport.lnk')
     target = scoreIndex
-    # icon = index, 'scoreIcon.ico'
+    icon = os.path.join(index, 'scoring_engine_logo_windows_icon_5TN_icon.ico')
     shell = win32com.client.Dispatch("WScript.Shell")
     shortcut = shell.CreateShortCut(path)
     shortcut.Targetpath = target
-    # shortcut.IconLocation = icon
+    shortcut.IconLocation = icon
     shortcut.WindowStyle = 7  # 7 - Minimized, 3 - Maximized, 1 - Normal
     shortcut.save()
 
@@ -85,6 +85,7 @@ def drawtail():
 # Extra Functions
 def checkrunas():
     if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+        w.ShowWindow('Admin Needed', 'Please make sure the scoring engine is running as admin.')
         exit()
 
 
@@ -353,7 +354,7 @@ def badadmin():
         if adminlists[idx]:
             recordmiss('Users', vulnDict['badAdmin']['points'][idx])
         else:
-            recordhit('Remove Admin', vulnDict['badAdmin']['points'][idx], '')
+            recordhit('Removed Admin', vulnDict['badAdmin']['points'][idx], '')
 
 
 def groupcheck(VariableName):

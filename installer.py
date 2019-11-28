@@ -15,6 +15,7 @@ def setup():
     shutil.copy('iguana.png', os.path.join(output_directory, 'iguana.png'))
     shutil.copy('logo.png', os.path.join(output_directory, 'logo.png'))
     shutil.copy('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
+    shutil.copy('scoring_engine_logo_windows_icon_5TN_icon.ico', os.path.join(output_directory, 'scoring_engine_logo_windows_icon_5TN_icon.ico'))
     shutil.copy('scoring_engine.py', 'scoring_engine_temp.py')
 
 def autoTasks():
@@ -27,8 +28,8 @@ def autoTasks():
     q = open(r"C:\\CyberPatriot\\RepeatScoring.ps1", 'w+')
     q.write('Get-Process WinStore.app > test.txt\n$Text = Get-Content -Path C:\\Users\\CyberPatriot\\test.txt\n$Text.GetType() | Format-Table -AutoSize\n$new = $Text[3].split()| where {$_}\nif ($new[6] -eq \'0\'){\n\t.\scoring_engine.exe\n}')
     q.close()
-    # os.remove('scoring_engine.py')
-    # shutil.copy('scoring_engine_temp.py', 'scoring_engine.py')
+    os.remove('scoring_engine.py')
+    shutil.copy('scoring_engine_temp.py', 'scoring_engine.py')
     subprocess.Popen([r'Run.bat'])
     os.remove('Run.bat')
 

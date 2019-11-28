@@ -460,48 +460,49 @@ def submitCallback():
         for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
             name = entry_select[number].get()
             point = entry_textBox[ent2].get()
-            if not vulnDict[name]['enable']:
-                vulnDict[name]['enable'] = True
-                vulnDict[name]['points'].append(point)
-                if ent3 > -1:
-                    if entry_textBox[ent3].get() != '':
-                        kt = entry_textBox[ent3].get().split(', ')
-                        vulnDict[name]['keywords'].append(kt[0])
-                        if len(kt) > 1:
-                            for t in range(1, len(kt)):
+            if name != 'Remove':
+                if not vulnDict[name]['enable']:
+                    vulnDict[name]['enable'] = True
+                    vulnDict[name]['points'].append(point)
+                    if ent3 > -1:
+                        if entry_textBox[ent3].get() != '':
+                            kt = entry_textBox[ent3].get().split(', ')
+                            vulnDict[name]['keywords'].append(kt[0])
+                            if len(kt) > 1:
+                                for t in range(1, len(kt)):
+                                    vulnDict[name]['keywords'].append(kt[t])
+                                    vulnDict[name]['points'].append(point)
+                    if ent4 > -1:
+                        if entry_textBox[ent4].get() != '':
+                            kt = entry_textBox[ent4].get().split(', ')
+                            vulnDict[name]['extrakeywords'].append(kt[0])
+                            if len(kt) > 1:
+                                for t in range(1, len(kt)):
+                                    vulnDict[name]['extrakeywords'].append(kt[t])
+                    if ent5 > -1:
+                        if entry_textBox[ent5].get() != '':
+                            kt = entry_textBox[ent5].get().split(', ')
+                            vulnDict[name]['message'].append(kt[0])
+                            if len(kt) > 1:
+                                for t in range(1, len(kt)):
+                                    vulnDict[name]['message'].append(kt[t])
+                if vulnDict[name]['enable']:
+                    if ent3 > -1:
+                        if entry_textBox[ent3].get() != '':
+                            kt = entry_textBox[ent3].get().split(', ')
+                            for t in range(0, len(kt)):
                                 vulnDict[name]['keywords'].append(kt[t])
                                 vulnDict[name]['points'].append(point)
-                if ent4 > -1:
-                    if entry_textBox[ent4].get() != '':
-                        kt = entry_textBox[ent4].get().split(', ')
-                        vulnDict[name]['extrakeywords'].append(kt[0])
-                        if len(kt) > 1:
-                            for t in range(1, len(kt)):
+                    if ent4 > -1:
+                        if entry_textBox[ent4].get() != '':
+                            kt = entry_textBox[ent4].get().split(', ')
+                            for t in range(0, len(kt)):
                                 vulnDict[name]['extrakeywords'].append(kt[t])
-                if ent5 > -1:
-                    if entry_textBox[ent5].get() != '':
-                        kt = entry_textBox[ent5].get().split(', ')
-                        vulnDict[name]['message'].append(kt[0])
-                        if len(kt) > 1:
-                            for t in range(1, len(kt)):
+                    if ent5 > -1:
+                        if entry_textBox[ent5].get() != '':
+                            kt = entry_textBox[ent5].get().split(', ')
+                            for t in range(0, len(kt)):
                                 vulnDict[name]['message'].append(kt[t])
-            if vulnDict[name]['enable']:
-                if ent3 > -1:
-                    if entry_textBox[ent3].get() != '':
-                        kt = entry_textBox[ent3].get().split(', ')
-                        for t in range(0, len(kt)):
-                            vulnDict[name]['keywords'].append(kt[t])
-                            vulnDict[name]['points'].append(point)
-                if ent4 > -1:
-                    if entry_textBox[ent4].get() != '':
-                        kt = entry_textBox[ent4].get().split(', ')
-                        for t in range(0, len(kt)):
-                            vulnDict[name]['extrakeywords'].append(kt[t])
-                if ent5 > -1:
-                    if entry_textBox[ent5].get() != '':
-                        kt = entry_textBox[ent5].get().split(', ')
-                        for t in range(0, len(kt)):
-                            vulnDict[name]['message'].append(kt[t])
         f = open('csew.cfg', 'w+')
         f.write('vulnDict = ' + str(vulnDict))
         f.close()
@@ -513,7 +514,8 @@ def submitCallback():
         installer.replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
         balloonPath = os.path.abspath('balloontip.py')
         scoringPath = os.path.abspath('scoring_engine.py')
-        command = 'pyinstaller -y -F -w --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
+        iconPath = os.path.abspath('scoring_engine_logo_windows_icon_5TN_icon.ico')
+        command = 'pyinstaller -y -F -w -i "'+ iconPath + '" --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
         installer.convert(command)
         installer.autoTasks()
         time.sleep(2)
