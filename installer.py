@@ -4,6 +4,11 @@ import subprocess
 import shutil
 import shlex
 import tempfile
+import ctypes
+import win32com.client
+from win32api import *
+from win32gui import *
+import win32con
 from PyInstaller import __main__ as pyi
 
 
@@ -28,9 +33,9 @@ def autoTasks():
     q = open(r"C:\\CyberPatriot\\RepeatScoring.ps1", 'w+')
     q.write('Get-Process WinStore.app > test.txt\n$Text = Get-Content -Path C:\\Users\\CyberPatriot\\test.txt\n$Text.GetType() | Format-Table -AutoSize\n$new = $Text[3].split()| where {$_}\nif ($new[6] -eq \'0\'){\n\t.\scoring_engine.exe\n}')
     q.close()
+    subprocess.Popen([r'Run.bat'])
     os.remove('scoring_engine.py')
     shutil.copy('scoring_engine_temp.py', 'scoring_engine.py')
-    subprocess.Popen([r'Run.bat'])
     os.remove('Run.bat')
 
 
