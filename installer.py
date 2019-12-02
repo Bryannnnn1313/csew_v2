@@ -24,19 +24,21 @@ def setup():
     shutil.copy('scoring_engine.py', 'scoring_engine_temp.py')
 
 def autoTasks():
-    f = open('Run.bat', 'w+')
-    f.write('@echo off\nschtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST\nschtasks/create /SC MINUTE /MO 2 /TN C:\\CyberPatriot\\RepeatScoring.ps1 /RL HIGHEST')
+    f = open(r'Run.bat', 'w+')
+    f.write('@echo off\nschtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST /F\nschtasks /create /SC MINUTE /MO 2 /TN RepeatScore /TR C:\\CyberPatriot\\Repeat.bat /RL HIGHEST /F')
     f.close()
     r = open(r'C:\\CyberPatriot\\RunScoring.bat', 'w+')
     r.write('@echo off\ncd C:\\CyberPatriot\n.\scoring_engine.exe')
     r.close()
-    q = open(r"C:\\CyberPatriot\\RepeatScoring.ps1", 'w+')
-    q.write('Get-Process WinStore.app > test.txt\n$Text = Get-Content -Path C:\\Users\\CyberPatriot\\test.txt\n$Text.GetType() | Format-Table -AutoSize\n$new = $Text[3].split()| where {$_}\nif ($new[6] -eq \'0\'){\n\t.\scoring_engine.exe\n}')
+    q = open(r'C:\\CyberPatriot\\RepeatScoring.ps1', 'w+')
+    q.write('$score = Get-Process scoring_engine.exe -ErrorAction SilentlyContinue\nif ($score) {\n}\nelse{\n\tcd c:\CyberPatriot\n\t.\scoring_engine.exe\n}')
     q.close()
+    s = open(r'c:\\CyberPatriot\\Repeat.bat', 'w+')
+    s.write('@echo off \npowershell.exe -ExecutionPolicy RemoteSigned -File C:\\CyberPatriot\\RepeatScoring.ps1')
+    s.close()
     subprocess.Popen([r'Run.bat'])
     os.remove('scoring_engine.py')
     shutil.copy('scoring_engine_temp.py', 'scoring_engine.py')
-    os.remove('Run.bat')
 
 
 def move_project(src, dst):
