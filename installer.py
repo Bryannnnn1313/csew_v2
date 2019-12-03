@@ -4,11 +4,6 @@ import subprocess
 import shutil
 import shlex
 import tempfile
-import ctypes
-import win32com.client
-from win32api import *
-from win32gui import *
-import win32con
 from PyInstaller import __main__ as pyi
 
 

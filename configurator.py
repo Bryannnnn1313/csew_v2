@@ -1,5 +1,5 @@
 import os
-import ctypes
+import admin_test
 import time
 import installer
 from tkinter import *
@@ -396,8 +396,10 @@ def createForQ():
 
 def submitCallback():
     # We wanna use those fancy variable lists
-    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-        Mbox('Error', 'You need to be root to Write to Config. Please relaunch the confiturator as Administrator.')
+    saveConfig()
+    if not admin_test.isUserAdmin():
+        Mbox('Error', 'You need to be Admin to Write to Config. Relaunching the confiturator as Administrator.')
+        sys.exit(admin_test.runAsAdmin())
         return
     errorFree = True
     errorMessage = 'Please complete the following:'
@@ -510,12 +512,14 @@ def submitCallback():
         f = open('csew.cfg')
         r = f.read()
         f.close()
+
         installer.setup()
         installer.replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
         balloonPath = os.path.abspath('balloontip.py')
         scoringPath = os.path.abspath('scoring_engine.py')
+        adminPath = os.path.abspath('admin_test.py')
         iconPath = os.path.abspath('scoring_engine_logo_windows_icon_5TN_icon.ico')
-        command = 'pyinstaller -y -F -w -i "'+ iconPath + '" --add-data ' + '"' + balloonPath + '"' + ';"." ' + '"' + scoringPath + '"'
+        command = 'pyinstaller -y -F -w -i "' + iconPath + '" --add-data "' + balloonPath + '";"." --add-data "' + adminPath + '";"." "' + scoringPath + '"'
         installer.convert(command)
         installer.autoTasks()
         time.sleep(2)

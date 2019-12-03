@@ -1,13 +1,9 @@
-import ctypes
 import subprocess
 import win32com.client
-from win32api import *
-from win32gui import *
-import win32con
-import sys
 import os
 import time
 import balloontip
+import admin_test
 
 ##OPTIONVARIABLES##
 
@@ -84,9 +80,9 @@ def drawtail():
 
 # Extra Functions
 def checkrunas():
-    if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+    if not admin_test.isUserAdmin():
         w.ShowWindow('Admin Needed', 'Please make sure the scoring engine is running as admin.')
-        exit()
+        exit(admin_test.runAsAdmin())
 
 
 def scorecheck():
