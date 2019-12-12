@@ -97,13 +97,9 @@ def scorecheck():
 
 
 def runpowershell(fileName):
-    f = open('powerRun.bat', 'x')
-    f.write('PowerShell.exe -ExecutionPolicy Bypass -Command "& \'.\\' + fileName + '.ps1\'"')
-    f.close()
-    subprocess.Popen([r'powerRun.bat'])
+    os.system('Powershell.exe -Command "& {Start-Process Powershell.exe -ArgumentList \'-ExecutionPolicy Bypass -File "' + fileName + '.ps1"\' -Verb RunAs -Wait -WindowStyle Hidden}"')
     time.sleep(1)
     os.remove(fileName + '.ps1')
-    os.remove('powerRun.bat')
 
 
 def writetohtml(message):
@@ -514,8 +510,6 @@ def programs(option):
                 recordhit('Bad program uninstalled', vulnDict['badProgram']['points'][idx], '')
             else:
                 recordmiss('Program', vulnDict['badProgram']['points'][idx])
-    if os.path.exists('getPrograms.ps1'):
-        os.remove('getPrograms.ps1')
     if os.path.exists('programs.txt'):
         os.remove('programs.txt')
 
@@ -523,23 +517,16 @@ def programs(option):
 def antivirus():
     protections = ['AntispywareEnabled', 'AntivirusEnabled', 'BehaviorMonitorEnabled', 'IoavProtectionEnabled', 'IsTamperProtected', 'NISEnabled', 'OnAccessProtectionEnabled', 'RealTimeProtectionEnabled']
     m = open('getSecurity.ps1', 'w+')
-    m.write('Get-MpComputerStatus > security.txt')
+    m.write('function Get-AntiVirusProduct {\n[CmdletBinding()]\nparam (\n[parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]\n[Alias(\'name\')]\n$computername=$env:computername\n\n)\n\n#$AntivirusProducts = Get-WmiObject -Namespace "root\SecurityCenter2" -Query $wmiQuery  @psboundparameters # -ErrorVariable myError -ErrorAction \'SilentlyContinue\' # did not work\n$AntiVirusProducts = Get-WmiObject -Namespace "root\SecurityCenter2" -Class AntiVirusProduct  -ComputerName $computername\n\n$ret = @()\nforeach($AntiVirusProduct in $AntiVirusProducts){\n#Switch to determine the status of antivirus definitions and real-time protection.\n#The values in this switch-statement are retrieved from the following website: http://community.kaseya.com/resources/m/knowexch/1020.aspx\nswitch ($AntiVirusProduct.productState) {\n"262144" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}\n"262160" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"266240" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}\n"266256" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\n"393216" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}\n"393232" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"393488" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"397312" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}\n"397328" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\n"397584" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\ndefault {$defstatus = "Unknown" ;$rtstatus = "Unknown"}\n}\n\n#Create hash-table for each computer\n$ht = @{}\n$ht.Computername = $computername\n$ht.Name = $AntiVirusProduct.displayName\n$ht.\'Product GUID\' = $AntiVirusProduct.instanceGuid\n$ht.\'Product Executable\' = $AntiVirusProduct.pathToSignedProductExe\n$ht.\'Reporting Exe\' = $AntiVirusProduct.pathToSignedReportingExe\n$ht.\'Definition Status\' = $defstatus\n$ht.\'Real-time Protection Status\' = $rtstatus\n\n#Create a new object for each computer\n$ret += New-Object -TypeName PSObject -Property $ht \n}\nReturn $ret\n} \nGet-AntiVirusProduct > security.txt')
     m.close()
     runpowershell('getSecurity')
     z = open('security.txt', 'r', encoding='utf-16-le')
-    content = z.read().splitlines()
+    content = z.read()
     z.close()
-    protected = True
-    for c in content:
-        for p in protections:
-            if (p in c) and ('False' in c):
-                protected = False
-    if protected:
+    if 'Real-time Protection Status : Enabled' in content:
         recordhit('Virus & threat protection enabled', vulnDict['antiVirus']['points'][0], '')
     else:
         recordmiss('Virus & threat protection', vulnDict['antiVirus']['points'][0])
-    if os.path.exists('getSecurity.ps1'):
-        os.remove('getSecurity.ps1')
     if os.path.exists('security.txt'):
         os.remove('security.txt')
 

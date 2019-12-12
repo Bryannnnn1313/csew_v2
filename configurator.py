@@ -112,7 +112,7 @@ vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210,
          v502]
 #Option Lists
 dontCheck = ["silentMiss", "<Select One>", "Remove"]
-vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "XXX", "checkFirewall", "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist", "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "dontDisplayLastUser", "Remove"]
+vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "checkPassLength", "checkFirewall", "XXX", "avUpdated", "minPassAge", "maxPassAge", "maxLoginTries", "checkPassHist", "checkPassCompx", "updateCheckPeriod", "updateAutoInstall", "dontDisplayLastUser", "Remove"]
 vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup", "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts", "checkStartup", "Remove"]
 vulnNames4 = ["taskScheduler", "userInGroup", "goodService", "Remove"]
 vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
@@ -530,11 +530,14 @@ def saveConfig():
     # We wanna use those fancy variable lists
     if userLoc.get() == 1:
         cwd = os.getcwd()
-        cwd = cwd.replace("CSEW-master", "")
+        s = cwd.rfind('\\')
+        a = len(cwd)
+        s = a-s-1
+        cwd = cwd[:-s]
         usrDsktp.set(cwd)
-    elif "/Desktop/" not in usrDsktp.get():
+    elif "\\Desktop\\" not in usrDsktp.get():
         cwd = usrDsktp.get()
-        cwd = "C:/Users/" + cwd + "/Desktop/"
+        cwd = "C:\\Users\\" + cwd + "\\Desktop\\"
         usrDsktp.set(cwd)
     scoreLoc.set(usrDsktp.get())
     f = open('csew.txt', 'w+')
