@@ -446,6 +446,8 @@ def submitCallback():
         Mbox('Error', errorMessage)
     if errorFree:
         vulnDict['Desktop'] = usrDsktp.get()
+        if silentMode.get() == 1:
+            vulnDict['silentMiss']['enable'] = True
         for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
             name = entry_select[number].get()
             point = entry_textBox[ent2].get()
