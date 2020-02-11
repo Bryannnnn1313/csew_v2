@@ -1,6 +1,6 @@
 # This is the link to download Python 3.6.7 from Python.org
 # See https://www.python.org/downloads/
-$pythonVersion = "3.6.7"
+$pythonVersion = "3.8.1"
 $pythonUrl = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion.exe"
 # This is the directory that the exe is downloaded to
 $tempDirectory = 'C:\temp_provision\'
@@ -21,15 +21,12 @@ New-Item -ItemType directory -Path $tempDirectory -Force | Out-Null
 $Arguments = @()
 $Arguments += "/i"
 $Arguments += 'InstallAllUsers="1"'
-$Arguments += 'TargetDir="' + $targetDir + '"'
-$Arguments += 'DefaultAllUsersTargetDir="' + $targetDir + '"'
 $Arguments += 'AssociateFiles="1"'
 $Arguments += 'PrependPath="1"'
 $Arguments += 'Include_doc="1"'
 $Arguments += 'Include_debug="1"'
 $Arguments += 'Include_dev="1"'
 $Arguments += 'Include_exe="1"'
-$Arguments += 'Include_launcher="1"'
 $Arguments += 'InstallLauncherAllUsers="1"'
 $Arguments += 'Include_lib="1"'
 $Arguments += 'Include_pip="1"'
@@ -37,11 +34,6 @@ $Arguments += 'Include_symbols="1"'
 $Arguments += 'Include_tcltk="1"'
 $Arguments += 'Include_test="1"'
 $Arguments += 'Include_tools="1"'
-$Arguments += 'Include_launcher="1"'
-$Arguments += 'Include_launcher="1"'
-$Arguments += 'Include_launcher="1"'
-$Arguments += 'Include_launcher="1"'
-$Arguments += 'Include_launcher="1"'
 $Arguments += 'Include_launcher="1"'
 $Arguments += "/passive"
 
@@ -138,9 +130,9 @@ Param (
     Write-Information $message
 }
 
-Add-EnvExtension '.PY'
-Add-EnvExtension '.PYW'
-Add-EnvPath 'C:\Python36\'
+# Add-EnvExtension '.PY'
+# Add-EnvExtension '.PYW'
+# Add-EnvPath 'C:\Python36\'
 
 Remove-Item –path $tempDirectory –recurse
 

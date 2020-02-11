@@ -1,935 +1,564 @@
 import os
-import admin_test
 import time
-import installer
+import json
+import shutil
+import traceback
+import admin_test
 from tkinter import *
+from tkinter import ttk as ttk
+from tkinter import filedialog
 from tkinter import messagebox
 
 
-class ForenQuest:
-    def __init__(self, name, question, answer, points, enabled):
-        self.name = name
-        self.question = question
-        self.answer = answer
-        self.points = points
-        self.enabled = enabled
-
-
-class Vuln:
-    def __init__(self, name, layout, tip, saved):
-        self.name = name  # What is the vulnerability called?
-        self.lay = layout  # What to put in each box
-        self.tip = tip  # Explanation of the item
-        self.saved = saved
-
-
-class FullScreenApp(object):
-    def __init__(self, master, **kwargs):
-        self.master = master
-        pad = 3
-        master.geometry("{0}x{1}+0+0".format(master.winfo_screenwidth() - pad, master.winfo_screenheight() - pad))
-
-
-class AutoScrollbar(Scrollbar):
-    # a scrollbar that hides itself if it's not needed. only works if you use the grid geometry manager.
-    def set(self, lo, hi):
-        self.grid()
-        Scrollbar.set(self, lo, hi)
-
-    def pack(self, **kw):
-        raise (TclError, "cannot use pack with this widget")
-
-    def place(self, **kw):
-        raise (TclError, "cannot use place with this widget")
-
-# Variables for Forensics Questions
-fq01 = ForenQuest("Question1.txt", "Here is my question...", "myanswer", "0", "0")
-fq02 = ForenQuest("Question2.txt", "Here is my question...", "myanswer", "0", "0")
-# Variables for Special Options
-v001 = Vuln("silentMiss", "", "Check this box to hide missed items (Similar to competition)", False)
-v002 = Vuln("FTPServer", "", "Check this box to enable an FTP server to save the scores (Similar to competition)",
-            False)
-v003 = Vuln("<Select One>", "", "<Description>", False)
-
-# Variables for vulnerabilities with no input boxes
-v201 = Vuln("disableGuest", "", "Is the guest disabled in Local Security Policies or Accounts?", False)
-v202 = Vuln("disableAdmin", "", "Is the administrator disabled in Local Security Policies or Accounts?", False)
-v203 = Vuln("requireCTRL_ALT_DEL", "", "Enable the Local Security Policy for requiring CTRL+ALT+DEL", False)
-v204 = Vuln("checkFirewall", "", "Is the firewall enabled?", False)
-v205 = Vuln("minPassAge", "", "Value of min password age to score is 30 in Local Password Policies", False)
-v206 = Vuln("maxPassAge", "", "Value of max password age to score is 60 in Local Password Policies", False)
-v207 = Vuln("maxLoginTries", "", "Value of max login retries to score is 5 in Account Lockout Policies", False)
-v208 = Vuln("checkPassLength", "", "Value min pw length is 10 in Local Password Policies", False)
-v209 = Vuln("checkPassHist", "", "Value of passwords to remember is 5 in Local Password Policies", False)
-v210 = Vuln("checkPassCompx", "", "Has password complexity been implemented in Local Password Policies?", False)
-v211 = Vuln("reversibleEncryption", "", "Has reversible encryption be disabled in Local Password Policies?", False)
-v212 = Vuln("lockoutDuration", "", "Value of time for a lockout is 30 min.", False)
-v213 = Vuln("lockoutReset", "", "Value of time for a lockout is 30 min.", False)
-v214 = Vuln("updateAutoInstall", "", "Automaticaly download and install security updates.", False)
-v215 = Vuln("dontDisplayLastUser","","Enable the Local Security Policy for requiring Don't Display Last User", False)
-v216 = Vuln("auditAccountLogin","","temp", False)
-v217 = Vuln("auditAccountManagement","","temp", False)
-v218 = Vuln("auditDirectoryAccess","","temp", False)
-v219 = Vuln("auditLogonEvents","","temp", False)
-v220 = Vuln("auditObjectAccess","","temp", False)
-v221 = Vuln("auditPolicyChange","","temp", False)
-v222 = Vuln("auditPrivilegeUse","","temp", False)
-v223 = Vuln("auditProcessTracking","","temp", False)
-v224 = Vuln("auditSystemEvents","","temp", False)
-# Variables for vulnerabilities with one input box
-v301 = Vuln("goodUser", "(Users)", "Lose points for removing these users (Can take multiple entries)", False)
-v302 = Vuln("badUser", "(Users)", "Gain points for removing these users (Can take multiple entries)", False)
-v303 = Vuln("newUser", "(Users)", "Gain points for adding these users (Can take multiple entries)", False)
-v304 = Vuln("changePassword", "(Users)", "Gain points for changing the passwords on these users (Can take multiple entries)(Set the desired passwords before submitting)", False)
-v305 = Vuln("goodAdmin", "(Users)", "Lose points for removing these users from the Administrators group (Can take multiple entries)", False)
-v306 = Vuln("badAdmin", "(Users)", "Gain points for removing these users from the Administrators group (Can take multiple entries)", False)
-v307 = Vuln("goodGroup", "(Groups)", "Lose points for removing these groups (Can take multiple entries)", False)
-v308 = Vuln("badGroup", "(Groups)", "Gain points for removing these groups (Can take multiple entries)", False)
-v309 = Vuln("goodProgram", "(Programs)", "Gain points by installing these programs (Can take multiple entries)", False)
-v310 = Vuln("badProgram", "(Programs)", "Gain points by removing these programs (Can take multiple entries)", False)
-v312 = Vuln("badService", "(Services)", "Service that needs to be stopped (Can take multiple entries)", False)
-v313 = Vuln("badFile", "(Location)", "Gain points for deleting this file (Can take multiple entries)", False)
-v314 = Vuln("antiVirus", "(Keywords)", "Antivirus programs to check for (Can take multiple entries)", False)
-v315 = Vuln("checkHosts", "(Keywords)", "Check /etc/hosts for a specific string (Can take multiple entries)", False)
-v316 = Vuln("checkStartup", "(Keywords)", "Gain points for removing lines from startup tab (Can take multiple entries)", False)
-
-# Variables for vulnerabilities with two input boxes
-v401 = Vuln("taskScheduler", "(Users)(Keywords)", "Check the Task Scheduler for a specific string (Can take multiple entries)(If using multiple users be sure to include a keyword for each)", False)
-v402 = Vuln("userInGroup", "(Users)(Groups)", "Gain points for adding users to their group (Can take multiple entries)(If using multiple users be sure to include a group for each)", False)
-v403 = Vuln("goodService", "(Services)", "Service that needs to be started (Can take multiple entries)", False)
-# Variables for custom vulnerabilities
-v501 = Vuln("fileContainsText", "(FilePath)(Text)(Message)", "Custom option for requiring a word or phrase to be added to a file (Spaces will not be counted as separate entries)", False)
-v502 = Vuln("fileNoLongerContains", "(FilePath)(Text)(Message)", "Custom option for requiring a word or phrase to be removed from a file (Spaces will not be counted as separate entries)", False)
-
-vulns = [v001, v002, v201, v202, v203, v204, v205, v206, v207, v208, v209, v210, v211, v212, v213, v214, v215, v216, v217, v218, v219, v220, v221, v222, v223, v224, v301,
-         v302, v303, v304, v305, v306, v307, v308, v309, v310, v312, v313, v314, v315, v316, v401, v402, v403, v501,
-         v502]
-#Option Lists
-dontCheck = ["silentMiss", "<Select One>", "Remove"]
-vulnNames2 = ["disableGuest", "disableAdmin", "requireCTRL_ALT_DEL", "checkFirewall", "minPassAge", "maxPassAge", "checkPassLength", "maxLoginTries", "lockoutDuration", "lockoutReset", "checkPassHist", "checkPassCompx", "reversibleEncryption", "updateCheckPeriod", "updateAutoInstall", "dontDisplayLastUser", "auditAccountLogin", "auditAccountManagement", "auditDirectoryAccess", "auditLogonEvents", "auditObjectAccess", "auditPolicyChange", "auditPrivilegeUse", "auditProcessTracking", "auditSystemEvents", "Remove"]
-vulnNames3 = ["goodUser", "badUser", "newUser", "changePassword", "goodAdmin", "badAdmin", "goodGroup", "badGroup", "goodProgram", "badProgram", "badService", "badFile", "antiVirus", "checkHosts", "checkStartup", "Remove"]
-vulnNames4 = ["taskScheduler", "userInGroup", "goodService", "Remove"]
-vulnNames5 = ["fileContainsText", "fileNoLongerContains", "Remove"]
-vulnDict = {"Desktop": '', "silentMiss": {'enable': False}, "FTPServer": {'enable': False}, "disableGuest": {'points': [], 'enable': False}, "disableAdmin": {'points': [], 'enable': False}, "requireCTRL_ALT_DEL": {'points': [], 'enable': False}, "checkFirewall": {'points': [], 'enable': False}, "avUpdated": {'points': [], 'enable': False}, "minPassAge": {'points': [], 'enable': False}, "maxPassAge": {'points': [], 'enable': False}, "maxLoginTries": {'points': [], 'enable': False}, "lockoutDuration": {'points': [], 'enable': False}, "lockoutReset": {'points': [], 'enable': False}, "checkPassLength": {'points': [], 'enable': False}, "checkPassHist": {'points': [], 'enable': False}, "checkPassCompx": {'points': [], 'enable': False}, "reversibleEncryption": {'points': [], 'enable': False}, "updateCheckPeriod": {'points': [], 'enable': False}, "updateAutoInstall": {'points': [], 'enable': False}, "dontDisplayLastUser": {'points': [], 'enable': False}, "auditAccountLogin": {'points': [], 'enable': False}, "auditAccountManagement": {'points': [], 'enable': False}, "auditDirectoryAccess": {'points': [], 'enable': False}, "auditLogonEvents": {'points': [], 'enable': False}, "auditObjectAccess": {'points': [], 'enable': False}, "auditPolicyChange": {'points': [], 'enable': False}, "auditPrivilegeUse": {'points': [], 'enable': False}, "auditProcessTracking": {'points': [], 'enable': False}, "auditSystemEvents": {'points': [], 'enable': False}, "goodUser": {'points': [], 'keywords': [], 'enable': False}, "badUser": {'points': [], 'keywords': [], 'enable': False}, "newUser": {'points': [], 'keywords': [], 'enable': False}, "changePassword": {'points': [], 'keywords': [], 'enable': False}, "goodAdmin": {'points': [], 'keywords': [], 'enable': False}, "badAdmin": {'points': [], 'keywords': [], 'enable': False}, "goodGroup": {'points': [], 'keywords': [], 'enable': False}, "badGroup": {'points': [], 'keywords': [], 'enable': False}, "goodProgram": {'points': [], 'keywords': [], 'enable': False}, "badProgram": {'points': [], 'keywords': [], 'enable': False}, "badService": {'points': [], 'keywords': [], 'enable': False}, "badFile": {'points': [], 'keywords': [], 'enable': False}, "antiVirus": {'points': [], 'keywords': [], 'enable': False}, "checkHosts": {'points': [], 'keywords': [], 'enable': False}, "checkStartup": {'points': [], 'keywords': [], 'enable': False}, "taskScheduler": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "userInGroup": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "goodService": {'points': [], 'keywords': [], 'extrakeywords': [], 'enable': False}, "fileContainsText": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, "fileNoLongerContains": {'points': [], 'keywords': [], 'extrakeywords': [], 'message': [], 'enable': False}, "forensics": {'count': 0, 'points': [], 'answer': [], 'enable': False}}
-
-def addOptionMenu(loc, bRow, bColumn, list, optSet):
-    eSave = len(all_entries)
-    entry_select.append('')
-    entry_select[eSave] = StringVar()
-    entry_select[eSave].set(optSet)  # default value
-    entryOption = OptionMenu(loc, entry_select[eSave], *list, command=setEntry)
-    entryOption.config(width=17)
-    entryOption.grid(row=bRow, column=bColumn, sticky=W)
-
-
-def addTextBox(loc, bRow, bColumn, size):
-    global entry_textBox_count
-    entry_textBox_count = entry_textBox_count + 1
-    entry_textBox.append('')
-    entry_textBox[entry_textBox_count] = StringVar()
-    Entry(loc, textvariable=entry_textBox[entry_textBox_count], width=size).grid(row=bRow, column=bColumn, sticky=W)
-    return entry_textBox_count
-
-
-def addTextLable(loc, des, bRow, bColumn):
-    global entry_lable_count
-    entry_lable_count = entry_lable_count + 1
-    entry_lable.append('')
-    entry_lable[entry_lable_count] = StringVar()
-    entry_lable[entry_lable_count].set(des)
-    Label(loc, textvariable=entry_lable[entry_lable_count]).grid(row=bRow, column=bColumn, padx=10)
-    return entry_lable_count
-
-
-def addToFrame2(optSet):
-    global entry_frame2_count
-    entry_frame2_count = entry_frame2_count + 1
-    frame2 = Frame(canvas)
-    frame2.grid(row=100, column=0, sticky=W)
-
-    ent1 = 2
-    addOptionMenu(frame2, 1, 0, vulnNames2, optSet)
-
-    ent2 = addTextBox(frame2, 1, 1, 5)
-
-    ent3 = -1
-
-    ent4 = -1
-
-    ent5 = -1
-
-    ent6 = -1
-
-    ent7 = addTextLable(frame2, "<Description>", 1, 2)
-
-    all_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame2))
-    positionFrames()
-
-
-def addToFrame3(optSet):
-    global entry_frame3_count
-    entry_frame3_count = entry_frame3_count + 1
-    frame3 = Frame(canvas)
-    frame3.grid(row=1000, column=0, sticky=W)
-
-    ent1 = 3
-    addOptionMenu(frame3, 1, 0, vulnNames3, optSet)
-
-    ent2 = addTextBox(frame3, 1, 1, 5)
-
-    ent3 = addTextBox(frame3, 1, 2, 20)
-
-    ent4 = -1
-
-    ent5 = -1
-
-    ent6 = addTextLable(frame3, "<Content>", 1, 3)
-
-    ent7 = addTextLable(frame3, "<Description>", 1, 4)
-
-    all_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame3))
-    positionFrames()
-
-
-def addToFrame4(optSet):
-    global entry_frame4_count
-    entry_frame4_count = entry_frame4_count + 1
-    frame4 = Frame(canvas)
-    frame4.grid(row=1000, column=0, sticky=W)
-
-    ent1 = 4
-    addOptionMenu(frame4, 1, 0, vulnNames4, optSet)
-
-    ent2 = addTextBox(frame4, 1, 1, 5)
-
-    ent3 = addTextBox(frame4, 1, 2, 20)
-
-    ent4 = addTextBox(frame4, 1, 3, 20)
-
-    ent5 = -1
-
-    ent6 = addTextLable(frame4, "<Content>", 1, 4)
-
-    ent7 = addTextLable(frame4, "<Description>", 1, 5)
-
-    all_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame4))
-    positionFrames()
-
-
-def addToFrame5(optSet):
-    global entry_frame5_count
-    entry_frame5_count = entry_frame5_count + 1
-    frame5 = Frame(canvas)
-    frame5.grid(row=1000, column=0, sticky=W)
-
-    ent1 = 5
-    addOptionMenu(frame5, 1, 0, vulnNames5, optSet)
-
-    ent2 = addTextBox(frame5, 1, 1, 5)
-
-    ent3 = addTextBox(frame5, 1, 2, 20)
-
-    ent4 = addTextBox(frame5, 1, 3, 20)
-
-    ent5 = addTextBox(frame5, 1, 4, 20)
-
-    ent6 = -1
-
-    ent7 = addTextLable(frame5, "<Description>", 1, 6)
-
-    all_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame5))
-    positionFrames()
-
-
-def setEntry(event):
-    vulnNames2Rem = []
-    vulnNames2RemD = []
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        if entry_select[number].get() in vulnNames2Rem:
-            vulnNames2RemD.append(entry_select[number].get())
-        if entry_select[number].get() in vulnNames2:
-            vulnNames2Rem.append(entry_select[number].get())
-            frame.config(bg=root.cget('bg'))
-            error.grid_remove()
-            errorFree = True
-            dupFree = True
-        if entry_select[number].get() == "Remove":
-            frame.grid_remove()
-        for vuln in vulns:
-            if vuln.name == entry_select[number].get():
-                entry_lable[ent6].set(vuln.lay)
-                entry_lable[ent7].set(vuln.tip)
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        if entry_select[number].get() in vulnNames2RemD:
-            frame.config(bg='red')
-            error.grid(row=2, column=3)
-            errorFree = False
-            dupFree = False
-
-
-def positionFrames():
-    frame2_pos = 2
-    count2 = 1
-    frame3_pos = 3
-    count3 = 0
-    f3_entries = []
-    frame4_pos = 4
-    count4 = 0
-    f4_entries = []
-    frame5_pos = 5
-    count5 = 0
-    f5_entries = []
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        if ent1 == 2:
-            count2 = count2 + 1
-            frame2_pos = entry_frame2_count + count2
-            frame.grid(row=frame2_pos, column=0, sticky=W)
-            frame3.grid(row=frame2_pos + 1, column=0, sticky=W)
-            if len(f3_entries) == 0:
-                frame4.grid(row=frame2_pos + 2, column=0, sticky=W)
-                frame5.grid(row=frame2_pos + 3, column=0, sticky=W)
-        if ent1 == 3:
-            f3_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame))
-        if ent1 == 4:
-            f4_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame))
-        if ent1 == 5:
-            f5_entries.append((ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame))
-        if entry_select[number].get() == "Remove":
-            frame.grid_remove()
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(f3_entries):
-        count3 = count3 + 1
-        frame3_pos = frame2_pos + entry_frame3_count + count3
-        frame.grid(row=frame3_pos, column=0, sticky=W)
-        frame4.grid(row=frame3_pos + 1, column=0, sticky=W)
-        if len(f4_entries) == 0:
-            frame5.grid(row=frame3_pos + 2, column=0, sticky=W)
-        if entry_select[number].get() == "Remove":
-            frame.grid_remove()
-    if len(f3_entries) == 0:
-        frame3_pos = frame2_pos + 1
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(f4_entries):
-        count4 = count4 + 1
-        frame4_pos = frame3_pos + entry_frame4_count + count4
-        frame.grid(row=frame4_pos, column=0, sticky=W)
-        frame5.grid(row=frame4_pos + 1, column=0, sticky=W)
-        if entry_select[number].get() == "Remove":
-            frame.grid_remove()
-    if len(f4_entries) == 0:
-        frame4_pos = frame3_pos + 1
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(f5_entries):
-        count5 = count5 + 1
-        frame5_pos = frame4_pos + entry_frame5_count + count5
-        frame.grid(row=frame5_pos, column=0, sticky=W)
-        if entry_select[number].get() == "Remove":
-            frame.grid_remove()
-
-
-def Mbox(title, text):
-    messagebox.showwarning(title, text)
-
-
-# Create the forensics questions and add answers to csew.cfg
-def saveForQ():
-    qHeader = "This is a forensics question. Answer it below\n------------------------\n"
-    qFooter = "\n\nANSWER: <TypeAnswerHere>"
-    f = open("csew.txt", "a")
-    line1a = "forensicsPath1='" + str(usrDsktp.get()) + "Question1.txt'\n"
-    line1b = "forensicsAnswer1='" + fqans01.get() + ")\n"
-    line1c = "checkForensicsQuestion1Value='" + str(fqpts01.get()) + "'\n"
-    line1d = "forensicsQuestion1=" + fquest01.get() + "\n"
-    line2a = "forensicsPath2='" + str(usrDsktp.get()) + "Question2.txt'\n"
-    line2b = "forensicsAnswer2='" + fqans02.get() + "'\n"
-    line2c = "checkForensicsQuestion2Value='" + str(fqpts02.get()) + "'\n"
-    line2d = "forensicsQuestion2=" + fquest02.get() + "\n"
-    if fqcb01.get() != 0:
-        for line in (line1a, line1b, line1c, line1d):
-            f.write(line)
-        g = open((str(usrDsktp.get()) + 'Question1.txt'), 'w+')
-        g.write(qHeader + fquest01.get() + qFooter)
-        g.close()
-    if fqcb02.get() != 0:
-        for line in (line2a, line2b, line2c, line2d):
-            f.write(line)
-        h = open((str(usrDsktp.get()) + 'Question2.txt'), 'w+')
-        h.write(qHeader + fquest02.get() + qFooter)
-        h.close()
-    f.close()
-
-
-def createForQ():
+class VerticalScrolledFrame(Frame):
+    """A pure Tkinter scrollable frame that actually works!
+    * Use the 'interior' attribute to place widgets inside the scrollable frame
+    * Construct and pack/place/grid normally
+    * This frame only allows vertical scrolling
+    """
+
+    def __init__(self, parent, *args, **kw):
+        Frame.__init__(self, parent, *args, **kw)
+        # create a canvas object and a vertical scrollbar for scrolling it
+        vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
+        vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        canvas = Canvas(self, bd=0, highlightthickness=0, background='#d9d9d9', yscrollcommand=vscrollbar.set)
+        canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        vscrollbar.config(command=canvas.yview)
+        # reset the view
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
+        # create a frame inside the canvas which will be scrolled with it
+        self.interior = interior = ttk.Frame(canvas)
+        interior_id = canvas.create_window(0, 0, window=interior, anchor=NW)
+
+        # track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar
+
+        def _configure_interior(event):
+            # update the scrollbars to match the size of the inner frame
+            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the canvas's width to fit the inner frame
+                canvas.config(width=interior.winfo_reqwidth())
+
+        interior.bind('<Configure>', _configure_interior)
+
+        def _configure_canvas(event):
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the inner frame's width to fill the canvas
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+
+        canvas.bind('<Configure>', _configure_canvas)
+
+
+class Config(Tk):
+    def __init__(self, *args, **kwargs):
+        Tk.__init__(self, *args, **kwargs)
+
+        vulnerability_settings = {"Main Menu": {"Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()},
+                                  "Forensic": {"Points": [IntVar()], "Question": [StringVar()], "Answer": [StringVar()], "Location": ['']},
+                                  "User Policy Account Disable": {"Disable Guest": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                                  "Disable Admin": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
+                                  "User Policy Account Management": {"Keep User": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                     "Add Admin": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                     "Remove Admin": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                     "Add User": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                     "Remove User": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                     "User Change Password": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                     "Add User to Group": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}},
+                                                                     "Remove User from Group": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}}},
+                                  "Local Policy Options": {"Do Not Require CTRL_ALT_DEL": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                           "Turn On Firewall": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                           "Don't Display Last User": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
+                                  "Local Policy Password": {"Minimum Password Age": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Maximum Password Age": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Minimum Password Length": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Maximum Login Tries": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Lockout Duration": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Lockout Reset Duration": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Password History": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Password Complexity": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Reversible Password Encryption": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
+                                  "Local Policy Audit": {"Audit Account Login": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Account Management": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Directory Settings Access": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Logon Events": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Object Access": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Policy Change": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Privilege Use": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Process Tracking": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit System Events": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
+                                  "Program Management": {"Good Program": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
+                                                         "Bad Program": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
+                                                         "Services": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Service Name': [StringVar()], 'Service Status': [StringVar()], 'Service Start Type': [StringVar()]}}},
+                                  "File Management": {"Bad File": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'File Path': [StringVar()]}},
+                                                      "Check Hosts": {"Definition": '(WIP)Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text': [StringVar()]}},
+                                                      "Add Text to File": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text to Add': [StringVar()], 'File Path': [StringVar()]}},
+                                                      "Remove Text From File": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text to Remove': [StringVar()], 'File Path': [StringVar()]}}},
+                                  "Miscellaneous": {"Anti-Virus": {"Definition": 'Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                    "Update Check Period": {"Definition": '(WIP)Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                    "Update Auto Install": {"Definition": '(WIP)Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                    "Task Scheduler": {"Definition": '(WIP)Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Task Name': [StringVar()]}},
+                                                    "Check Startup": {"Definition": '(WIP)Definition', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}}}}
+        vulnerability_settings["Main Menu"]["Tally Points"].set("Vulnerabilities: 0 Total Points: 0")
+
+        nb = ttk.Notebook(self)
+        MainPage = ttk.Frame(nb)
+
+        ttk.Button(MainPage, text='Save', command=lambda: (save_config(vulnerability_settings))).grid(sticky=EW)
+        ttk.Checkbutton(MainPage, text="Check if this configurator is on the Desktop of the main account.", variable=vulnerability_settings["Main Menu"]["Desktop Checkbox"], command=lambda: (set_desktop(vulnerability_settings))).grid(row=0, column=1, sticky=W, columnspan=4)
+        ttk.Button(MainPage, text='Commit', command=lambda: (commit_config(vulnerability_settings))).grid(row=1, sticky=EW)
+        ttk.Entry(MainPage, textvariable=vulnerability_settings["Main Menu"]["Desktop Entry"]).grid(row=1, column=1, columnspan=3, sticky=EW)
+        ttk.Label(MainPage, text="Enter the user name where you want the information to goto.", wraplength=200).grid(row=1, column=4, columnspan=2, sticky=W)
+        ttk.Checkbutton(MainPage, text='Silent Miss', variable=vulnerability_settings["Main Menu"]["Silent Mode"]).grid(row=2, sticky=W)
+        ttk.Label(MainPage, text='Check this box to hide missed items (Similar to competition)').grid(row=2, column=1, columnspan=5, sticky=W)
+        ttk.Checkbutton(MainPage, text='Server Mode', variable=vulnerability_settings["Main Menu"]["Server Mode"], command=lambda: (serverL.configure(state='enable'), serverE.configure(state='enable'), userL.configure(state='enable'), userE.configure(state='enable'), passL.configure(state='enable'), passE.configure(state='enable'))).grid(row=3, sticky=W)
+        ttk.Label(MainPage, text='Check this box to enable an FTP server to save the scores (Similar to competition)').grid(row=3, column=1, columnspan=5, sticky=W)
+        serverL = ttk.Label(MainPage, text='Server Name/IP', state='disable')
+        serverL.grid(row=4, sticky=E)
+        serverE = ttk.Entry(MainPage, textvariable=vulnerability_settings["Main Menu"]["Server Name"], state='disable')
+        serverE.grid(row=4, column=1, sticky=W)
+        userL = ttk.Label(MainPage, text='User Name', state='disable')
+        userL.grid(row=4, column=2, sticky=E)
+        userE = ttk.Entry(MainPage, textvariable=vulnerability_settings["Main Menu"]["Server User Name"], state='disable')
+        userE.grid(row=4, column=3, sticky=W)
+        passL = ttk.Label(MainPage, text='Password', state='disable')
+        passL.grid(row=4, column=4, sticky=E)
+        passE = ttk.Entry(MainPage, textvariable=vulnerability_settings["Main Menu"]["Server Password"], state='disable')
+        passE.grid(row=4, column=5, sticky=W)
+        ttk.Label(MainPage, textvariable=vulnerability_settings["Main Menu"]["Tally Points"], font='Verdana 10 bold', wraplength=150).grid(row=5)
+
+        ForensicsPage = VerticalScrolledFrame(nb)
+        ForensicsPageIn = ForensicsPage.interior
+        ForensicsPageIn.grid_columnconfigure(1, weight=1)
+        ForensicsPageIn.grid_columnconfigure(2, weight=1)
+        ttk.Button(ForensicsPageIn, text="Add", command=lambda: self.add_row(ForensicsPageIn, vulnerability_settings["Forensic"], widgetDict["Forensic"], 2)).grid(row=0, column=0, sticky=EW)
+        ttk.Label(ForensicsPageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', wraplength=int(self.winfo_screenwidth() / 2 - 100)).grid(row=0, column=1, columnspan=3)
+        ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=0)
+        ttk.Label(ForensicsPageIn, text="Question", font='Verdana 10 bold').grid(row=1, column=1)
+        ttk.Label(ForensicsPageIn, text="Answer", font='Verdana 10 bold').grid(row=1, column=2)
+        ttk.Entry(ForensicsPageIn, width=5, textvariable=vulnerability_settings["Forensic"]["Points"][0]).grid(row=2, column=0)
+        ttk.Entry(ForensicsPageIn, textvariable=vulnerability_settings["Forensic"]["Question"][0]).grid(row=2, column=1, sticky=EW)
+        ttk.Entry(ForensicsPageIn, textvariable=vulnerability_settings["Forensic"]["Answer"][0]).grid(row=2, column=2, sticky=EW)
+        ttk.Button(ForensicsPageIn, text='X', command=lambda: remove_row(0, vulnerability_settings["Forensic"], widgetDict["Forensic"])).grid(row=2, column=3)
+        widgetDict["Forensic"].update({0: ForensicsPageIn.grid_slaves(row=2)})
+
+        UserPolicyPage = VerticalScrolledFrame(nb)
+        UserPolicyPageIn = UserPolicyPage.interior
+        UserPolicyPageIn.grid_columnconfigure(1, weight=1)
+        ttk.Label(UserPolicyPageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Label(UserPolicyPageIn, text='User Policy Account Disable', font='Verdana 10').grid(row=1, column=0, stick=W)
+        ttk.Label(UserPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["User Policy Account Disable"].keys()):
+            self.add_option(UserPolicyPageIn, vulnerability_settings["User Policy Account Disable"][t], t, i + 2, nb)
+            l = i + 3
+        ttk.Label(UserPolicyPageIn, text='User Policy Account Management', font='Verdana 10').grid(row=l, column=0, stick=W)
+        ttk.Label(UserPolicyPageIn, text="Modify", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["User Policy Account Management"].keys()):
+            self.add_option(UserPolicyPageIn, vulnerability_settings["User Policy Account Management"][t], t, i + l + 1, nb)
+
+        LocalPolicyPage = VerticalScrolledFrame(nb)
+        LocalPolicyPageIn = LocalPolicyPage.interior
+        LocalPolicyPageIn.grid_columnconfigure(1, weight=1)
+        ttk.Label(LocalPolicyPageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Password', font='Verdana 10').grid(row=1, column=0, stick=W)
+        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["Local Policy Password"].keys()):
+            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Password"][t], t, i + 2, nb)
+            l = i + 3
+        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Audit', font='Verdana 10').grid(row=l, column=0, stick=W)
+        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["Local Policy Audit"].keys()):
+            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Audit"][t], t, i + l + 1, nb)
+            l = i + l + 2
+        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Options', font='Verdana 10').grid(row=l, column=0, stick=W)
+        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["Local Policy Options"].keys()):
+            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Options"][t], t, i + l + 1, nb)
+
+        ProgramFilePage = VerticalScrolledFrame(nb)
+        ProgramFilePageIn = ProgramFilePage.interior
+        ProgramFilePageIn.grid_columnconfigure(1, weight=1)
+        ttk.Label(ProgramFilePageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Label(ProgramFilePageIn, text='Programs', font='Verdana 10').grid(row=1, column=0, stick=W)
+        ttk.Label(ProgramFilePageIn, text="Modify", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["Program Management"].keys()):
+            self.add_option(ProgramFilePageIn, vulnerability_settings["Program Management"][t], t, i + 2, nb)
+            l = i + 3
+        ttk.Label(ProgramFilePageIn, text='Files', font='Verdana 10').grid(row=l, column=0, stick=W)
+        ttk.Label(ProgramFilePageIn, text="Modify", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["File Management"].keys()):
+            self.add_option(ProgramFilePageIn, vulnerability_settings["File Management"][t], t, i + l + 1, nb)
+
+        MiscellaneousPage = VerticalScrolledFrame(nb)
+        MiscellaneousPageIn = MiscellaneousPage.interior
+        MiscellaneousPageIn.grid_columnconfigure(1, weight=1)
+        ttk.Label(MiscellaneousPageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Label(MiscellaneousPageIn, text='Miscellaneous', font='Verdana 10').grid(row=1, column=0, stick=W)
+        ttk.Label(MiscellaneousPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        for i, t in enumerate(vulnerability_settings["Miscellaneous"].keys()):
+            if len(vulnerability_settings["Miscellaneous"][t]["Categories"]) == 1:
+                self.add_option(MiscellaneousPageIn, vulnerability_settings["Miscellaneous"][t], t, i + 2, nb)
+            else:
+                self.add_option(MiscellaneousPageIn, vulnerability_settings["Miscellaneous"][t], t, i + 2, nb)
+
+        ReportPage = VerticalScrolledFrame(nb)
+        ReportPageIn = ReportPage.interior
+        ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
+        ttk.Button(ReportPageIn, text='Export to HTML').grid(row=1, column=0, stick=EW)
+        ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageIn, vulnerability_settings))).grid(row=2, column=0, stick=EW)
+        ttk.Label(ReportPageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', wraplength=int(self.winfo_screenwidth() / 2 - 125)).grid(row=0, column=1, rowspan=3, columnspan=4)
+
+        nb.add(MainPage, text='Main Page')
+        nb.add(ForensicsPage, text='Forensics')
+        nb.add(UserPolicyPage, text='User Policy')
+        nb.add(LocalPolicyPage, text='Local Policy')
+        nb.add(ProgramFilePage, text='Programs and Files')
+        nb.add(MiscellaneousPage, text='Miscellaneous')
+        nb.add(ReportPage, text='Report')
+
+        nb.pack(expand=1, fill="both")
+        self.load_config(vulnerability_settings, ForensicsPageIn)
+
+    def add_row(self, frame, entry, widgets, default_row):
+        test = True
+        rwl = 0
+        while test:
+            if not rwl in widgets.keys():
+                test = False
+            else:
+                rwl += 1
+        if len(widgets) > 0:
+            i = 0
+            for w in widgets:
+                if widgets[w][0].grid_info()['row'] > i:
+                    tempr = widgets[w][0].grid_info()['row'] + 1
+        else:
+            tempr = default_row
+        if rwl == len(widgets):
+            for i in entry:
+                if i == "Points":
+                    entry[i].append(IntVar())
+                else:
+                    entry[i].append(StringVar())
+        else:
+            for i in entry:
+                if i == "Points":
+                    entry[i][rwl] = IntVar()
+                else:
+                    entry[i][rwl] = StringVar()
+
+        for i, t in enumerate(entry):
+            if t == "Points":
+                ttk.Entry(frame, width=5, textvariable=entry["Points"][rwl]).grid(row=tempr, column=i)
+            elif t == "File Path":
+                frame.grid_columnconfigure(i, weight=1)
+                ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
+                ttk.Button(frame, text='...', command=lambda: entry[t][rwl].set(filedialog.askdirectory())).grid(row=tempr, column=i + 1)
+                c = i + 2
+            elif t == "Service Status":
+                ttk.OptionMenu(frame, entry[t][rwl], *["Running", "Stopped"]).grid(row=tempr, column=i, sticky=EW)
+                c = i + 1
+            elif t == "Service Start Type":
+                ttk.OptionMenu(frame, entry[t][rwl], *["Automatic", "Manual", "Disabled"]).grid(row=tempr, column=i, sticky=EW)
+                c = i + 1
+            elif t != "Location":
+                ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
+                c = i + 1
+        ttk.Button(frame, text='X', command=lambda: remove_row(rwl, entry, widgets)).grid(row=tempr, column=c, sticky=W)
+        widgets.update({rwl: frame.grid_slaves(row=tempr)})
+
+    def add_option(self, frame, entry, name, row, return_frame):
+        ttk.Checkbutton(frame, text=name, variable=entry["Enabled"]).grid(row=row, column=0, stick=W)
+        ttk.Label(frame, text=entry["Definition"]).grid(row=row, column=1, stick=W)
+        if len(entry["Categories"]) > 1:
+            ttk.Button(frame, text='Modify', command=lambda: self.modify_settings(name, entry, return_frame)).grid(row=row, column=2)
+        else:
+            ttk.Entry(frame, width=5, textvariable=entry["Categories"]["Points"][0]).grid(row=row, column=2)
+
+    def modify_settings(self, option, entry, packing):
+        self.pack_slaves()[0].pack_forget()
+        modifyPage = VerticalScrolledFrame(self)
+        modifyPage.pack(expand=1, fill="both")
+        modifyPageIn = modifyPage.interior
+        if entry["Enabled"].get() != 1:
+            entry["Enabled"].set(1)
+        if len(widgetDict["Modify"]) > 0:
+            for i in widgetDict["Modify"]:
+                for t in widgetDict["Modify"][i]:
+                    t.destroy()
+            widgetDict["Modify"].clear()
+        ttk.Button(modifyPageIn, text="Save", command=lambda: (self.pack_slaves()[0].pack_forget(), packing.pack(expand=1, fill="both"))).grid(row=0, column=0, sticky=EW)
+        ttk.Label(modifyPageIn, text=option + ' Modification', font='Verdana 15').grid(row=0, column=1, columnspan=len(entry["Categories"]))
+        ttk.Button(modifyPageIn, text="Add", command=lambda: (self.add_row(modifyPageIn, entry["Categories"], widgetDict["Modify"], 3))).grid(row=1, column=0, sticky=EW)
+        ttk.Label(modifyPageIn, text='This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation page This will be the explanation', wraplength=int(self.winfo_screenwidth() / 2 - 100)).grid(row=1, column=1, columnspan=len(entry["Categories"]))
+        for i, t in enumerate(entry["Categories"]):
+            ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold').grid(row=2, column=i)
+        for i in range(len(entry["Categories"]["Points"])):
+            if entry["Categories"]["Points"][i] != 0:
+                for r, t in enumerate(entry["Categories"]):
+                    if t == "Points":
+                        ttk.Entry(modifyPageIn, width=5, textvariable=entry["Categories"]["Points"][i]).grid(row=i + 3, column=r)
+                    elif t == "File Path":
+                        modifyPageIn.grid_columnconfigure(r, weight=1)
+                        ttk.Entry(modifyPageIn, textvariable=entry["Categories"][t][i]).grid(row=i + 3, column=r, sticky=EW)
+                        ttk.Button(modifyPageIn, text='...', command=lambda: entry["Categories"][t][i].set(filedialog.askdirectory())).grid(row=i + 3, column=r + 1)
+                        c = r + 2
+                    elif t == "Service Status":
+                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Running", "Stopped"]).grid(row=i + 3, column=r, sticky=EW)
+                        c = r + 1
+                    elif t == "Service Start Type":
+                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Automatic", "Manual", "Disabled"]).grid(row=i + 3, column=r, sticky=EW)
+                        c = r + 1
+                    else:
+                        ttk.Entry(modifyPageIn, textvariable=entry["Categories"][t][i]).grid(row=i + 3, column=r, sticky=EW)
+                        c = r + 1
+                ttk.Button(modifyPageIn, text='X', command=lambda: remove_row(i, entry["Categories"], widgetDict["Modify"])).grid(row=i + 3, column=c, sticky=W)
+                widgetDict["Modify"].update({i: modifyPageIn.grid_slaves(row=i + 3)})
+
+    def load_config(self, dictionary, forensic):
+        filename = 'save_data.json'
+        if os.path.exists(filename):
+            f = open(filename)
+            save_dictionary = json.load(f)
+            for s in save_dictionary.keys():
+                if s == "Main Menu":
+                    for m in save_dictionary[s]:
+                        dictionary[s][m].set(save_dictionary[s][m])
+                elif s == "Forensic":
+                    for i in range(1, len(save_dictionary[s]["Points"])):
+                        self.add_row(forensic, dictionary["Forensic"], widgetDict["Forensic"], 2)
+                    for m in save_dictionary[s]:
+                        for i, settings in enumerate(save_dictionary[s][m]):
+                            if m == "Location":
+                                dictionary[s][m][i] = settings
+                            else:
+                                dictionary[s][m][i].set(settings)
+                else:
+                    for m in save_dictionary[s].keys():
+                        dictionary[s][m]["Enabled"].set(save_dictionary[s][m]["Enabled"])
+                        for c in save_dictionary[s][m]["Categories"].keys():
+                            for i, settings in enumerate(save_dictionary[s][m]["Categories"][c]):
+                                if i == 0:
+                                    dictionary[s][m]["Categories"][c][i].set(settings)
+                                else:
+                                    if c == "Points":
+                                        dictionary[s][m]["Categories"][c].append(IntVar())
+                                    else:
+                                        dictionary[s][m]["Categories"][c].append(StringVar())
+                                    dictionary[s][m]["Categories"][c][i].set(settings)
+            f.close()
+            tally(dictionary)
+
+    def generate_report(self, frame, dictionary):
+        for i in widgetDict["Report"]:
+            i.destroy()
+        widgetDict["Report"] = []
+        wrap = int(self.winfo_screenwidth() / 2 / 5) - 65
+        final_row = 4
+        for s in dictionary.keys():
+            tested = False
+            if s != "Main Menu":
+                ttk.Separator(frame, orient=HORIZONTAL).grid(row=final_row, column=0, columnspan=5, sticky=EW)
+                final_row += 1
+                if s == "Forensic":
+                    set_first_row = final_row
+                    row_span = 0
+                    for i, c in enumerate(dictionary[s]):
+                        if c != "Location":
+                            for srow, settings in enumerate(dictionary[s][c]):
+                                if settings != 0:
+                                    tested = True
+                                    ttk.Label(frame, text=settings.get()).grid(row=srow * 2 + set_first_row + 1, column=i + 2)
+                                    ttk.Separator(frame, orient=HORIZONTAL).grid(row=srow * 2 + set_first_row + 2, column=2, columnspan=3, sticky=EW)
+                                    row_span = srow * 2 + 2
+                            if tested:
+                                ttk.Label(frame, text=c).grid(row=set_first_row, column=i + 2)
+                                final_row = set_first_row + row_span
+                    if tested:
+                        ttk.Label(frame, text=s, wraplength=wrap).grid(row=set_first_row, column=1, rowspan=row_span)
+                else:
+                    set_first_row = final_row
+                    row_span = 0
+                    for o in dictionary[s].keys():
+                        if dictionary[s][o]["Enabled"].get() == 1:
+                            tested = True
+                            temp_row = final_row
+                            temp_count = 0
+                            temp_row_span = 0
+                            for i, c in enumerate(dictionary[s][o]["Categories"].keys()):
+                                ttk.Label(frame, text=c, wraplength=wrap).grid(row=temp_row, column=i + 2)
+                                for e, settings in enumerate(dictionary[s][o]["Categories"][c]):
+                                    if settings != 0:
+                                        ttk.Label(frame, text=settings.get(), wraplength=wrap).grid(row=e * 2 + temp_row + 1, column=i + 2)
+                                        ttk.Separator(frame, orient=HORIZONTAL).grid(row=e * 2 + temp_row + 2, column=2, columnspan=3, sticky=EW)
+                                        final_row = e * 2 + temp_row + 2
+                                        temp_row_span = e + 2
+                                        temp_count = e
+                            row_span += temp_row_span + temp_count + 1
+                            ttk.Label(frame, text=o, wraplength=wrap).grid(row=temp_row, column=1, rowspan=temp_row_span * 2 - 2)
+                            ttk.Separator(frame, orient=HORIZONTAL).grid(row=temp_row - 1, column=1, columnspan=4, sticky=EW)
+                            final_row += 1
+                    if tested:
+                        ttk.Label(frame, text=s, wraplength=wrap).grid(row=set_first_row, column=0, rowspan=row_span - 1)
+                        final_row -= 1
+                if not tested:
+                    final_row -= 1
+        for i in range(4, final_row):
+            for w in frame.grid_slaves(row=i):
+                widgetDict["Report"].append(w)
+        tally(dictionary)
+
+
+def remove_row(rem, entry, widgets):
+    for i in entry:
+        entry[i][rem] = 0
+    rem_row = widgets[rem][0].grid_info()['row']
+    for w in widgets[rem]:
+        w.destroy()
+    for i in widgets:
+        if i != rem and widgets[i][0].grid_info()['row'] > rem_row:
+            tempr = widgets[i][0].grid_info()['row'] - 1
+            for r in widgets[i]:
+                r.grid_configure(row=tempr)
+    del widgets[rem]
+
+
+def create_forensic(dictionary):
     qHeader = 'This is a forensics question. Answer it below\n------------------------\n'
     qFooter = '\n\nANSWER: <TypeAnswerHere>'
-    f = open('csew.cfg', 'a')
-    line1a = 'forensicsPath1=' + str(usrDsktp.get()) + 'Question1.txt)\n'
-    line1b = 'forensicsAnswer1=(' + fqans01.get() + ')\n'
-    line1c = 'checkForensicsQuestion1Value=(' + str(fqpts01.get()) + ')\n'
-    line2a = 'forensicsPath2=(' + str(usrDsktp.get()) + 'Question2.txt)\n'
-    line2b = 'forensicsAnswer2=(' + fqans02.get() + ')\n'
-    line2c = 'checkForensicsQuestion2Value=(' + str(fqpts02.get()) + ')\n'
-    if fqcb01.get() != 0:
-        for line in (line1a, line1b, line1c):
-            f.write(line)
-        g = open((str(usrDsktp.get()) + 'Question1.txt'), 'w+')
-        g.write(qHeader + fquest01.get() + qFooter)
-        g.close()
-    if fqcb02.get() != 0:
-        for line in (line2a, line2b, line2c):
-            f.write(line)
-        h = open((str(usrDsktp.get()) + 'Question2.txt'), 'w+')
-        h.write(qHeader + fquest02.get() + qFooter)
-        h.close()
-    f.close()
+    for i, q in enumerate(dictionary["Forensic"]["Question"]):
+        if q != 0 and q.get() != '':
+            g = open((str(dictionary["Main Menu"]["Desktop Entry"].get()) + 'Forensic Question ' + str(i + 1) + '.txt'), 'w+')
+            g.write(qHeader + q.get() + qFooter)
+            g.close()
+            dictionary["Forensic"]["Location"][i] = (str(dictionary["Main Menu"]["Desktop Entry"].get()) + 'Forensic Question ' + str(i + 1) + '.txt')
 
 
-def submitCallback():
-    # We wanna use those fancy variable lists
-    saveConfig()
+def commit_config(dictionary):
+    save_config(dictionary)
     if not admin_test.isUserAdmin():
-        Mbox('Error', 'You need to be Admin to Write to Config. Relaunching the confiturator as Administrator.')
-        sys.exit(admin_test.runAsAdmin())
+        switch = messagebox.askyesno('Administrative Access Required', 'You need to be Admin to Write to Config. Do you want to relaunch the confiturator as Administrator.')
+        if switch:
+            sys.exit(admin_test.runAsAdmin())
         return
-    errorFree = True
-    errorMessage = 'Please complete the following:'
-    if not dupFree:
-        errorFree = False
-        errorMessage = errorMessage + '\n  Remove any duplicates in the first section.'
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        frame.config(bg=root.cget('bg'))
-        error.grid_remove()
-        if entry_select[number].get() not in dontCheck:
-            if entry_textBox[ent2].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the points catagory for: ' + entry_select[number].get()
-            if ent3 > 0 and entry_textBox[ent3].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the keywords catagory for: ' + entry_select[number].get()
-            if ent4 > 0 and entry_textBox[ent4].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the extra keywords catagory for: ' + entry_select[
-                    number].get()
-            if ent5 > 0 and entry_textBox[ent5].get() == '':
-                errorFree = False
-                frame.config(bg='red')
-                error.grid(row=2, column=3)
-                errorMessage = errorMessage + '\n  Fill in the message catagory for: ' + entry_select[number].get()
-            if entry_select[number].get() in vulnNames4:
-                entry3Test = entry_textBox[ent3].get()
-                entry3Test = entry3Test.split(' ')
-                entry4Test = entry_textBox[ent4].get()
-                entry4Test = entry4Test.split(' ')
-                if len(entry3Test) != len(entry4Test):
-                    errorFree = False
-                    frame.config(bg='red')
-                    error.grid(row=2, column=3)
-                    errorMessage = errorMessage + '\n  Enter an equal number of entries in each catagory for: ' + \
-                                   entry_select[number].get()
-            if entry_select[number].get() in vulnNames5:
-                entry3Test = entry_textBox[ent3].get()
-                entry3Test = entry3Test.split(' ')
-                entry4Test = entry_textBox[ent4].get()
-                entry4Test = entry4Test.split(' ')
-                entry5Test = entry_textBox[ent5].get()
-                entry5Test = entry5Test.split(' ')
-                if len(entry3Test) != len(entry4Test) or len(entry3Test) != len(entry5Test):
-                    errorFree = False
-                    frame.config(bg='red')
-                    error.grid(row=2, column=3)
-                    errorMessage = errorMessage + '\n  Enter an equal number of entries in each catagory for: ' + \
-                                   entry_select[number].get()
-    if not errorFree:
-        Mbox('Error', errorMessage)
-    if errorFree:
-        vulnDict['Desktop'] = usrDsktp.get()
-        if silentMode.get() == 1:
-            vulnDict['silentMiss']['enable'] = True
-        for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-            name = entry_select[number].get()
-            point = entry_textBox[ent2].get()
-            if name != 'Remove':
-                if not vulnDict[name]['enable']:
-                    vulnDict[name]['enable'] = True
-                    vulnDict[name]['points'].append(point)
-                    if ent3 > -1:
-                        if entry_textBox[ent3].get() != '':
-                            kt = entry_textBox[ent3].get().split(', ')
-                            vulnDict[name]['keywords'].append(kt[0])
-                            if len(kt) > 1:
-                                for t in range(1, len(kt)):
-                                    vulnDict[name]['keywords'].append(kt[t])
-                                    vulnDict[name]['points'].append(point)
-                    if ent4 > -1:
-                        if entry_textBox[ent4].get() != '':
-                            kt = entry_textBox[ent4].get().split(', ')
-                            vulnDict[name]['extrakeywords'].append(kt[0])
-                            if len(kt) > 1:
-                                for t in range(1, len(kt)):
-                                    vulnDict[name]['extrakeywords'].append(kt[t])
-                    if ent5 > -1:
-                        if entry_textBox[ent5].get() != '':
-                            kt = entry_textBox[ent5].get().split(', ')
-                            vulnDict[name]['message'].append(kt[0])
-                            if len(kt) > 1:
-                                for t in range(1, len(kt)):
-                                    vulnDict[name]['message'].append(kt[t])
-                elif vulnDict[name]['enable']:
-                    if ent3 > -1:
-                        if entry_textBox[ent3].get() != '':
-                            kt = entry_textBox[ent3].get().split(', ')
-                            for t in range(0, len(kt)):
-                                vulnDict[name]['keywords'].append(kt[t])
-                                vulnDict[name]['points'].append(point)
-                    if ent4 > -1:
-                        if entry_textBox[ent4].get() != '':
-                            kt = entry_textBox[ent4].get().split(', ')
-                            for t in range(0, len(kt)):
-                                vulnDict[name]['extrakeywords'].append(kt[t])
-                    if ent5 > -1:
-                        if entry_textBox[ent5].get() != '':
-                            kt = entry_textBox[ent5].get().split(', ')
-                            for t in range(0, len(kt)):
-                                vulnDict[name]['message'].append(kt[t])
-        f = open('csew.cfg', 'w+')
-        f.write('vulnDict = ' + str(vulnDict))
-        f.close()
-        # subprocess.Popen(['./install.sh'])
-        f = open('csew.cfg')
-        r = f.read()
-        f.close()
+    output_directory = 'C:/CyberPatriot/'
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+    shutil.copy('CCC_logo.png', os.path.join(output_directory, 'CCC_logo.png'))
+    shutil.copy('SoCalCCCC.png', os.path.join(output_directory, 'SoCalCCCC.png'))
+    shutil.copy('scoring_engine_logo_windows_icon_5TN_icon.ico', os.path.join(output_directory, 'scoring_engine_logo_windows_icon_5TN_icon.ico'))
+    shutil.copy('save_data.json', os.path.join(output_directory, 'save_data.json'))
+    shutil.copy('scoring_engine.exe', os.path.join(output_directory, 'scoring_engine.exe'))
 
-        installer.setup()
-        installer.replacesec('scoring_engine.py', '##OPTIONVARIABLES##', str(r))
-        balloonPath = os.path.abspath('balloontip.py')
-        scoringPath = os.path.abspath('scoring_engine.py')
-        adminPath = os.path.abspath('admin_test.py')
-        iconPath = os.path.abspath('scoring_engine_logo_windows_icon_5TN_icon.ico')
-        command = 'pyinstaller -y -F -w -i "' + iconPath + '" --add-data "' + balloonPath + '";"." --add-data "' + adminPath + '";"." "' + scoringPath + '"'
-        installer.convert(command)
-        installer.autoTasks()
-        time.sleep(2)
-        exit()
-#pyinstaller -y -F -w -i "C:\Users\oreo\Desktop\Scoring_Engine\scoring_engine_logo_windows_icon_5TN_icon.ico" --add-data "C:\Users\oreo\Desktop\Scoring_Engine\balloontip.py";"." --add-data "C:\Users\oreo\Desktop\Scoring_Engine\admin_test.py";"." "C:\Users\oreo\Desktop\Scoring_Engine\scoring_engine.py"
+    r = open(r'C:\\CyberPatriot\\RunScoring.bat', 'w+')
+    r.write('@echo off\ncd C:\\CyberPatriot\n.\\scoring_engine.exe')
+    r.close()
+    s = open(r'c:\\CyberPatriot\\Repeat.bat', 'w+')
+    s.write('@echo off\ntasklist /nh /fi "imagename eq scoring_engine.exe" | find /i "scoring_engine.exe" > nul || (cd C:\\CyberPatriot\nstart .\\RunScoring.bat)')
+    s.close()
+    os.system('schtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST /F\nschtasks /create /SC MINUTE /MO 2 /TN RepeatScore /TR C:\\CyberPatriot\\Repeat.bat /RL HIGHEST /F')
+    time.sleep(2)
+    exit()
 
-def saveConfig():
+
+def save_config(dictionary):
+    save_dictionary = {}
     # We wanna use those fancy variable lists
-    if userLoc.get() == 1:
-        cwd = os.getcwd()
-        s = cwd.rfind('\\')
-        a = len(cwd)
-        s = a-s-1
-        cwd = cwd[:-s]
-        usrDsktp.set(cwd)
-    elif "\\Desktop\\" not in usrDsktp.get():
-        cwd = usrDsktp.get()
+    set_desktop(dictionary)
+    if "\\Desktop\\" not in dictionary["Main Menu"]["Desktop Entry"].get() and dictionary["Main Menu"]["Desktop Entry"].get() == '':
+        cwd = dictionary["Main Menu"]["Desktop Entry"].get()
         cwd = "C:\\Users\\" + cwd + "\\Desktop\\"
-        usrDsktp.set(cwd)
-    scoreLoc.set(usrDsktp.get())
-    f = open('csew.txt', 'w+')
-    f.write("Desktop=" + usrDsktp.get() + "\n")
-    if silentMode.get() == 1:
-        f.write("silentMiss='y'\n")
-    if ftpMode.get() == 1:
-        f.write("FTPServer='y'\n")
-    f.close()
-    saveForQ()
-    if ftpMode.get() == 1:
+        dictionary["Main Menu"]["Desktop Entry"].set(cwd)
+    create_forensic(dictionary)
+    if dictionary["Main Menu"]["Server Mode"].get() == 1:
         f = open('FTP.txt', 'w+')
-        line1 = "serverName='" + serverName.get() + "'\n"
-        line2 = "userName='" + userName.get() + "'\n"
-        line3 = "password='" + password.get() + "'\n"
+        line1 = "serverName='" + dictionary["Main Menu"]["Server Name"].get() + "'\n"
+        line2 = "userName='" + dictionary["Main Menu"]["Server User Name"].get() + "'\n"
+        line3 = "password='" + dictionary["Main Menu"]["Server Password"].get() + "'\n"
         for line in (line1, line2, line3):
             f.write(line)
         f.close()
-    save_entry = []
-    buff_entry = []
-    f = open('csew.txt', 'a')
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        for vuln in vulns:
-            if vuln.name == entry_select[number].get() and vuln.name != "<Select One>":
-                if not vuln.saved:
-                    s1 = vuln.name
-                    s2 = vuln.name + "Value='" + entry_textBox[ent2].get()
-                    s3 = ''
-                    s4 = ''
-                    s5 = ''
-                    if ent3 > -1:
-                        if entry_textBox[ent3].get() != '':
-                            kt = entry_textBox[ent3].get().split(' ')
-                            if len(kt) > 1:
-                                for t in range(1, len(kt)):
-                                    s2 = s2 + ' ' + entry_textBox[ent2].get()
-                            s3 = vuln.name + "Keywords='" + entry_textBox[ent3].get()
-                    if ent4 > -1:
-                        if entry_textBox[ent4].get() != '':
-                            s4 = vuln.name + "ExtraKeywords='" + entry_textBox[ent4].get()
-                    if ent5 > -1:
-                        if entry_textBox[ent5].get() != '':
-                            s5 = vuln.name + "Message='" + entry_textBox[ent5].get()
-                    vuln.saved = True
-                    save_entry.append((s1, s2, s3, s4, s5))
-                else:
-                    buff_entry = []
-                    for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
-                        if vuln.name == s1:
-                            s2 = s2 + ' ' + entry_textBox[ent2].get()
-                            if s3 != '':
-                                if entry_textBox[ent3].get() != '':
-                                    kt = entry_textBox[ent3].get().split(' ')
-                                    if len(kt) > 1:
-                                        for t in range(1, len(kt)):
-                                            s2 = s2 + ' ' + entry_textBox[ent2].get()
-                                    s3 = s3 + ' ' + entry_textBox[ent3].get()
-                            if s4 != '':
-                                if entry_textBox[ent4].get() != '':
-                                    s4 = s4 + ' ' + entry_textBox[ent4].get()
-                            if s5 != '':
-                                if entry_textBox[ent5].get() != '':
-                                    s5 = s5 + ' ' + entry_textBox[ent5].get()
-                        buff_entry.append((s1, s2, s3, s4, s5))
-                    save_entry = buff_entry
-    for n, (s1, s2, s3, s4, s5) in enumerate(save_entry):
-        f.write(s1 + "='y'\n")
-        f.write(s2 + "'\n")
-        if s3 != '':
-            f.write(s3 + "'\n")
-        if s4 != '':
-            f.write(s4 + "'\n")
-        if s5 != '':
-            f.write(s5 + "'\n")
-    for vuln in vulns:
-        vuln.saved = False
-
-    f.close()
-    tally()
+    for s in dictionary.keys():
+        if s == "Main Menu":
+            save_dictionary.update({s: {}})
+            for m in dictionary[s]:
+                save_dictionary[s].update({m: dictionary[s][m].get()})
+        elif s == "Forensic":
+            save_dictionary.update({s: {}})
+            for m in dictionary[s]:
+                save_dictionary[s].update({m: []})
+                for settings in dictionary[s][m]:
+                    if settings != 0:
+                        if m == "Location":
+                            save_dictionary[s][m].append(settings)
+                        else:
+                            save_dictionary[s][m].append(settings.get())
+        else:
+            save_dictionary.update({s: {}})
+            for m in dictionary[s].keys():
+                save_dictionary[s].update({m: {"Enabled": dictionary[s][m]["Enabled"].get(), "Categories": {}}})
+                for c in dictionary[s][m]["Categories"].keys():
+                    save_dictionary[s][m]["Categories"].update({c: []})
+                    for settings in dictionary[s][m]["Categories"][c]:
+                        if settings != 0:
+                            save_dictionary[s][m]["Categories"][c].append(settings.get())
+    filename = 'save_data.json'
+    with open(filename, 'w+') as f:
+        json.dump(save_dictionary, f)
+    tally(dictionary)
 
 
-def loadSave():
-    content = []
-    if os.path.exists('csew.txt'):
-        with open('csew.txt') as f:
-            content = f.read().splitlines()
-        f.close()
-    for cont in content:
-        if "Desktop=" in cont:
-            usrDsktp.set(cont.replace("Desktop=", ""))
-        if "silentMiss='y'" in cont:
-            silentMode.set(1)
-        if "FTPServer='y'" in cont:
-            ftpMode.set(1)
-            getFTPInfo()
-        if "forensicsAnswer1='" in cont:
-            fqA1 = cont.replace("forensicsAnswer1='", "")
-            fqA1 = fqA1.replace("'", "")
-            fqans01.set(fqA1)
-            cont = fqA1
-        if "checkForensicsQuestion1Value='" in cont:
-            fqP1 = cont.replace("checkForensicsQuestion1Value='", "")
-            fqP1 = fqP1.replace("'", "")
-            fqpts01.set(fqP1)
-            fqcb01.set(1)
-            cont = fqP1
-        if "forensicsQuestion1='" in cont:
-            fQ1 = cont.replace("forensicsQuestion1='", "")
-            fquest01.set(fQ1)
-            cont = fQ1
-        if "forensicsAnswer2='" in cont:
-            fqA2 = cont.replace("forensicsAnswer2='", "")
-            fqA2 = fqA2.replace("'", "")
-            fqans02.set(fqA2)
-            cont = fqA2
-        if "checkForensicsQuestion2Value='" in cont:
-            fqP2 = cont.replace("checkForensicsQuestion2Value='", "")
-            fqP2 = fqP2.replace("'", "")
-            fqpts01.set(fqP2)
-            fqcb02.set(1)
-            cont = fqP2
-        if "forensicsQuestion2='" in cont:
-            fQ2 = cont.replace("forensicsQuestion2='", "")
-            fquest02.set(fQ2)
-            cont = fQ2
-    for cont in content:
-        for vuln in vulns:
-            if vuln.name + "='y'" in cont:
-                if vuln.name in vulnNames2:
-                    addToFrame2(vuln.name)
-                elif vuln.name in vulnNames3:
-                    addToFrame3(vuln.name)
-                elif vuln.name in vulnNames4:
-                    addToFrame4(vuln.name)
-                elif vuln.name in vulnNames5:
-                    addToFrame5(vuln.name)
-            elif vuln.name + "Value='" in cont:
-                points = cont.replace(vuln.name + "Value='", "")
-                points = points.replace("'", "")
-                points = points.split(" ")
-                value = []
-                for x in points:
-                    if x not in value:
-                        value.append(x)
-                for v in range(1, len(value)):
-                    if vuln.name in vulnNames3:
-                        addToFrame3(vuln.name)
-                    elif vuln.name in vulnNames4:
-                        addToFrame4(vuln.name)
-                    elif vuln.name in vulnNames5:
-                        addToFrame5(vuln.name)
-                for v in value:
-                    test = True
-                    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-                        if vuln.name == entry_select[number].get():
-                            if entry_textBox[ent2].get() == v:
-                                test = False
-                    if test:
-                        for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-                            if vuln.name == entry_select[number].get():
-                                if entry_textBox[ent2].get() == '':
-                                    entry_textBox[ent2].set(v)
-                                    break
-            elif vuln.name + "Keywords='" in cont:
-                keyWd = cont.replace(vuln.name + "Keywords='", "")
-                keyWd = keyWd.replace("'", "")
-                keyWd = keyWd.split(" ")
-                for p in range(len(points)):
-                    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-                        if vuln.name == entry_select[number].get():
-                            if points[p] == entry_textBox[ent2].get():
-                                key = entry_textBox[ent3].get()
-                                if key == "":
-                                    key = keyWd[p]
-                                else:
-                                    key = key + " " + keyWd[p]
-                                entry_textBox[ent3].set(key)
-            elif vuln.name + "ExtraKeywords='" in cont:
-                exKeyWd = cont.replace(vuln.name + "ExtraKeywords='", "")
-                exKeyWd = exKeyWd.replace("'", "")
-                exKeyWd = exKeyWd.split(" ")
-                for p in range(len(points)):
-                    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-                        if vuln.name == entry_select[number].get():
-                            if points[p] == entry_textBox[ent2].get():
-                                key = entry_textBox[ent4].get()
-                                if key == "":
-                                    key = exKeyWd[p]
-                                else:
-                                    key = key + " " + exKeyWd[p]
-                                entry_textBox[ent4].set(key)
-            elif vuln.name + "Message='" in cont:
-                msg = cont.replace(vuln.name + "Message='", "")
-                msg = msg.replace("'", "")
-                msg = msg.split(" ")
-                for p in range(len(points)):
-                    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-                        if vuln.name == entry_select[number].get():
-                            if points[p] == entry_textBox[ent2].get():
-                                key = entry_textBox[ent5].get()
-                                if key == "":
-                                    key = msg[p]
-                                else:
-                                    key = key + " " + msg[p]
-                                entry_textBox[ent5].set(key)
-    setEntry("")
-    tally()
-
-
-def tally():
+def tally(dictionary):
     # Set tally scores
-    tallyScore = 0
-    tallyVuln = 0
-    for number, (ent1, ent2, ent3, ent4, ent5, ent6, ent7, frame) in enumerate(all_entries):
-        # We do not want to count the points from the goodUser catagory and include the silentMiss
-        for vuln in vulns:
-            if vuln.name == entry_select[number].get():
-                if vuln.name != 'goodUser' and vuln.name not in dontCheck:
-                    if not ent3 == -1:
-                        multivuln = entry_textBox[ent3].get()
-                        multivuln = multivuln.split(' ')
-                        for mtv in multivuln:
-                            tallyVuln = tallyVuln + 1
-                            tallyScore = tallyScore + int(entry_textBox[ent2].get())
-                    else:
-                        tallyVuln = tallyVuln + 1
-                        tallyScore = tallyScore + int(entry_textBox[ent2].get())
-    scoreTotal.set("Vulnerablilities: {0}\nTotal Points: {1}".format(str(tallyVuln), str(tallyScore)))
+    tally_score = 0
+    tally_settings = 0
+    for s in dictionary.keys():
+        if s == "Forensic":
+            for i, p in enumerate(dictionary[s]["Points"]):
+                if dictionary[s]["Question"][i].get() != '' and p != 0:
+                    tally_settings += 1
+                    tally_score += int(p.get())
+        elif s != "Main Menu":
+            for o in dictionary[s].keys():
+                if dictionary[s][o]["Enabled"].get() == 1:
+                    for settings in dictionary[s][o]["Categories"]["Points"]:
+                        if settings != 0:
+                            tally_settings += 1
+                            tally_score += int(settings.get())
+        dictionary["Main Menu"]["Tally Points"].set("Vulnerabilities: {0}\nTotal Points: {1}".format(str(tally_settings), str(tally_score)))
 
 
-def getFTPInfo():
-    if os.path.exists('FTP.txt'):
-        with open('FTP.txt') as f:
-            content = f.read().splitlines()
-        f.close()
-        serverName.set(content[0].replace('serverName=', ''))
-        userName.set(content[1].replace('userName=', ''))
-        password.set(content[2].replace('password=', ''))
-    if ftpMode.get() == 1:
-        servL.config(state='normal')
-        servE.config(state='normal')
-        userL.config(state='normal')
-        userE.config(state='normal')
-        passL.config(state='normal')
-        passE.config(state='normal')
-    else:
-        servL.config(state='disable')
-        servE.config(state='disable')
-        userL.config(state='disable')
-        userE.config(state='disable')
-        passL.config(state='disable')
-        passE.config(state='disable')
+def set_desktop(dictionary):
+    if dictionary["Main Menu"]["Desktop Checkbox"].get() == 1:
+        cwd = os.getcwd()
+        s = cwd.rfind('\\')
+        a = len(cwd)
+        s = a - s - 1
+        cwd = cwd[:-s]
+        dictionary["Main Menu"]["Desktop Entry"].set(cwd)
 
 
-# Global Variables Initiation
-all_entries = []
-entry_frame2_count = 0
-entry_frame3_count = 0
-entry_frame4_count = 0
-entry_frame5_count = 0
-errorFree = True
-dupFree = True
-all_errors = []
-vulnNames2Rem = []
-vulnNames2RemD = []
-entry_errors = []
-entry_select = []
-entry_textBox = []
-entry_textBox_count = -1
-entry_lable = []
-entry_lable_count = -1
-root = Tk()
-root.title('CSEW Setup Tool')
-userLoc = IntVar()
-usrDsktp = StringVar()
-silentMode = IntVar()
-ftpMode = IntVar()
-ftpFrames = ''
-serverName = StringVar()
-userName = StringVar()
-password = StringVar()
-scoreLoc = StringVar()
-scoreTotal = StringVar()
-scoreTotal.set("Vulnerablilities: 0\nTotal Points: 0")
-# Forensic Question stuff
-fqcb01 = IntVar()
-fqpts01 = IntVar()
-fquest01 = StringVar()
-fqans01 = StringVar()
-fqcb02 = IntVar()
-fqpts02 = IntVar()
-fquest02 = StringVar()
-fqans02 = StringVar()
+def show_error(self, *args):
+    err = traceback.format_exception(*args)
+    for i in err:
+        if 'expected integer but got' in i:
+            err = 'There is an integer error with one of the points'
+    messagebox.showerror('Exception', err)
 
-# GUI Creation
-vscrollbar = AutoScrollbar(root)
-vscrollbar.grid(row=0, column=1, sticky=NS)
-hscrollbar = AutoScrollbar(root, orient=HORIZONTAL)
-hscrollbar.grid(row=1, column=0, sticky=EW)
 
-canvas = Canvas(root, yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set)
-canvas.grid(row=0, column=0, sticky=N + S + E + W)
-canvas.config(scrollregion=canvas.bbox("all"))
-vscrollbar.config(command=canvas.yview)
-hscrollbar.config(command=canvas.xview)
+Tk.report_callback_exception = show_error
 
-root.grid_rowconfigure(0, weight=1)
-root.grid_columnconfigure(0, weight=1)
+widgetDict = {"Forensic": {}, "Modify": {}, "Report": []}
 
-# Frame
-frame = Frame(canvas)
-frame.grid(row=0, column=0, sticky=W)
-# Frame1
-frame1 = Frame(canvas)
-frame1.grid(row=1, column=0, sticky=W)
-# Frame2
-frame2 = Frame(canvas)
-frame2.grid(row=2, column=0, sticky=W)
-# Frame3
-frame3 = Frame(canvas)
-frame3.grid(row=3, column=0, sticky=W)
-# Frame4
-frame4 = Frame(canvas)
-frame4.grid(row=4, column=0, sticky=W)
-# Frame5
-frame5 = Frame(canvas)
-frame5.grid(row=5, column=0, sticky=W)
-# Frame Interface
-Button(frame, text='Save', command=saveConfig).grid(row=0, column=1)
-Checkbutton(frame, text="Check if this configurator is on the Desktop of the main account.", variable=userLoc).grid(row=0, column=2, sticky=W, columnspan=4)
-Button(frame, text='Write to Config', command=submitCallback).grid(row=1, column=1)
-Entry(frame, textvariable=usrDsktp).grid(row=1, column=2, columnspan=3, sticky=EW)
-Label(frame, text="Enter the user name where\nyou want the information to goto.").grid(row=1, column=4, columnspan=2, sticky=W)
-Checkbutton(frame, text=v001.name, variable=silentMode).grid(row=2, column=1, sticky=W)
-Label(frame, text=v001.tip).grid(row=2, column=2, columnspan=5, sticky=W)
-Checkbutton(frame, text=v002.name, variable=ftpMode, command=getFTPInfo).grid(row=3, column=1, sticky=W)
-Label(frame, text=v002.tip).grid(row=3, column=2, columnspan=5, sticky=W)
-servL = Label(frame, text='Server Name/IP', state='disable')
-servL.grid(row=4, column=1, sticky=E)
-servE = Entry(frame, textvariable=serverName, state='disable')
-servE.grid(row=4, column=2, sticky=W)
-userL = Label(frame, text='User Name', state='disable')
-userL.grid(row=4, column=3, sticky=E)
-userE = Entry(frame, textvariable=userName, state='disable')
-userE.grid(row=4, column=4, sticky=W)
-passL = Label(frame, text='Password', state='disable')
-passL.grid(row=4, column=5, sticky=E)
-passE = Entry(frame, textvariable=password, state='disable')
-passE.grid(row=4, column=6, sticky=W)
-error = Label(frame, text='Please correct the errors\nbefore proceding', fg='red')
-Label(frame, textvariable=scoreTotal, font=('Verdana', 10, 'bold')).grid(row=5, column=1, sticky=W)
-# Frame1 Interface
-Label(frame1, text="Create?", font=('Verdana', 10, 'bold')).grid(row=0, column=1)
-Label(frame1, text="Points", font=('Verdana', 10, 'bold')).grid(row=0, column=2)
-Label(frame1, text="Question", font=('Verdana', 10, 'bold')).grid(row=0, column=3)
-Label(frame1, text="Answer", font=('Verdana', 10, 'bold')).grid(row=0, column=4, sticky=W)
-Checkbutton(frame1, text=fq01.name, variable=fqcb01).grid(row=5, column=1, sticky=W)
-Entry(frame1, width=5, textvariable=fqpts01).grid(row=5, column=2, sticky=W)
-Entry(frame1, textvariable=fquest01).grid(row=5, column=3, sticky=W)
-Entry(frame1, textvariable=fqans01).grid(row=5, column=4, sticky=W)
-Checkbutton(frame1, text=fq02.name, variable=fqcb02).grid(row=6, column=1, sticky=W)
-Entry(frame1, width=5, textvariable=fqpts02).grid(row=6, column=2, sticky=W)
-Entry(frame1, textvariable=fquest02).grid(row=6, column=3, sticky=W)
-Entry(frame1, textvariable=fqans02).grid(row=6, column=4, sticky=W)
-# Frame2 Interface
-Button(frame2, text='<Add Entry>', command=lambda: addToFrame2("<Select One>"), width=19).grid(row=0, column=0,
-                                                                                               sticky=W)
-Label(frame2, text="Points", font=('Verdana', 10, 'bold')).grid(row=0, column=1, sticky=W, padx=5)
-Label(frame2, text="Explanation", font=('Verdana', 10, 'bold')).grid(row=0, column=2, sticky=W)
-# Frame3 Interface
-Button(frame3, text='<Add Entry>', command=lambda: addToFrame3("<Select One>"), width=19).grid(row=0, column=0,
-                                                                                               sticky=W)
-Label(frame3, text="Points", font=('Verdana', 10, 'bold')).grid(row=0, column=1, sticky=W, padx=5)
-Label(frame3, text="Keywords/Values", font=('Verdana', 10, 'bold'), width=15).grid(row=0, column=2, sticky=W)
-Label(frame3, text="Contents", font=('Verdana', 10, 'bold'), width=13).grid(row=0, column=3, sticky=W)
-Label(frame3, text="Explanation (Add commas and spaces in between entries)", font=('Verdana', 10, 'bold')).grid(row=0, column=4,
-                                                                                                      sticky=W)
-# Frame4 Interface
-Button(frame4, text='<Add Entry>', command=lambda: addToFrame4("<Select One>"), width=19).grid(row=0, column=0,
-                                                                                               sticky=W)
-Label(frame4, text="Points", font=('Verdana', 10, 'bold')).grid(row=0, column=1, sticky=W, padx=5)
-Label(frame4, text="Keywords/Values", font=('Verdana', 10, 'bold'), width=15).grid(row=0, column=2, sticky=W)
-Label(frame4, text="Keywords/Values", font=('Verdana', 10, 'bold'), width=20).grid(row=0, column=3, sticky=W)
-Label(frame4, text="Contents", font=('Verdana', 10, 'bold'), width=13).grid(row=0, column=4, sticky=W)
-Label(frame4, text="Explanation (Add commas and spaces in between entries)", font=('Verdana', 10, 'bold')).grid(row=0, column=5,
-                                                                                                      sticky=W)
-# Frame5 Interface
-Button(frame5, text='<Add Entry>', command=lambda: addToFrame5("<Select One>"), width=19).grid(row=0, column=0,
-                                                                                               sticky=W)
-Label(frame5, text="Points", font=('Verdana', 10, 'bold')).grid(row=0, column=1, sticky=W, padx=5)
-Label(frame5, text="Keywords/Values", font=('Verdana', 10, 'bold'), width=20).grid(row=0, column=2, sticky=W)
-Label(frame5, text="Completion Message", font=('Verdana', 10, 'bold'), width=18).grid(row=0, column=3, sticky=W)
-Label(frame5, text="File Location", font=('Verdana', 10, 'bold'), width=15).grid(row=0, column=4, sticky=W)
-# Label(frame5,text="Contents",font=('Verdana',10,'bold'),width=13).grid(row=0,column=5,sticky=W)
-Label(frame5, text="Explanation ", font=('Verdana', 10, 'bold')).grid(row=0, column=6, sticky=W)
+root = Config()
+root.title('Configurator')
+root.geometry("{0}x{1}+{2}+{3}".format(int(root.winfo_screenwidth() / 2), int(root.winfo_screenheight() / 2), int(root.winfo_screenwidth() / 4), int(root.winfo_screenheight() / 4)))
 
-loadSave()
-
-frame.update_idletasks()
-frame1.update_idletasks()
-frame2.update_idletasks()
-frame3.update_idletasks()
-frame4.update_idletasks()
-frame5.update_idletasks()
+style = ttk.Style()
+style.theme_create("MyStyle", parent="winnative", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": 20, "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() / 2 - 30)}, "map": {"foreground": [('disabled', '#8c8c8c')]}}, "TEntry": {"map": {"fieldbackground": [('disabled', '#d9d9d9')]}}, "TButton": {"configure": {"anchor": 'center'}}})
+style.theme_use("MyStyle")
 
 root.mainloop()
