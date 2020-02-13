@@ -104,10 +104,10 @@ def forensic_question():
         content = f.read().splitlines()
         for c in content:
             if 'ANSWER:' in c:
-                if save_dictionary["Forensic"]["Answer"][idx] in c:
-                    record_hit('Forensic question number ' + str(idx + 1) + ' has been answered.', save_dictionary["Forensic"]['Points'][idx], '')
+                if save_dictionary["Forensic"]["Categories"]["Answer"][idx] in c:
+                    record_hit('Forensic question number ' + str(idx + 1) + ' has been answered.', save_dictionary["Forensic"]["Categories"]['Points'][idx], '')
                 else:
-                    record_miss('Forensic Question', save_dictionary["Forensic"]['Points'][idx])
+                    record_miss('Forensic Question', save_dictionary["Forensic"]["Categories"]['Points'][idx])
 
 
 def disable_guest():
