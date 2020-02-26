@@ -8,6 +8,7 @@ from tkinter import *
 from tkinter import ttk as ttk
 from tkinter import filedialog
 from tkinter import messagebox
+from ttkthemes import ThemedStyle
 
 
 class VerticalScrolledFrame(Frame):
@@ -56,8 +57,7 @@ class VerticalScrolledFrame(Frame):
 class Config(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-
-        vulnerability_settings = {"Main Menu": {"Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()},
+        vulnerability_settings = {"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()},
                                   "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()], "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
                                   "Account Management": {"Disable Guest": {"Definition": 'Enable this to score the competitor for disabling the Guest account.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
                                                          "Disable Admin": {"Definition": 'Enable this to score the competitor for disabling the Administrator account.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
@@ -113,6 +113,8 @@ class Config(Tk):
 
         ttk.Button(MainPage, text='Save', command=lambda: (save_config(vulnerability_settings))).grid(sticky=EW)
         ttk.Checkbutton(MainPage, text="Check if this configurator is on the Desktop of the main account.", variable=vulnerability_settings["Main Menu"]["Desktop Checkbox"], command=lambda: (set_desktop(vulnerability_settings))).grid(row=0, column=1, sticky=W, columnspan=3)
+        ttk.OptionMenu(MainPage, vulnerability_settings["Main Menu"]["Style"], *themeList).grid(row=0, column=5, sticky=EW)
+        ttk.Button(MainPage, text='Set', width=5, command=lambda: (root.ttkStyle.set_theme(vulnerability_settings["Main Menu"]["Style"].get()))).grid(row=0, column=6)
         ttk.Button(MainPage, text='Commit', command=lambda: (commit_config(vulnerability_settings))).grid(row=1, sticky=EW)
         ttk.Entry(MainPage, textvariable=vulnerability_settings["Main Menu"]["Desktop Entry"]).grid(row=1, column=1, columnspan=3, sticky=EW)
         ttk.Label(MainPage, text="Enter the user name where you want the information to goto.").grid(row=1, column=4, columnspan=3, sticky=W)
@@ -139,7 +141,7 @@ class Config(Tk):
         ForensicsPageIn.grid_columnconfigure(1, weight=1)
         ForensicsPageIn.grid_columnconfigure(2, weight=1)
         ttk.Button(ForensicsPageIn, text="Add", command=lambda: self.add_row(ForensicsPageIn, vulnerability_settings["Forensic"]["Categories"], widgetDict["Forensic"], 3)).grid(row=0, column=0, sticky=EW)
-        ttk.Label(ForensicsPageIn, text='This section is for scoring forensic questions. To score a forensic question be sure to check "Enable". To add more questions press the "Add" button. To remove questions press the "X" button next to the question you want to remove. \nDo note that the answers are case sensitive.', wraplength=int(self.winfo_screenwidth() * 2 / 3 - 100)).grid(row=0, column=1, rowspan=2, columnspan=3)
+        ttk.Label(ForensicsPageIn, text='This section is for scoring forensic questions. To score a forensic question be sure to check "Enable". To add more questions press the "Add" button. To remove questions press the "X" button next to the question you want to remove. \nDo note that the answers are case sensitive.').grid(row=0, column=1, rowspan=2, columnspan=3)
         ttk.Checkbutton(ForensicsPageIn, text="Enable", variable=vulnerability_settings["Forensic"]["Enabled"]).grid(row=1, column=0)
         ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold').grid(row=2, column=0)
         ttk.Label(ForensicsPageIn, text="Question", font='Verdana 10 bold').grid(row=2, column=1)
@@ -206,7 +208,7 @@ class Config(Tk):
         ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Export to HTML').grid(row=1, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageIn, vulnerability_settings))).grid(row=2, column=0, stick=EW)
-        ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button(WIP).', wraplength=int(self.winfo_screenwidth() * 2 / 3 - 125)).grid(row=0, column=1, rowspan=3, columnspan=4)
+        ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button(WIP).').grid(row=0, column=1, rowspan=3, columnspan=4)
 
         nb.add(MainPage, text='Main Page')
         nb.add(ForensicsPage, text='Forensics')
@@ -218,6 +220,10 @@ class Config(Tk):
 
         nb.pack(expand=1, fill="both")
         self.load_config(vulnerability_settings, ForensicsPageIn)
+
+    def theme_set(self, theme):
+        print(theme.get())
+        # root.ttkStyle.set_theme()
 
     def add_row(self, frame, entry, widgets, default_row):
         test = True
@@ -234,7 +240,7 @@ class Config(Tk):
                     tempr = widgets[w][0].grid_info()['row'] + 1
         else:
             tempr = default_row
-        if rwl == len(widgets):
+        if rwl == len(widgets) and rwl != 0:
             for i in entry:
                 if i == "Points":
                     entry[i].append(IntVar())
@@ -246,6 +252,7 @@ class Config(Tk):
                     entry[i][rwl] = IntVar()
                 else:
                     entry[i][rwl] = StringVar()
+                    print(entry[i][rwl])
 
         for i, t in enumerate(entry):
             if t == "Points":
@@ -359,7 +366,7 @@ class Config(Tk):
                 ttk.Separator(frame, orient=HORIZONTAL).grid(row=final_row, column=0, columnspan=5, sticky=EW)
                 final_row += 1
                 if s == "Forensic":
-                    if dictionary[s]["Enabled"].get == 1:
+                    if dictionary[s]["Enabled"].get() == 1:
                         set_first_row = final_row
                         row_span = 0
                         for i, c in enumerate(dictionary[s]["Categories"]):
@@ -542,16 +549,26 @@ def show_error(self, *args):
     messagebox.showerror('Exception', err)
 
 
-Tk.report_callback_exception = show_error
+# Tk.report_callback_exception = show_error
 
 widgetDict = {"Forensic": {}, "Modify": {}, "Report": []}
+themeList = ["aquativo", "aquativo", "black", "clearlooks", "elegance", "equilux", "keramik", "plastik", "ubuntu"]
 
 root = Config()
 root.title('Configurator')
-root.geometry("{0}x{1}+{2}+{3}".format(int(root.winfo_screenwidth() * 2 / 3), int(root.winfo_screenheight() * 2 / 3), int(root.winfo_screenwidth() / 6), int(root.winfo_screenheight() / 6)))
+root.geometry("{0}x{1}+{2}+{3}".format(int(root.winfo_screenwidth() * 3 / 4), int(root.winfo_screenheight() * 2 / 3), int(root.winfo_screenwidth() / 9), int(root.winfo_screenheight() / 6)))
 
-style = ttk.Style()
-style.theme_create("MyStyle", parent="winnative", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 2 / 3 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 2 / 3 - 50)}, "map": {"foreground": [('disabled', '#8c8c8c')]}}, "TEntry": {"map": {"fieldbackground": [('disabled', '#d9d9d9')]}}, "TButton": {"configure": {"anchor": 'center'}}})
-style.theme_use("MyStyle")
+root.ttkStyle = ThemedStyle(root.winfo_toplevel())
+for theme in themeList:
+    root.ttkStyle.set_theme(theme)
+root.ttkStyle.set_theme("aquativo")
+root.ttkStyle.theme_settings(themename="aquativo", settings={".": {"configure": {"background": '#eff0f1'}}, "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 140)}}, "TEntry": {"map": {"fieldbackground": [('disabled', '#a9acb2')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="black", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 145)}}, "TEntry": {"map": {"fieldbackground": [('disabled', '#868583')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="clearlooks", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 145)}}, "TEntry": {"map": {"fieldbackground": [('disabled', '#b0aaa4')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="elegance", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"font": '8', "padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 145)}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="equilux", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 145)}, "map": {"foreground": [('disabled', '#5b5b5b')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="keramik", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 145)}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="plastik", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 145)}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+root.ttkStyle.theme_settings(themename="ubuntu", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 170)}, "map": {"foreground": [('disabled', '#c2c2c2')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
 
 root.mainloop()
