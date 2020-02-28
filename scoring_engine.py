@@ -19,7 +19,7 @@ def draw_head():
 def record_hit(name, points, message):
     global total_points, possible_points
     global total_vulnerabilities, possible_vulnerabilities
-    write_to_html(('<p style="color:green">' + name + '(' + str(points) + ' points)</p>'))
+    write_to_html(('<p style="color:green">' + name + ' (' + str(points) + ' points)</p>'))
     total_points += int(points)
     possible_points += int(points)
     total_vulnerabilities += 1
@@ -36,7 +36,7 @@ def record_miss(name, points):
 
 def record_penalty(name, points, message):
     global total_points
-    write_to_html(('<p style="color:red">' + name + '(' + str(points) + ' points)</p>'))
+    write_to_html(('<p style="color:red">' + name + ' (' + str(points) + ' points)</p>'))
     total_points -= int(points)
 
 
@@ -571,7 +571,7 @@ def program_management():
 
 def file_management():
     write_to_html('<H3>FILE MANAGEMENT</H3>')
-    if len(save_dictionary["Forensic"]["Points"]) > 0:
+    if save_dictionary["Forensic"]["Enabled"] == 1:
         forensic_question()
     if save_dictionary["File Management"]["Bad File"]["Enabled"] == 1:
         bad_file()

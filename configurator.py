@@ -57,53 +57,30 @@ class VerticalScrolledFrame(Frame):
 class Config(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-        vulnerability_settings = {"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()},
-                                  "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()], "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
-                                  "Account Management": {"Disable Guest": {"Definition": 'Enable this to score the competitor for disabling the Guest account.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Disable Admin": {"Definition": 'Enable this to score the competitor for disabling the Administrator account.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Keep User": {"Definition": 'Enable this to penalize the competitor for removing a user.', "Modify Definition": 'This will penalize the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. Do not make the point value negative.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+        vulnerability_settings = {"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()}, "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()], "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
+                                  "Account Management": {"Disable Guest": {"Definition": 'Enable this to score the competitor for disabling the Guest account.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Disable Admin": {"Definition": 'Enable this to score the competitor for disabling the Administrator account.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Keep User": {"Definition": 'Enable this to penalize the competitor for removing a user.', "Modify Definition": 'This will penalize the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. Do not make the point value negative.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                          "Add Admin": {"Definition": 'Enable this to score the competitor for elevating a user to an Administrator.', "Modify Definition": 'This will score the competitor for elevating a user to an Administrator. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
-                                                         "Remove Admin": {"Definition": 'Enable this to score the competitor for demoting a user to Standard user.', "Modify Definition": 'This will score the competitor for demoting a user to Standard user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
-                                                         "Add User": {"Definition": 'Enable this to score the competitor for adding a user.', "Modify Definition": 'This will score the competitor for adding a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
-                                                         "Remove User": {"Definition": 'Enable this to score the competitor for removing a user.', "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
-                                                         "User Change Password": {"Definition": 'Enable this to score the competitor for changing a users password.', "Modify Definition": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                         "Remove Admin": {"Definition": 'Enable this to score the competitor for demoting a user to Standard user.', "Modify Definition": 'This will score the competitor for demoting a user to Standard user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}}, "Add User": {"Definition": 'Enable this to score the competitor for adding a user.', "Modify Definition": 'This will score the competitor for adding a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                         "Remove User": {"Definition": 'Enable this to score the competitor for removing a user.', "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}}, "User Change Password": {"Definition": 'Enable this to score the competitor for changing a users password.', "Modify Definition": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                          "Add User to Group": {"Definition": 'Enable this to score the competitor for adding a user to a group other than the Administrative group.', "Modify Definition": 'This will score the competitor for adding a user to a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user  and group per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}},
                                                          "Remove User from Group": {"Definition": 'Enable this to score the competitor for removing a user from a group other than the Administrative group.', "Modify Definition": 'This will score the competitor for removing a user from a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user and group per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}}},
-                                  "Local Policy Options": {"Do Not Require CTRL_ALT_DEL": {"Definition": 'Enable this to score the competitor for disabling Do Not Require CTRL_ALT_DEL.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                           "Turn On Firewall": {"Definition": 'Enable this to score the competitor for turning on the firewall.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                           "Don't Display Last User": {"Definition": 'Enable this to score the competitor for enabling Don\'t Display Last User.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
-                                  "Local Policy Password": {"Minimum Password Age": {"Definition": 'Enable this to score the competitor for setting the minimum password age to 30, 45, or 60.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Maximum Password Age": {"Definition": 'Enable this to score the competitor for setting the maximum password age to 60, 75, or 90.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Minimum Password Length": {"Definition": 'Enable this to score the competitor for setting the minimum password length between 10 and 20.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Maximum Login Tries": {"Definition": 'Enable this to score the competitor for setting the maximum login tries between 5 and 10.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Lockout Duration": {"Definition": 'Enable this to score the competitor for setting the lockout duration to 30.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Lockout Reset Duration": {"Definition": 'Enable this to score the competitor for setting the lockout reset duration to 30.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Password History": {"Definition": 'Enable this to score the competitor for setting the password history between 5 and 10.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                            "Password Complexity": {"Definition": 'Enable this to score the competitor for enabling password complexity.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                  "Local Policy Options": {"Do Not Require CTRL_ALT_DEL": {"Definition": 'Enable this to score the competitor for disabling Do Not Require CTRL_ALT_DEL.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Turn On Firewall": {"Definition": 'Enable this to score the competitor for turning on the firewall.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Don't Display Last User": {"Definition": 'Enable this to score the competitor for enabling Don\'t Display Last User.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
+                                  "Local Policy Password": {"Minimum Password Age": {"Definition": 'Enable this to score the competitor for setting the minimum password age to 30, 45, or 60.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Maximum Password Age": {"Definition": 'Enable this to score the competitor for setting the maximum password age to 60, 75, or 90.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Minimum Password Length": {"Definition": 'Enable this to score the competitor for setting the minimum password length between 10 and 20.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Maximum Login Tries": {"Definition": 'Enable this to score the competitor for setting the maximum login tries between 5 and 10.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                            "Lockout Duration": {"Definition": 'Enable this to score the competitor for setting the lockout duration to 30.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Lockout Reset Duration": {"Definition": 'Enable this to score the competitor for setting the lockout reset duration to 30.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Password History": {"Definition": 'Enable this to score the competitor for setting the password history between 5 and 10.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Password Complexity": {"Definition": 'Enable this to score the competitor for enabling password complexity.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
                                                             "Reversible Password Encryption": {"Definition": 'Enable this to score the competitor for disabling reversible encryption.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
-                                  "Local Policy Audit": {"Audit Account Login": {"Definition": 'Enable this to score the competitor for setting account login audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Account Management": {"Definition": 'Enable this to score the competitor for setting account management audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Directory Settings Access": {"Definition": 'Enable this to score the competitor for setting directory settings access audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Logon Events": {"Definition": 'Enable this to score the competitor for setting login events audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Object Access": {"Definition": 'Enable this to score the competitor for setting object access audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Policy Change": {"Definition": 'Enable this to score the competitor for setting policy change audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Privilege Use": {"Definition": 'Enable this to score the competitor for setting privilege use audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit Process Tracking": {"Definition": 'Enable this to score the competitor for setting process tracking audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                         "Audit System Events": {"Definition": 'Enable this to score the competitor for setting system events audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}},
-                                  "Program Management": {"Good Program": {"Definition": 'Enable this to score the competitor for installing a program.', "Modify Definition": 'This will score the competitor for installing a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
-                                                         "Bad Program": {"Definition": 'Enable this to score the competitor for uninstalling a program.', "Modify Definition": 'This will score the competitor for uninstalling a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
-                                                         "Update Program": {"Definition": '(WIP)Enable this to score the competitor for updating a program.', "Modify Definition": '(WIP)This will score the competitor for updating a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
-                                                         "Add Feature": {"Definition": '(WIP)Enable this to score the competitor for adding a feature.', "Modify Definition": '(WIP)This will score the competitor for adding a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Feature Name': [StringVar()]}},
-                                                         "Remove Feature": {"Definition": '(WIP)Enable this to score the competitor for removing a feature.', "Modify Definition": '(WIP)This will score the competitor for removing a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Feature Name': [StringVar()]}},
-                                                         "Services": {"Definition": 'Enable this to score the competitor for modifying a services run ability.', "Modify Definition": 'This will score the competitor for modifying a services run ability. To add more services press the "Add" button. To remove a service press the "X" button next to the service you want to remove. Keep it one service per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Service Name': [StringVar()], 'Service Status': [StringVar()], 'Service Start Type': [StringVar()]}}},
-                                  "File Management": {"Bad File": {"Definition": 'Enable this to score the competitor for deleting a file.', "Modify Definition": 'This will score the competitor for deleting a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'File Path': [StringVar()]}},
-                                                      "Check Hosts": {"Definition": '(WIP)Enable this to score the competitor for clearing the hosts file.', "Modify Definition": '(WIP)This will score the competitor for clearing the hosts file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text': [StringVar()]}},
+                                  "Local Policy Audit": {"Audit Account Login": {"Definition": 'Enable this to score the competitor for setting account login audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Audit Account Management": {"Definition": 'Enable this to score the competitor for setting account management audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Audit Directory Settings Access": {"Definition": 'Enable this to score the competitor for setting directory settings access audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Audit Logon Events": {"Definition": 'Enable this to score the competitor for setting login events audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit Object Access": {"Definition": 'Enable this to score the competitor for setting object access audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Audit Policy Change": {"Definition": 'Enable this to score the competitor for setting policy change audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Audit Privilege Use": {"Definition": 'Enable this to score the competitor for setting privilege use audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Audit Process Tracking": {"Definition": 'Enable this to score the competitor for setting process tracking audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                                         "Audit System Events": {"Definition": 'Enable this to score the competitor for setting system events audit to success and failure.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}}, "Program Management": {"Good Program": {"Definition": 'Enable this to score the competitor for installing a program.', "Modify Definition": 'This will score the competitor for installing a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
+                                                                                                                                                                                                                                                                                  "Bad Program": {"Definition": 'Enable this to score the competitor for uninstalling a program.', "Modify Definition": 'This will score the competitor for uninstalling a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
+                                                                                                                                                                                                                                                                                  "Update Program": {"Definition": '(WIP)Enable this to score the competitor for updating a program.', "Modify Definition": '(WIP)This will score the competitor for updating a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
+                                                                                                                                                                                                                                                                                  "Add Feature": {"Definition": '(WIP)Enable this to score the competitor for adding a feature.', "Modify Definition": '(WIP)This will score the competitor for adding a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Feature Name': [StringVar()]}},
+                                                                                                                                                                                                                                                                                  "Remove Feature": {"Definition": '(WIP)Enable this to score the competitor for removing a feature.', "Modify Definition": '(WIP)This will score the competitor for removing a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Feature Name': [StringVar()]}},
+                                                                                                                                                                                                                                                                                  "Services": {"Definition": 'Enable this to score the competitor for modifying a services run ability.', "Modify Definition": 'This will score the competitor for modifying a services run ability. To add more services press the "Add" button. To remove a service press the "X" button next to the service you want to remove. Keep it one service per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Service Name': [StringVar()], 'Service Status': [StringVar()], 'Service Start Type': [StringVar()]}}},
+                                  "File Management": {"Bad File": {"Definition": 'Enable this to score the competitor for deleting a file.', "Modify Definition": 'This will score the competitor for deleting a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'File Path': [StringVar()]}}, "Check Hosts": {"Definition": '(WIP)Enable this to score the competitor for clearing the hosts file.', "Modify Definition": '(WIP)This will score the competitor for clearing the hosts file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text': [StringVar()]}},
                                                       "Add Text to File": {"Definition": 'Enable this to score the competitor for adding text to a file.', "Modify Definition": 'This will score the competitor for adding text to a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text to Add': [StringVar()], 'File Path': [StringVar()]}},
                                                       "Remove Text From File": {"Definition": 'Enable this to score the competitor for removing text from a file.', "Modify Definition": 'This will score the competitor for removing text from a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Text to Remove': [StringVar()], 'File Path': [StringVar()]}},
                                                       "File Permissions": {"Definition": '(WIP)Enable this to score the competitor for changing the permissions a user has on a file.', "Modify Definition": '(WIP)This will score the competitor for changing the permissions a user has on a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Users to Modify': [StringVar()], 'Permission to Set': [StringVar()], 'File Path': [StringVar()]}}},
-                                  "Miscellaneous": {"Anti-Virus": {"Definition": 'Enable this to score the competitor for installing an anti-virus. Not windows defender.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                    "Update Check Period": {"Definition": '(WIP)Enable this to score the competitor for setting the period windows checks for updates to once a week.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
-                                                    "Update Auto Install": {"Definition": '(WIP)Enable this to score the competitor for setting windows updates to automatically install updates.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
+                                  "Miscellaneous": {"Anti-Virus": {"Definition": 'Enable this to score the competitor for installing an anti-virus. Not windows defender.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Update Check Period": {"Definition": '(WIP)Enable this to score the competitor for setting the period windows checks for updates to once a week.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}}, "Update Auto Install": {"Definition": '(WIP)Enable this to score the competitor for setting windows updates to automatically install updates.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()]}},
                                                     "Task Scheduler": {"Definition": '(WIP)Enable this to score the competitor for removing a task from the task scheduler.', "Modify Definition": '(WIP)This will score the competitor for removing a task from the task scheduler. To add more tasks press the "Add" button. To remove a task press the "X" button next to the task you want to remove. Keep it one task per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Task Name': [StringVar()]}},
                                                     "Check Startup": {"Definition": '(WIP)Enable this to score the competitor for removing or disabling a program from the startup.', "Modify Definition": '(WIP)This will score the competitor for removing or disabling a program from the startup. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.', "Enabled": IntVar(), "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}}}}
         vulnerability_settings["Main Menu"]["Tally Points"].set("Vulnerabilities: 0 Total Points: 0")
@@ -140,7 +117,7 @@ class Config(Tk):
         ForensicsPageIn = ForensicsPage.interior
         ForensicsPageIn.grid_columnconfigure(1, weight=1)
         ForensicsPageIn.grid_columnconfigure(2, weight=1)
-        ttk.Button(ForensicsPageIn, text="Add", command=lambda: self.add_row(ForensicsPageIn, vulnerability_settings["Forensic"]["Categories"], widgetDict["Forensic"], 3)).grid(row=0, column=0, sticky=EW)
+        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageIn, vulnerability_settings["Forensic"]["Categories"], widgetDict["Forensic"], 3)).grid(row=0, column=0, sticky=EW)
         ttk.Label(ForensicsPageIn, text='This section is for scoring forensic questions. To score a forensic question be sure to check "Enable". To add more questions press the "Add" button. To remove questions press the "X" button next to the question you want to remove. \nDo note that the answers are case sensitive.').grid(row=0, column=1, rowspan=2, columnspan=3)
         ttk.Checkbutton(ForensicsPageIn, text="Enable", variable=vulnerability_settings["Forensic"]["Enabled"]).grid(row=1, column=0)
         ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold').grid(row=2, column=0)
@@ -221,59 +198,6 @@ class Config(Tk):
         nb.pack(expand=1, fill="both")
         self.load_config(vulnerability_settings, ForensicsPageIn)
 
-    def theme_set(self, theme):
-        print(theme.get())
-        # root.ttkStyle.set_theme()
-
-    def add_row(self, frame, entry, widgets, default_row):
-        test = True
-        rwl = 0
-        while test:
-            if not rwl in widgets.keys():
-                test = False
-            else:
-                rwl += 1
-        if len(widgets) > 0:
-            i = 0
-            for w in widgets:
-                if widgets[w][0].grid_info()['row'] > i:
-                    tempr = widgets[w][0].grid_info()['row'] + 1
-        else:
-            tempr = default_row
-        if rwl == len(widgets) and rwl != 0:
-            for i in entry:
-                if i == "Points":
-                    entry[i].append(IntVar())
-                else:
-                    entry[i].append(StringVar())
-        else:
-            for i in entry:
-                if i == "Points":
-                    entry[i][rwl] = IntVar()
-                else:
-                    entry[i][rwl] = StringVar()
-                    print(entry[i][rwl])
-
-        for i, t in enumerate(entry):
-            if t == "Points":
-                ttk.Entry(frame, width=5, textvariable=entry["Points"][rwl]).grid(row=tempr, column=i)
-            elif t == "File Path":
-                frame.grid_columnconfigure(i, weight=1)
-                ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
-                ttk.Button(frame, text='...', command=lambda: entry[t][rwl].set(filedialog.askdirectory())).grid(row=tempr, column=i + 1)
-                c = i + 2
-            elif t == "Service Status":
-                ttk.OptionMenu(frame, entry[t][rwl], *["Running", "Stopped"]).grid(row=tempr, column=i, sticky=EW)
-                c = i + 1
-            elif t == "Service Start Type":
-                ttk.OptionMenu(frame, entry[t][rwl], *["Automatic", "Manual", "Disabled"]).grid(row=tempr, column=i, sticky=EW)
-                c = i + 1
-            else:
-                ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
-                c = i + 1
-        ttk.Button(frame, text='X', command=lambda: remove_row(rwl, entry, widgets)).grid(row=tempr, column=c, sticky=W)
-        widgets.update({rwl: frame.grid_slaves(row=tempr)})
-
     def add_option(self, frame, entry, name, row, return_frame):
         ttk.Checkbutton(frame, text=name, variable=entry["Enabled"]).grid(row=row, column=0, stick=W)
         ttk.Label(frame, text=entry["Definition"]).grid(row=row, column=1, stick=W)
@@ -296,7 +220,7 @@ class Config(Tk):
             widgetDict["Modify"].clear()
         ttk.Button(modifyPageIn, text="Save", command=lambda: (self.pack_slaves()[0].pack_forget(), packing.pack(expand=1, fill="both"))).grid(row=0, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=option + ' Modification', font='Verdana 15').grid(row=0, column=1, columnspan=len(entry["Categories"]))
-        ttk.Button(modifyPageIn, text="Add", command=lambda: (self.add_row(modifyPageIn, entry["Categories"], widgetDict["Modify"], 3))).grid(row=1, column=0, sticky=EW)
+        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageIn, entry["Categories"], widgetDict["Modify"], 3))).grid(row=1, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=entry["Modify Definition"], wraplength=int(self.winfo_screenwidth() * 2 / 3 - 100)).grid(row=1, column=1, columnspan=len(entry["Categories"]))
         for i, t in enumerate(entry["Categories"]):
             ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold').grid(row=2, column=i)
@@ -333,7 +257,7 @@ class Config(Tk):
                         dictionary[s][m].set(save_dictionary[s][m])
                 elif s == "Forensic":
                     for i in range(1, len(save_dictionary[s]["Categories"]["Points"])):
-                        self.add_row(forensic, dictionary["Forensic"]["Categories"], widgetDict["Forensic"], 2)
+                        add_row(forensic, dictionary["Forensic"]["Categories"], widgetDict["Forensic"], 2)
                     for m in save_dictionary[s]["Categories"]:
                         for i, settings in enumerate(save_dictionary[s]["Categories"][m]):
                             dictionary[s]["Categories"][m][i].set(settings)
@@ -412,6 +336,55 @@ class Config(Tk):
             for w in frame.grid_slaves(row=i):
                 widgetDict["Report"].append(w)
         tally(dictionary)
+
+
+def add_row(frame, entry, widgets, default_row):
+    test = True
+    rwl = 0
+    while test:
+        if not rwl in widgets.keys():
+            test = False
+        else:
+            rwl += 1
+    if len(widgets) > 0:
+        i = 0
+        for w in widgets:
+            if widgets[w][0].grid_info()['row'] > i:
+                tempr = widgets[w][0].grid_info()['row'] + 1
+    else:
+        tempr = default_row
+    if rwl == len(widgets) and rwl != 0:
+        for i in entry:
+            if i == "Points":
+                entry[i].append(IntVar())
+            else:
+                entry[i].append(StringVar())
+    else:
+        for i in entry:
+            if i == "Points":
+                entry[i][rwl] = IntVar()
+            else:
+                entry[i][rwl] = StringVar()
+
+    for i, t in enumerate(entry):
+        if t == "Points":
+            ttk.Entry(frame, width=5, textvariable=entry["Points"][rwl]).grid(row=tempr, column=i)
+        elif t == "File Path":
+            frame.grid_columnconfigure(i, weight=1)
+            ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
+            ttk.Button(frame, text='...', command=lambda: entry[t][rwl].set(filedialog.askdirectory())).grid(row=tempr, column=i + 1)
+            c = i + 2
+        elif t == "Service Status":
+            ttk.OptionMenu(frame, entry[t][rwl], *["Running", "Stopped"]).grid(row=tempr, column=i, sticky=EW)
+            c = i + 1
+        elif t == "Service Start Type":
+            ttk.OptionMenu(frame, entry[t][rwl], *["Automatic", "Manual", "Disabled"]).grid(row=tempr, column=i, sticky=EW)
+            c = i + 1
+        else:
+            ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
+            c = i + 1
+    ttk.Button(frame, text='X', command=lambda: remove_row(rwl, entry, widgets)).grid(row=tempr, column=c, sticky=W)
+    widgets.update({rwl: frame.grid_slaves(row=tempr)})
 
 
 def remove_row(rem, entry, widgets):
