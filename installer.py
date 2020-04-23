@@ -36,6 +36,7 @@ def convert(command):
     move_project(dist_path, output_directory)
     shutil.rmtree(temporary_directory)
 
+
 scoringPath = os.path.abspath('scoring_engine.py')
 configPath = os.path.abspath('configurator.py')
 balloonPath = os.path.abspath('balloontip.py')
@@ -52,5 +53,10 @@ while True:
     elif ask.lower() == 'both':
         convert(command_score)
         convert(command_config)
+    elif ask.lower() == 'temp':
+        temp_path = 'B:\\Users\\Shaun\\ProjectsFolder\\program_checking\\Wire_Game_Program.py'
+        # -c for console -w for window
+        temp = 'pyinstaller -y -F -c "' + temp_path + '"'
+        convert(temp)
     else:
         exit()
