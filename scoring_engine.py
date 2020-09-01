@@ -6,6 +6,7 @@ import datetime
 import balloontip
 import admin_test
 import tkinter
+from wmi import WMI
 from tkinter import messagebox
 
 
@@ -112,27 +113,42 @@ def forensic_question():
 
 
 def disable_guest():
-    f = open('user.txt', 'r', encoding='utf-16-le')
-    content = f.read().splitlines()
-    f.close()
-    for c in content:
-        if 'Guest' in c:
-            if ' True' in c:
-                record_hit('The guest account haas been disabled.', save_dictionary["Account Management"]["Disable Guest"]["Categories"]['Points'][0], '')
-            else:
-                record_miss('User Management', save_dictionary["Account Management"]["Disable Guest"]["Categories"]['Points'][0])
+    guest = wmi.Win32_UserAccount(Name="Guest")[0]
+    if guest.Disabled:
+        record_hit('The guest account haas been disabled.', save_dictionary["Account Management"]["Disable Guest"]["Categories"]['Points'][0], '')
+    else:
+        record_miss('User Management', save_dictionary["Account Management"]["Disable Guest"]["Categories"]['Points'][0])
 
 
 def disable_admin():
-    f = open('user.txt', 'r', encoding='utf-16-le')
-    content = f.read().splitlines()
-    f.close()
-    for c in content:
-        if 'Administrator' in c:
-            if ' True' in c:
-                record_hit('The default administrator account has been disabled.', save_dictionary["Account Management"]["Disable Admin"]["Categories"]['Points'][0], '')
+    admin = wmi.Win32_UserAccount(Name="Administrator")[0]
+    if admin.Disabled:
+        record_hit('The default administrator account has been disabled.', save_dictionary["Account Management"]["Disable Admin"]["Categories"]['Points'][0], '')
+    else:
+        record_miss('User Management', save_dictionary["Account Management"]["Disable Admin"]["Categories"]['Points'][0])
+
+
+def users_manipulation(manipulation):
+    users = wmi.Win32_UserAccount()
+    user_list = []
+    for user in users:
+        user_list.append(user.Name)
+    if manipulation == "KeepUser":
+        for points, name in zip(save_dictionary["Account Management"]["Keep User"]["Categories"]['Points'], save_dictionary["Account Management"]["Keep User"]["Categories"]['User Name']):
+            if name not in user_list:
+                record_penalty(name + ' was removed.', points, '')
+    if manipulation == "AddUser":
+        for points, name in zip(save_dictionary["Account Management"]["Add User"]["Categories"]['points'], save_dictionary["Account Management"]["Add User"]["Categories"]['User Name']):
+            if name in user_list:
+                record_hit(name + ' has been added.', points, '')
             else:
-                record_miss('User Management', save_dictionary["Account Management"]["Disable Admin"]["Categories"]['Points'][0])
+                record_miss('User Management', points)
+    if manipulation == "RemoveUser":
+        for points, name in enumerate(save_dictionary["Account Management"]["Remove User"]["Categories"]['Points'], save_dictionary["Account Management"]["Remove User"]["Categories"]['User Name']):
+            if name not in user_list:
+                record_hit(name + ' has been removed.', points, '')
+            else:
+                record_miss('User Management', points)
 
 
 def turn_on_firewall():
@@ -275,37 +291,6 @@ def local_group_policy():
                     record_miss('Policy Management', save_dictionary["Local Policy Options"]["Don't Display Last User"]["Categories"]['Points'][0])
 
 
-def keep_user():
-    with open('users.txt') as t:
-        content = t.read()
-    t.close()
-    for idx, name in enumerate(save_dictionary["Account Management"]["Keep User"]["Categories"]['User Name']):
-        if name.lower() not in content.lower():
-            record_penalty(name + ' was removed.', save_dictionary["Account Management"]["Keep User"]["Categories"]['Points'][idx], '')
-
-
-def add_user():
-    with open('users.txt') as t:
-        content = t.read()
-    t.close()
-    for idx, name in enumerate(save_dictionary["Account Management"]["Add User"]["Categories"]['User Name']):
-        if name.lower() in content.lower():
-            record_hit(name + ' has been added', save_dictionary["Account Management"]["Add User"]["Categories"]['Points'][idx], '')
-        else:
-            record_miss('User Management', save_dictionary["Account Management"]["Add User"]["Categories"]['Points'][idx])
-
-
-def remove_user():
-    with open('users.txt') as t:
-        content = t.read()
-    t.close()
-    for idx, name in enumerate(save_dictionary["Account Management"]["Remove User"]["Categories"]['User Name']):
-        if name.lower() not in content.lower():
-            record_hit(name + ' has been removed.', save_dictionary["Account Management"]["Remove User"]["Categories"]['Points'][idx], '')
-        else:
-            record_miss('User Management', save_dictionary["Account Management"]["Remove User"]["Categories"]['Points'][idx])
-
-
 def add_admin():
     with open('admins.txt') as t:
         content = t.read()
@@ -410,17 +395,26 @@ def remove_text_from_file():
                 record_miss('File Management', save_dictionary["File Management"]["Remove Text From File"]["Categories"]['Points'][idx])
 
 
-def services():
-    p = open('services.txt', 'r', encoding='utf-16-le')
-    content = p.read().splitlines()
-    p.close()
-    for c in content:
-        for idx, bs in save_dictionary["Program Management"]["Service"]["Categories"]['Service Name']:
-            if bs in c:
-                if save_dictionary["Program Management"]["Service"]["Categories"]['Service Status'][idx] in c and save_dictionary["Program Management"]["Service"]["Categories"]['Service Start Type'][idx] in c:
-                    record_hit(bs + ' has been ' + save_dictionary["Program Management"]["Service"]["Categories"]['Service Status'][idx] + ' and set to ' + save_dictionary["Program Management"]["Service"]["Categories"]['Service Start Type'][idx], save_dictionary["Program Management"]["Service"]["Categories"]['Points'][idx], '')
-                else:
-                    record_miss('Program Management', save_dictionary["Program Management"]["Service"]["Categories"]['Points'][idx])
+def manage_services():
+    services = wmi.Win32_Service()
+    service_list = {}
+    service_status = {}
+    for service in services:
+        service_list.update({service.displayname: service.name})
+        service_status.update({service.name: {"State": service.state, "Start Mode": service.startmode}})
+
+    for points, name, status, start in zip(save_dictionary["Program Management"]["Service"]["Categories"]['Points'],
+                                           save_dictionary["Program Management"]["Service"]["Categories"]['Service Name'],
+                                           save_dictionary["Program Management"]["Service"]["Categories"]['Service State'],
+                                           save_dictionary["Program Management"]["Service"]["Categories"]['Service Start mode']):
+        if name in service_list:
+            name = service_list[name]
+        if name in service_status:
+            service_info = service_status[name]
+            if status == service_info["State"] and start == service_info["Start Mode"]:
+                record_hit(name + ' has been ' + status + ' and set to ' + start, points, '')
+            else:
+                record_miss('Program Management', points)
 
 
 def programs(option):
@@ -480,10 +474,6 @@ def load_config():
 
 def ps_create():
     m = open('check.ps1', 'w+')
-    if save_dictionary["Account Management"]["Disable Guest"]["Enabled"] == 1 or save_dictionary["Account Management"]["Disable Admin"]["Enabled"] == 1:
-        m.write('Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount=\'$true\'"|Select-Object Name,Disabled|Format-Table -AutoSize > user.txt\n')
-    if save_dictionary["Program Management"]["Services"]["Enabled"] == 1:
-        m.write('Get-Service | Select-Object Name,status,startType | Format-Table -AutoSize > services.txt\n')
     if save_dictionary["Program Management"]["Bad Program"]["Enabled"] == 1 or save_dictionary["Program Management"]["Good Program"]["Enabled"] == 1:
         m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table -AutoSize > programs.txt\n')
     if save_dictionary["Miscellaneous"]["Check Startup"]["Enabled"] == 1:
@@ -493,8 +483,6 @@ def ps_create():
     m.close()
     m = open('check.bat', 'w+')
     m.write('echo > trigger.cfg\n')
-    if save_dictionary["Account Management"]["Keep User"]["Enabled"] == 1 or save_dictionary["Account Management"]["Remove User"]["Enabled"] == 1 or save_dictionary["Account Management"]["Add User"]["Enabled"] == 1:
-        m.write('net users > users.txt\n')
     if save_dictionary["Account Management"]["User Change Password"]["Enabled"] == 1:
         for name in save_dictionary["Account Management"]["User Change Password"]["Categories"]['User Name']:
             m.write('net user ' + name.lower() + ' > user_' + name.lower() + '.txt\n')
@@ -531,11 +519,11 @@ def ps_create():
 def user_management():
     write_to_html('<H3>USER MANAGEMENT</H3>')
     if save_dictionary["Account Management"]["Keep User"]["Enabled"] == 1:
-        keep_user()
+        user_management("KeepUser")
     if save_dictionary["Account Management"]["Remove User"]["Enabled"] == 1:
-        remove_user()
+        users_manipulation("RemoveUser")
     if save_dictionary["Account Management"]["Add User"]["Enabled"] == 1:
-        add_user()
+        user_management("AddUser")
     if save_dictionary["Account Management"]["User Change Password"]["Enabled"] == 1:
         user_change_password()
     if save_dictionary["Account Management"]["Add Admin"]["Enabled"] == 1:
@@ -567,7 +555,7 @@ def program_management():
     if save_dictionary["Program Management"]["Bad Program"]["Enabled"] == 1:
         programs('bad_Program')
     if save_dictionary["Program Management"]["Services"]["Enabled"] == 1:
-        services()
+        manage_services()
 
 
 def file_management():
@@ -601,6 +589,7 @@ def show_error(self, *args):
     messagebox.showerror('Exception', err)
 
 
+wmi = WMI()
 load_config()
 possible_points = 0
 possible_vulnerabilities = 0
