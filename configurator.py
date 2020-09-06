@@ -4,6 +4,8 @@ import json
 import shutil
 import traceback
 import admin_test
+import win32com.client
+from wmi import WMI
 from tkinter import *
 from tkinter import ttk as ttk
 from tkinter import filedialog
@@ -72,7 +74,8 @@ class Config(Tk):
                                                               "Add Admin": {"Definition": 'Enable this to score the competitor for elevating a user to an Administrator.',
                                                                             "Modify Definition": 'This will score the competitor for elevating a user to an Administrator. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
                                                                             "Enabled": IntVar(),
-                                                                            "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                            "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]},
+                                                                            "Name List": []},
                                                               "Remove Admin": {"Definition": 'Enable this to score the competitor for demoting a user to Standard user.',
                                                                                "Modify Definition": 'This will score the competitor for demoting a user to Standard user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
                                                                                "Enabled": IntVar(),
@@ -80,7 +83,8 @@ class Config(Tk):
                                                               "Add User": {"Definition": 'Enable this to score the competitor for adding a user.',
                                                                            "Modify Definition": 'This will score the competitor for adding a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
                                                                            "Enabled": IntVar(),
-                                                                           "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                                           "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]},
+                                                                           "Name List": []},
                                                               "Remove User": {"Definition": 'Enable this to score the competitor for removing a user.',
                                                                               "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
                                                                               "Enabled": IntVar(),
@@ -92,7 +96,8 @@ class Config(Tk):
                                                               "Add User to Group": {"Definition": 'Enable this to score the competitor for adding a user to a group other than the Administrative group.',
                                                                                     "Modify Definition": 'This will score the competitor for adding a user to a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user  and group per line.',
                                                                                     "Enabled": IntVar(),
-                                                                                    "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}},
+                                                                                    "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]},
+                                                                                    "Name List": []},
                                                               "Remove User from Group": {"Definition": 'Enable this to score the competitor for removing a user from a group other than the Administrative group.',
                                                                                          "Modify Definition": 'This will score the competitor for removing a user from a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user and group per line.',
                                                                                          "Enabled": IntVar(),
@@ -255,7 +260,7 @@ class Config(Tk):
         ForensicsPageIn = ForensicsPage.interior
         ForensicsPageIn.grid_columnconfigure(1, weight=1)
         ForensicsPageIn.grid_columnconfigure(2, weight=1)
-        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageIn, vulnerability_settings["Forensic"]["Categories"], widgetDict["Forensic"], 3)).grid(row=0, column=0, sticky=EW)
+        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageIn, vulnerability_settings["Forensic"], widgetDict["Forensic"], 3)).grid(row=0, column=0, sticky=EW)
         ttk.Label(ForensicsPageIn, text='This section is for scoring forensic questions. To score a forensic question be sure to check "Enable". To add more questions press the "Add" button. To remove questions press the "X" button next to the question you want to remove. \nDo note that the answers are case sensitive.').grid(row=0, column=1, rowspan=2, columnspan=3)
         ttk.Checkbutton(ForensicsPageIn, text="Enable", variable=vulnerability_settings["Forensic"]["Enabled"]).grid(row=1, column=0)
         ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold').grid(row=2, column=0)
@@ -264,7 +269,7 @@ class Config(Tk):
         ttk.Entry(ForensicsPageIn, width=5, textvariable=vulnerability_settings["Forensic"]["Categories"]["Points"][0]).grid(row=3, column=0)
         ttk.Entry(ForensicsPageIn, textvariable=vulnerability_settings["Forensic"]["Categories"]["Question"][0]).grid(row=3, column=1, sticky=EW)
         ttk.Entry(ForensicsPageIn, textvariable=vulnerability_settings["Forensic"]["Categories"]["Answer"][0]).grid(row=3, column=2, sticky=EW)
-        ttk.Button(ForensicsPageIn, text='X', command=lambda: remove_row(0, vulnerability_settings["Forensic"]["Categories"], widgetDict["Forensic"])).grid(row=3, column=3)
+        ttk.Button(ForensicsPageIn, text='X', command=lambda: remove_row(0, vulnerability_settings["Forensic"], widgetDict["Forensic"])).grid(row=3, column=3)
         widgetDict["Forensic"].update({0: ForensicsPageIn.grid_slaves(row=3)})
 
         UserPolicyPage = VerticalScrolledFrame(nb)
@@ -358,7 +363,7 @@ class Config(Tk):
             widgetDict["Modify"].clear()
         ttk.Button(modifyPageIn, text="Save", command=lambda: (self.pack_slaves()[0].pack_forget(), packing.pack(expand=1, fill="both"))).grid(row=0, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=option + ' Modification', font='Verdana 15').grid(row=0, column=1, columnspan=len(entry["Categories"]))
-        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageIn, entry["Categories"], widgetDict["Modify"], 3))).grid(row=1, column=0, sticky=EW)
+        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageIn, entry, widgetDict["Modify"], 3))).grid(row=1, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=entry["Modify Definition"], wraplength=int(self.winfo_screenwidth() * 2 / 3 - 100)).grid(row=1, column=1, columnspan=len(entry["Categories"]))
         for i, t in enumerate(entry["Categories"]):
             ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold').grid(row=2, column=i)
@@ -373,15 +378,21 @@ class Config(Tk):
                         ttk.Button(modifyPageIn, text='...', command=lambda: entry["Categories"][t][i].set(filedialog.askdirectory())).grid(row=i + 3, column=r + 1)
                         c = r + 2
                     elif t == "Service Status":
-                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Running", "Stopped"]).grid(row=i + 3, column=r, sticky=EW)
+                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Running", "Running", "Stopped"]).grid(row=i + 3, column=r, sticky=EW)
                         c = r + 1
                     elif t == "Service Start Type":
-                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Automatic", "Manual", "Disabled"]).grid(row=i + 3, column=r, sticky=EW)
+                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=i + 3, column=r, sticky=EW)
+                        c = r + 1
+                    elif t == "User Name":
+                        user_list = get_user_list(entry)
+                        nameFrame = ttk.Frame(modifyPageIn)
+                        nameFrame.grid(row=i + 3, column=r, sticky=EW)
+                        ttk.Combobox(nameFrame, textvariable=entry["Categories"][t][i], values=user_list).grid(row=0, column=0, sticky=EW)
                         c = r + 1
                     else:
                         ttk.Entry(modifyPageIn, textvariable=entry["Categories"][t][i]).grid(row=i + 3, column=r, sticky=EW)
                         c = r + 1
-                ttk.Button(modifyPageIn, text='X', command=lambda: remove_row(i, entry["Categories"], widgetDict["Modify"])).grid(row=i + 3, column=c, sticky=W)
+                ttk.Button(modifyPageIn, text='X', command=lambda: remove_row(i, entry, widgetDict["Modify"])).grid(row=i + 3, column=c, sticky=W)
                 widgetDict["Modify"].update({i: modifyPageIn.grid_slaves(row=i + 3)})
 
     def generate_report(self, frame):
@@ -464,42 +475,48 @@ def add_row(frame, entry, widgets, default_row):
     else:
         tempr = default_row
     if rwl == len(widgets) and rwl != 0:
-        for i in entry:
+        for i in entry["Categories"]:
             if i == "Points":
-                entry[i].append(IntVar())
+                entry["Categories"][i].append(IntVar())
             else:
-                entry[i].append(StringVar())
+                entry["Categories"][i].append(StringVar())
     else:
-        for i in entry:
+        for i in entry["Categories"]:
             if i == "Points":
-                entry[i][rwl] = IntVar()
+                entry["Categories"][i][rwl] = IntVar()
             else:
-                entry[i][rwl] = StringVar()
+                entry["Categories"][i][rwl] = StringVar()
 
-    for i, t in enumerate(entry):
+    for i, t in enumerate(entry["Categories"]):
         if t == "Points":
-            ttk.Entry(frame, width=5, textvariable=entry["Points"][rwl]).grid(row=tempr, column=i)
+            ttk.Entry(frame, width=5, textvariable=entry["Categories"]["Points"][rwl]).grid(row=tempr, column=i)
         elif t == "File Path":
             frame.grid_columnconfigure(i, weight=1)
-            ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
-            ttk.Button(frame, text='...', command=lambda: entry[t][rwl].set(filedialog.askdirectory())).grid(row=tempr, column=i + 1)
+            ttk.Entry(frame, textvariable=entry["Categories"][t][rwl]).grid(row=tempr, column=i, sticky=EW)
+            ttk.Button(frame, text='...', command=lambda: entry["Categories"][t][rwl].set(filedialog.askdirectory())).grid(row=tempr, column=i + 1)
             c = i + 2
         elif t == "Service Status":
-            ttk.OptionMenu(frame, entry[t][rwl], *["Running", "Stopped"]).grid(row=tempr, column=i, sticky=EW)
+            ttk.OptionMenu(frame, entry["Categories"][t][rwl], *["Running", "Running", "Stopped"]).grid(row=tempr, column=i, sticky=EW)
             c = i + 1
         elif t == "Service Start Type":
-            ttk.OptionMenu(frame, entry[t][rwl], *["Automatic", "Manual", "Disabled"]).grid(row=tempr, column=i, sticky=EW)
+            ttk.OptionMenu(frame, entry["Categories"][t][rwl], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=tempr, column=i, sticky=EW)
+            c = i + 1
+        elif t == "User Name":
+            user_list = get_user_list(entry)
+            nameFrame = ttk.Frame(frame)
+            nameFrame.grid(row=tempr, column=i, sticky=EW)
+            ttk.Combobox(nameFrame, textvariable=entry["Categories"][t][rwl], values=user_list).grid(row=0, column=0, sticky=EW)
             c = i + 1
         else:
-            ttk.Entry(frame, textvariable=entry[t][rwl]).grid(row=tempr, column=i, sticky=EW)
+            ttk.Entry(frame, textvariable=entry["Categories"][t][rwl]).grid(row=tempr, column=i, sticky=EW)
             c = i + 1
     ttk.Button(frame, text='X', command=lambda: remove_row(rwl, entry, widgets)).grid(row=tempr, column=c, sticky=W)
     widgets.update({rwl: frame.grid_slaves(row=tempr)})
 
 
 def remove_row(rem, entry, widgets):
-    for i in entry:
-        entry[i][rem] = 0
+    for i in entry["Categories"]:
+        entry["Categories"][i][rem] = 0
     rem_row = widgets[rem][0].grid_info()['row']
     for w in widgets[rem]:
         w.destroy()
@@ -629,7 +646,7 @@ def load_config(forensic):
                     vulnerability_settings[s][m].set(save_dictionary[s][m])
             elif s == "Forensic":
                 for i in range(1, len(save_dictionary[s]["Categories"]["Points"])):
-                    add_row(forensic, vulnerability_settings["Forensic"]["Categories"], widgetDict["Forensic"], 2)
+                    add_row(forensic, vulnerability_settings["Forensic"], widgetDict["Forensic"], 2)
                 for m in save_dictionary[s]["Categories"]:
                     for i, settings in enumerate(save_dictionary[s]["Categories"][m]):
                         vulnerability_settings[s]["Categories"][m][i].set(settings)
@@ -662,6 +679,14 @@ def set_desktop():
         vulnerability_settings["Main Menu"]["Desktop Entry"].set(cwd)
 
 
+def get_user_list(entry):
+    users = wmi.Win32_UserAccount()
+    user_list = []
+    for user in users:
+        user_list.append(user.Name)
+    return user_list
+
+
 def show_error(self, *args):
     err = traceback.format_exception(*args)
     for i in err:
@@ -675,6 +700,8 @@ Tk.report_callback_exception = show_error
 vulnerability_settings = {}
 widgetDict = {"Forensic": {}, "Modify": {}, "Report": []}
 themeList = ["aquativo", "aquativo", "black", "clearlooks", "elegance", "equilux", "keramik", "plastik", "ubuntu"]
+
+wmi = WMI()
 
 root = Config()
 root.title('Configurator')
