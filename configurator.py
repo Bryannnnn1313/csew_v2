@@ -25,7 +25,7 @@ class VerticalScrolledFrame(Frame):
         # create a canvas object and a vertical scrollbar for scrolling it
         vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
         vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
-        canvas = Canvas(self, bd=0, highlightthickness=0, yscrollcommand=vscrollbar.set)
+        self.canvas = canvas = Canvas(self, bd=0, highlightthickness=0, yscrollcommand=vscrollbar.set)
         canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         vscrollbar.config(command=canvas.yview)
         # reset the view
@@ -257,20 +257,28 @@ class Config(Tk):
         ttk.Label(MainPage, textvariable=vulnerability_settings["Main Menu"]["Tally Points"], font='Verdana 10 bold', wraplength=150).grid(row=5)
 
         ForensicsPage = VerticalScrolledFrame(nb)
-        ForensicsPageIn = ForensicsPage.interior
+        ForensicsPageList = ForensicsPage.interior
+        ForensicsPageList.pack(fill=X)
+        ForensicsPageIn = ttk.Frame(ForensicsPage)
+        ForensicsPageIn.pack(before=ForensicsPage.canvas, fill=X)
         ForensicsPageIn.grid_columnconfigure(1, weight=1)
         ForensicsPageIn.grid_columnconfigure(2, weight=1)
-        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageIn, vulnerability_settings["Forensic"], widgetDict["Forensic"], 3)).grid(row=0, column=0, sticky=EW)
+        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageList, vulnerability_settings["Forensic"])).grid(row=0, column=0, sticky=EW)
         ttk.Label(ForensicsPageIn, text='This section is for scoring forensic questions. To score a forensic question be sure to check "Enable". To add more questions press the "Add" button. To remove questions press the "X" button next to the question you want to remove. \nDo note that the answers are case sensitive.').grid(row=0, column=1, rowspan=2, columnspan=3)
         ttk.Checkbutton(ForensicsPageIn, text="Enable", variable=vulnerability_settings["Forensic"]["Enabled"]).grid(row=1, column=0)
-        ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold').grid(row=2, column=0)
+        ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold', width=10).grid(row=2, column=0)
         ttk.Label(ForensicsPageIn, text="Question", font='Verdana 10 bold').grid(row=2, column=1)
         ttk.Label(ForensicsPageIn, text="Answer", font='Verdana 10 bold').grid(row=2, column=2)
-        ttk.Entry(ForensicsPageIn, width=5, textvariable=vulnerability_settings["Forensic"]["Categories"]["Points"][0]).grid(row=3, column=0)
-        ttk.Entry(ForensicsPageIn, textvariable=vulnerability_settings["Forensic"]["Categories"]["Question"][0]).grid(row=3, column=1, sticky=EW)
-        ttk.Entry(ForensicsPageIn, textvariable=vulnerability_settings["Forensic"]["Categories"]["Answer"][0]).grid(row=3, column=2, sticky=EW)
-        ttk.Button(ForensicsPageIn, text='X', command=lambda: remove_row(0, vulnerability_settings["Forensic"], widgetDict["Forensic"])).grid(row=3, column=3)
-        widgetDict["Forensic"].update({0: ForensicsPageIn.grid_slaves(row=3)})
+        ttk.Label(ForensicsPageIn, text="Remove", font='Verdana 10 bold').grid(row=2, column=3)
+        ForensicsPageListRow = ttk.Frame(ForensicsPageList)
+        ForensicsPageListRow.pack(fill=X)
+        ForensicsPageListRow.grid_columnconfigure(1, weight=1)
+        ForensicsPageListRow.grid_columnconfigure(2, weight=1)
+        ttk.Entry(ForensicsPageListRow, width=10, textvariable=vulnerability_settings["Forensic"]["Categories"]["Points"][0]).grid(row=0, column=0)
+        ttk.Entry(ForensicsPageListRow, textvariable=vulnerability_settings["Forensic"]["Categories"]["Question"][0]).grid(row=0, column=1, sticky=EW)
+        ttk.Entry(ForensicsPageListRow, textvariable=vulnerability_settings["Forensic"]["Categories"]["Answer"][0]).grid(row=0, column=2, sticky=EW)
+        fCat_var_list = [vulnerability_settings["Forensic"]["Categories"]["Points"][0], vulnerability_settings["Forensic"]["Categories"]["Question"][0], vulnerability_settings["Forensic"]["Categories"]["Answer"][0]]
+        ttk.Button(ForensicsPageListRow, text='X', width=8, command=lambda: remove_row(vulnerability_settings["Forensic"], fCat_var_list, ForensicsPageListRow)).grid(row=0, column=3)
 
         UserPolicyPage = VerticalScrolledFrame(nb)
         UserPolicyPageIn = UserPolicyPage.interior
@@ -353,7 +361,10 @@ class Config(Tk):
         self.pack_slaves()[0].pack_forget()
         modifyPage = VerticalScrolledFrame(self)
         modifyPage.pack(expand=1, fill="both")
-        modifyPageIn = modifyPage.interior
+        modifyPageList = modifyPage.interior
+        modifyPageList.pack(fill=X)
+        modifyPageIn = ttk.Frame(modifyPage)
+        modifyPageIn.pack(before=modifyPage.canvas, fill=X)
         if entry["Enabled"].get() != 1:
             entry["Enabled"].set(1)
         if len(widgetDict["Modify"]) > 0:
@@ -363,37 +374,18 @@ class Config(Tk):
             widgetDict["Modify"].clear()
         ttk.Button(modifyPageIn, text="Save", command=lambda: (self.pack_slaves()[0].pack_forget(), packing.pack(expand=1, fill="both"))).grid(row=0, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=option + ' Modification', font='Verdana 15').grid(row=0, column=1, columnspan=len(entry["Categories"]))
-        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageIn, entry, widgetDict["Modify"], 3))).grid(row=1, column=0, sticky=EW)
+        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageList, entry))).grid(row=1, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=entry["Modify Definition"], wraplength=int(self.winfo_screenwidth() * 2 / 3 - 100)).grid(row=1, column=1, columnspan=len(entry["Categories"]))
         for i, t in enumerate(entry["Categories"]):
-            ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold').grid(row=2, column=i)
+            if t == "Points":
+                ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold', width=10).grid(row=2, column=i)
+            else:
+                modifyPageIn.grid_columnconfigure(i, weight=1)
+                ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold').grid(row=2, column=i)
+            r = i + 1
+        ttk.Label(modifyPageIn, text="Remove", font='Verdana 10 bold').grid(row=2, column=r)
         for i in range(len(entry["Categories"]["Points"])):
-            if entry["Categories"]["Points"][i] != 0:
-                for r, t in enumerate(entry["Categories"]):
-                    if t == "Points":
-                        ttk.Entry(modifyPageIn, width=5, textvariable=entry["Categories"]["Points"][i]).grid(row=i + 3, column=r)
-                    elif t == "File Path":
-                        modifyPageIn.grid_columnconfigure(r, weight=1)
-                        ttk.Entry(modifyPageIn, textvariable=entry["Categories"][t][i]).grid(row=i + 3, column=r, sticky=EW)
-                        ttk.Button(modifyPageIn, text='...', command=lambda: entry["Categories"][t][i].set(filedialog.askdirectory())).grid(row=i + 3, column=r + 1)
-                        c = r + 2
-                    elif t == "Service Status":
-                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Running", "Running", "Stopped"]).grid(row=i + 3, column=r, sticky=EW)
-                        c = r + 1
-                    elif t == "Service Start Type":
-                        ttk.OptionMenu(modifyPageIn, entry["Categories"][t][i], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=i + 3, column=r, sticky=EW)
-                        c = r + 1
-                    elif t == "User Name":
-                        user_list = get_user_list(entry)
-                        nameFrame = ttk.Frame(modifyPageIn)
-                        nameFrame.grid(row=i + 3, column=r, sticky=EW)
-                        ttk.Combobox(nameFrame, textvariable=entry["Categories"][t][i], values=user_list).grid(row=0, column=0, sticky=EW)
-                        c = r + 1
-                    else:
-                        ttk.Entry(modifyPageIn, textvariable=entry["Categories"][t][i]).grid(row=i + 3, column=r, sticky=EW)
-                        c = r + 1
-                ttk.Button(modifyPageIn, text='X', command=lambda: remove_row(i, entry, widgetDict["Modify"])).grid(row=i + 3, column=c, sticky=W)
-                widgetDict["Modify"].update({i: modifyPageIn.grid_slaves(row=i + 3)})
+            load_modify_settings(modifyPageList, entry, i)
 
     def generate_report(self, frame):
         for i in widgetDict["Report"]:
@@ -459,73 +451,87 @@ def change_theme():
     root.ttkStyle.set_theme(vulnerability_settings["Main Menu"]["Style"].get())
 
 
-def add_row(frame, entry, widgets, default_row):
-    test = True
-    rwl = 0
-    while test:
-        if rwl not in widgets.keys():
-            test = False
-        else:
-            rwl += 1
-    if len(widgets) > 0:
-        i = 0
-        for w in widgets:
-            if widgets[w][0].grid_info()['row'] > i:
-                tempr = widgets[w][0].grid_info()['row'] + 1
-    else:
-        tempr = default_row
-    if rwl == len(widgets) and rwl != 0:
-        for i in entry["Categories"]:
-            if i == "Points":
-                entry["Categories"][i].append(IntVar())
+def load_modify_settings(frame, entry, i):
+    cat_var_list = []
+    modifyPageListRow = ttk.Frame(frame)
+    modifyPageListRow.pack(fill=X)
+    if entry["Categories"]["Points"][i] != 0:
+        for r, t in enumerate(entry["Categories"]):
+            if t == "Points":
+                ttk.Entry(modifyPageListRow, width=10, textvariable=entry["Categories"]["Points"][i]).grid(row=0, column=r)
+            elif t == "File Path":
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                ttk.Entry(modifyPageListRow, textvariable=entry["Categories"][t][i]).grid(row=0, column=r, sticky=EW)
+                ttk.Button(modifyPageListRow, text='...', command=lambda: entry["Categories"][t][i].set(filedialog.askdirectory())).grid(row=0, column=r + 1)
+                c = r + 2
+            elif t == "Service Status":
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                ttk.OptionMenu(modifyPageListRow, entry["Categories"][t][i], *["Running", "Running", "Stopped"]).grid(row=0, column=r, sticky=EW)
+                c = r + 1
+            elif t == "Service Start Type":
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                ttk.OptionMenu(modifyPageListRow, entry["Categories"][t][i], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=0, column=r, sticky=EW)
+                c = r + 1
+            elif t == "User Name":
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                user_list = get_user_list(entry)
+                ttk.Combobox(modifyPageListRow, textvariable=entry["Categories"][t][i], values=user_list).grid(row=0, column=r, sticky=EW)
+                c = r + 1
             else:
-                entry["Categories"][i].append(StringVar())
-    else:
-        for i in entry["Categories"]:
-            if i == "Points":
-                entry["Categories"][i][rwl] = IntVar()
-            else:
-                entry["Categories"][i][rwl] = StringVar()
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                ttk.Entry(modifyPageListRow, textvariable=entry["Categories"][t][i]).grid(row=0, column=r, sticky=EW)
+                c = r + 1
+            cat_var_list.append(entry["Categories"][t][i])
+        ttk.Button(modifyPageListRow, text='X', width=8, command=lambda: remove_row(entry, cat_var_list, modifyPageListRow)).grid(row=0, column=c, sticky=W)
 
+
+def add_row(frame, entry):
+    rwl = len(entry["Categories"]["Points"])
+    cat_var_list = []
+    mod_frame = Frame(frame)
+    mod_frame.pack(fill=X)
+
+    for i in entry["Categories"]:
+        if i == "Points":
+            entry["Categories"][i].append(IntVar())
+        else:
+            entry["Categories"][i].append(StringVar())
     for i, t in enumerate(entry["Categories"]):
         if t == "Points":
-            ttk.Entry(frame, width=5, textvariable=entry["Categories"]["Points"][rwl]).grid(row=tempr, column=i)
+            ttk.Entry(mod_frame, width=10, textvariable=entry["Categories"]["Points"][rwl]).grid(row=0, column=i)
         elif t == "File Path":
-            frame.grid_columnconfigure(i, weight=1)
-            ttk.Entry(frame, textvariable=entry["Categories"][t][rwl]).grid(row=tempr, column=i, sticky=EW)
-            ttk.Button(frame, text='...', command=lambda: entry["Categories"][t][rwl].set(filedialog.askdirectory())).grid(row=tempr, column=i + 1)
+            mod_frame.grid_columnconfigure(i, weight=1)
+            ttk.Entry(mod_frame, textvariable=entry["Categories"][t][rwl]).grid(row=0, column=i, sticky=EW)
+            ttk.Button(mod_frame, text='...', command=lambda: entry["Categories"][t][rwl].set(filedialog.askdirectory())).grid(row=0, column=i + 1)
             c = i + 2
         elif t == "Service Status":
-            ttk.OptionMenu(frame, entry["Categories"][t][rwl], *["Running", "Running", "Stopped"]).grid(row=tempr, column=i, sticky=EW)
+            mod_frame.grid_columnconfigure(i, weight=1)
+            ttk.OptionMenu(mod_frame, entry["Categories"][t][rwl], *["Running", "Running", "Stopped"]).grid(row=0, column=i, sticky=EW)
             c = i + 1
         elif t == "Service Start Type":
-            ttk.OptionMenu(frame, entry["Categories"][t][rwl], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=tempr, column=i, sticky=EW)
+            mod_frame.grid_columnconfigure(i, weight=1)
+            ttk.OptionMenu(mod_frame, entry["Categories"][t][rwl], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=0, column=i, sticky=EW)
             c = i + 1
         elif t == "User Name":
+            mod_frame.grid_columnconfigure(i, weight=1)
             user_list = get_user_list(entry)
-            nameFrame = ttk.Frame(frame)
-            nameFrame.grid(row=tempr, column=i, sticky=EW)
-            ttk.Combobox(nameFrame, textvariable=entry["Categories"][t][rwl], values=user_list).grid(row=0, column=0, sticky=EW)
+            ttk.Combobox(mod_frame, textvariable=entry["Categories"][t][rwl], values=user_list).grid(row=0, column=i, sticky=EW)
             c = i + 1
         else:
-            ttk.Entry(frame, textvariable=entry["Categories"][t][rwl]).grid(row=tempr, column=i, sticky=EW)
+            mod_frame.grid_columnconfigure(i, weight=1)
+            ttk.Entry(mod_frame, textvariable=entry["Categories"][t][rwl]).grid(row=0, column=i, sticky=EW)
             c = i + 1
-    ttk.Button(frame, text='X', command=lambda: remove_row(rwl, entry, widgets)).grid(row=tempr, column=c, sticky=W)
-    widgets.update({rwl: frame.grid_slaves(row=tempr)})
+        cat_var_list.append(entry["Categories"][t][rwl])
+    ttk.Button(mod_frame, text='X', width=8, command=lambda: remove_row(entry, cat_var_list, mod_frame)).grid(row=0, column=c, sticky=W)
 
 
-def remove_row(rem, entry, widgets):
+def remove_row(entry, cat_var_list, widget):
     for i in entry["Categories"]:
-        entry["Categories"][i][rem] = 0
-    rem_row = widgets[rem][0].grid_info()['row']
-    for w in widgets[rem]:
-        w.destroy()
-    for i in widgets:
-        if i != rem and widgets[i][0].grid_info()['row'] > rem_row:
-            tempr = widgets[i][0].grid_info()['row'] - 1
-            for r in widgets[i]:
-                r.grid_configure(row=tempr)
-    del widgets[rem]
+        for cat_var in cat_var_list:
+            if cat_var in entry["Categories"][i]:
+                entry["Categories"][i].remove(cat_var)
+                cat_var_list.remove(cat_var)
+    widget.destroy()
 
 
 def create_forensic():
