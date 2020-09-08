@@ -472,7 +472,7 @@ def load_modify_settings(frame, entry, i):
                 c = r + 1
             elif t == "Service Start Mode":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
-                ttk.OptionMenu(modifyPageListRow, entry["Categories"][t][i], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=0, column=r, sticky=EW)
+                ttk.OptionMenu(modifyPageListRow, entry["Categories"][t][i], *["Auto", "Auto", "Manual", "Disabled"]).grid(row=0, column=r, sticky=EW)
                 c = r + 1
             elif t == "User Name":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
@@ -524,7 +524,7 @@ def add_row(frame, entry):
             c = i + 1
         elif t == "Service Start Mode":
             mod_frame.grid_columnconfigure(i, weight=1)
-            ttk.OptionMenu(mod_frame, entry["Categories"][t][rwl], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=0, column=i, sticky=EW)
+            ttk.OptionMenu(mod_frame, entry["Categories"][t][rwl], *["Auto", "Auto", "Manual", "Disabled"]).grid(row=0, column=i, sticky=EW)
             c = i + 1
         elif t == "User Name":
             mod_frame.grid_columnconfigure(i, weight=1)

@@ -396,12 +396,12 @@ def remove_text_from_file():
 
 
 def manage_services():
-    services = wmi.Win32_Service()
+    services = wmi.Win32_SystemServices()
     service_list = {}
     service_status = {}
     for service in services:
-        service_list.update({service.displayname: service.name})
-        service_status.update({service.name: {"State": service.state, "Start Mode": service.startmode}})
+        service_list.update({service.PartComponent.DisplayName: service.PartComponent.Name})
+        service_status.update({service.PartComponent.Name: {"State": service.PartComponent.State, "Start Mode": service.PartComponent.StartMode}})
 
     for points, name, status, start in zip(save_dictionary["Program Management"]["Service"]["Categories"]['Points'],
                                            save_dictionary["Program Management"]["Service"]["Categories"]['Service Name'],
