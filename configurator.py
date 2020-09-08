@@ -68,38 +68,35 @@ class Config(Tk):
                                                                                 "Enabled": IntVar(),
                                                                                 "Categories": {'Points': [IntVar()]}},
                                                               "Keep User": {"Definition": 'Enable this to penalize the competitor for removing a user.',
-                                                                            "Modify Definition": 'This will penalize the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. Do not make the point value negative.',
+                                                                            "Modify Definition": 'This will penalize the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user. Do not make the point value negative.',
                                                                             "Enabled": IntVar(),
                                                                             "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "Add Admin": {"Definition": 'Enable this to score the competitor for elevating a user to an Administrator.',
-                                                                            "Modify Definition": 'This will score the competitor for elevating a user to an Administrator. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
+                                                                            "Modify Definition": 'This will score the competitor for elevating a user to an Administrator. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                             "Enabled": IntVar(),
-                                                                            "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]},
-                                                                            "Name List": []},
+                                                                            "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "Remove Admin": {"Definition": 'Enable this to score the competitor for demoting a user to Standard user.',
-                                                                               "Modify Definition": 'This will score the competitor for demoting a user to Standard user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
+                                                                               "Modify Definition": 'This will score the competitor for demoting a user to Standard user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                                "Enabled": IntVar(),
                                                                                "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "Add User": {"Definition": 'Enable this to score the competitor for adding a user.',
-                                                                           "Modify Definition": 'This will score the competitor for adding a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
+                                                                           "Modify Definition": 'This will score the competitor for adding a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                            "Enabled": IntVar(),
-                                                                           "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]},
-                                                                           "Name List": []},
+                                                                           "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "Remove User": {"Definition": 'Enable this to score the competitor for removing a user.',
-                                                                              "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
+                                                                              "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                               "Enabled": IntVar(),
                                                                               "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "User Change Password": {"Definition": 'Enable this to score the competitor for changing a users password.',
-                                                                                       "Modify Definition": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line.',
+                                                                                       "Modify Definition": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                                        "Enabled": IntVar(),
                                                                                        "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "Add User to Group": {"Definition": 'Enable this to score the competitor for adding a user to a group other than the Administrative group.',
-                                                                                    "Modify Definition": 'This will score the competitor for adding a user to a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user  and group per line.',
+                                                                                    "Modify Definition": 'This will score the competitor for adding a user to a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user  and group per line. To add users or group that are not on the computer, then you can type the user or group name in the field. Otherwise use the drop down to select a user or group.',
                                                                                     "Enabled": IntVar(),
-                                                                                    "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]},
-                                                                                    "Name List": []},
+                                                                                    "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}},
                                                               "Remove User from Group": {"Definition": 'Enable this to score the competitor for removing a user from a group other than the Administrative group.',
-                                                                                         "Modify Definition": 'This will score the competitor for removing a user from a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user and group per line.',
+                                                                                         "Modify Definition": 'This will score the competitor for removing a user from a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user and group per line. To add users or group that are not on the computer, then you can type the user or group name in the field. Otherwise use the drop down to select a user or group.',
                                                                                          "Enabled": IntVar(),
                                                                                          "Categories": {'Points': [IntVar()], 'User Name': [StringVar()], 'Group Name': [StringVar()]}}},
                                        "Local Policy Options": {"Do Not Require CTRL_ALT_DEL": {"Definition": 'Enable this to score the competitor for disabling Do Not Require CTRL_ALT_DEL.',
@@ -477,6 +474,11 @@ def load_modify_settings(frame, entry, i):
                 user_list = get_user_list(entry)
                 ttk.Combobox(modifyPageListRow, textvariable=entry["Categories"][t][i], values=user_list).grid(row=0, column=r, sticky=EW)
                 c = r + 1
+            elif t == "Group Name":
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                group_list = get_group_list(entry)
+                ttk.Combobox(modifyPageListRow, textvariable=entry["Categories"][t][i], values=group_list).grid(row=0, column=r, sticky=EW)
+                c = r + 1
             else:
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
                 ttk.Entry(modifyPageListRow, textvariable=entry["Categories"][t][i]).grid(row=0, column=r, sticky=EW)
@@ -490,6 +492,7 @@ def add_row(frame, entry):
     cat_var_list = []
     mod_frame = Frame(frame)
     mod_frame.pack(fill=X)
+    c = 0
 
     for i in entry["Categories"]:
         if i == "Points":
@@ -516,6 +519,11 @@ def add_row(frame, entry):
             mod_frame.grid_columnconfigure(i, weight=1)
             user_list = get_user_list(entry)
             ttk.Combobox(mod_frame, textvariable=entry["Categories"][t][rwl], values=user_list).grid(row=0, column=i, sticky=EW)
+            c = i + 1
+        elif t == "Group Name":
+            mod_frame.grid_columnconfigure(i, weight=1)
+            group_list = get_group_list(entry)
+            ttk.Combobox(mod_frame, textvariable=entry["Categories"][t][rwl], values=group_list).grid(row=0, column=i, sticky=EW)
             c = i + 1
         else:
             mod_frame.grid_columnconfigure(i, weight=1)
@@ -652,7 +660,7 @@ def load_config(forensic):
                     vulnerability_settings[s][m].set(save_dictionary[s][m])
             elif s == "Forensic":
                 for i in range(1, len(save_dictionary[s]["Categories"]["Points"])):
-                    add_row(forensic, vulnerability_settings["Forensic"], widgetDict["Forensic"], 2)
+                    add_row(forensic, vulnerability_settings["Forensic"])
                 for m in save_dictionary[s]["Categories"]:
                     for i, settings in enumerate(save_dictionary[s]["Categories"][m]):
                         vulnerability_settings[s]["Categories"][m][i].set(settings)
@@ -691,6 +699,14 @@ def get_user_list(entry):
     for user in users:
         user_list.append(user.Name)
     return user_list
+
+
+def get_group_list(entry):
+    groups = wmi.Win32_Group()
+    group_list = []
+    for group in groups:
+        group_list.append(group.Name)
+    return group_list
 
 
 def show_error(self, *args):
