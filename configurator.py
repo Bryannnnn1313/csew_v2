@@ -461,25 +461,31 @@ def load_modify_settings(frame, entry, i):
                 ttk.Entry(modifyPageListRow, textvariable=entry["Categories"][t][i]).grid(row=0, column=r, sticky=EW)
                 ttk.Button(modifyPageListRow, text='...', command=lambda: entry["Categories"][t][i].set(filedialog.askdirectory())).grid(row=0, column=r + 1)
                 c = r + 2
-            elif t == "Service Status":
+            elif t == "Service Name":
+                modifyPageListRow.grid_columnconfigure(r, weight=1)
+                service_list = get_service_list()
+                ttk.Combobox(modifyPageListRow, textvariable=entry["Categories"][t][i], values=service_list).grid(row=0, column=r, sticky=EW)
+                c = r + 1
+            elif t == "Service State":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
                 ttk.OptionMenu(modifyPageListRow, entry["Categories"][t][i], *["Running", "Running", "Stopped"]).grid(row=0, column=r, sticky=EW)
                 c = r + 1
-            elif t == "Service Start Type":
+            elif t == "Service Start Mode":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
                 ttk.OptionMenu(modifyPageListRow, entry["Categories"][t][i], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=0, column=r, sticky=EW)
                 c = r + 1
             elif t == "User Name":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
-                user_list = get_user_list(entry)
+                user_list = get_user_list()
                 ttk.Combobox(modifyPageListRow, textvariable=entry["Categories"][t][i], values=user_list).grid(row=0, column=r, sticky=EW)
                 c = r + 1
             elif t == "Group Name":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
-                group_list = get_group_list(entry)
+                group_list = get_group_list()
                 ttk.Combobox(modifyPageListRow, textvariable=entry["Categories"][t][i], values=group_list).grid(row=0, column=r, sticky=EW)
                 c = r + 1
             else:
+                print(t)
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
                 ttk.Entry(modifyPageListRow, textvariable=entry["Categories"][t][i]).grid(row=0, column=r, sticky=EW)
                 c = r + 1
@@ -507,22 +513,27 @@ def add_row(frame, entry):
             ttk.Entry(mod_frame, textvariable=entry["Categories"][t][rwl]).grid(row=0, column=i, sticky=EW)
             ttk.Button(mod_frame, text='...', command=lambda: entry["Categories"][t][rwl].set(filedialog.askdirectory())).grid(row=0, column=i + 1)
             c = i + 2
-        elif t == "Service Status":
+        elif t == "Service Name":
+            mod_frame.grid_columnconfigure(i, weight=1)
+            service_list = get_service_list()
+            ttk.Combobox(mod_frame, textvariable=entry["Categories"][t][rwl], values=service_list).grid(row=0, column=i, sticky=EW)
+            c = i + 1
+        elif t == "Service State":
             mod_frame.grid_columnconfigure(i, weight=1)
             ttk.OptionMenu(mod_frame, entry["Categories"][t][rwl], *["Running", "Running", "Stopped"]).grid(row=0, column=i, sticky=EW)
             c = i + 1
-        elif t == "Service Start Type":
+        elif t == "Service Start Mode":
             mod_frame.grid_columnconfigure(i, weight=1)
             ttk.OptionMenu(mod_frame, entry["Categories"][t][rwl], *["Automatic", "Automatic", "Manual", "Disabled"]).grid(row=0, column=i, sticky=EW)
             c = i + 1
         elif t == "User Name":
             mod_frame.grid_columnconfigure(i, weight=1)
-            user_list = get_user_list(entry)
+            user_list = get_user_list()
             ttk.Combobox(mod_frame, textvariable=entry["Categories"][t][rwl], values=user_list).grid(row=0, column=i, sticky=EW)
             c = i + 1
         elif t == "Group Name":
             mod_frame.grid_columnconfigure(i, weight=1)
-            group_list = get_group_list(entry)
+            group_list = get_group_list()
             ttk.Combobox(mod_frame, textvariable=entry["Categories"][t][rwl], values=group_list).grid(row=0, column=i, sticky=EW)
             c = i + 1
         else:
@@ -693,7 +704,15 @@ def set_desktop():
         vulnerability_settings["Main Menu"]["Desktop Entry"].set(cwd)
 
 
-def get_user_list(entry):
+def get_service_list():
+    services = wmi.Win32_SystemServices()
+    service_list = [services[0].PartComponent.Name]
+    for service in services:
+        service_list.append(service.PartComponent.Name)
+    return service_list
+
+
+def get_user_list():
     users = wmi.Win32_UserAccount()
     user_list = []
     for user in users:
@@ -701,7 +720,7 @@ def get_user_list(entry):
     return user_list
 
 
-def get_group_list(entry):
+def get_group_list():
     groups = wmi.Win32_Group()
     group_list = []
     for group in groups:
