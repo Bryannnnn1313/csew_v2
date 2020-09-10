@@ -287,52 +287,56 @@ class Config(Tk):
         UserPolicyPageIn = UserPolicyPage.interior
         UserPolicyPageIn.grid_columnconfigure(1, weight=1)
         ttk.Label(UserPolicyPageIn, text='This section is for scoring user policies. The options that will take multiple test points can be setup by clicking the "Modify" button. Once the "Modify" button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Separator(UserPolicyPageIn, orient=HORIZONTAL).grid(row=1, column=0, columnspan=3, sticky=EW)
         ttk.Label(UserPolicyPageIn, text='Account Management', font='Verdana 10').grid(row=1, column=0, stick=W)
-        ttk.Label(UserPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        ttk.Label(UserPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2)
         for i, t in enumerate(vulnerability_settings["Account Management"].keys()):
-            self.add_option(UserPolicyPageIn, vulnerability_settings["Account Management"][t], t, i + 2, nb)
+            self.add_option(UserPolicyPageIn, vulnerability_settings["Account Management"][t], t, i * 2 + 2, nb)
 
         LocalPolicyPage = VerticalScrolledFrame(nb)
         LocalPolicyPageIn = LocalPolicyPage.interior
         LocalPolicyPageIn.grid_columnconfigure(1, weight=1)
         ttk.Label(LocalPolicyPageIn, text='This section is for scoring Local Security Policies. Each option has a defined range that they be testing listed in their description. Make sure the option is enabled and the points are set for the options you want scored.', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Separator(LocalPolicyPageIn, orient=HORIZONTAL).grid(row=1, column=0, columnspan=3, sticky=EW)
         ttk.Label(LocalPolicyPageIn, text='Local Security Policy Password', font='Verdana 10').grid(row=1, column=0, stick=W)
-        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2)
         for i, t in enumerate(vulnerability_settings["Local Policy Password"].keys()):
-            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Password"][t], t, i + 2, nb)
-            l = i + 3
-        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Audit', font='Verdana 10').grid(row=l, column=0, stick=W)
-        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Password"][t], t, i * 2 + 2, nb)
+            l1 = i + 3
+        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Audit', font='Verdana 10').grid(row=l1, column=0, stick=W)
+        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l1, column=2)
         for i, t in enumerate(vulnerability_settings["Local Policy Audit"].keys()):
-            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Audit"][t], t, i + l + 1, nb)
-            l = i + l + 2
-        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Options', font='Verdana 10').grid(row=l, column=0, stick=W)
-        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Audit"][t], t, i * 2 + l1 + 1, nb)
+            l2 = i + l1 + 2
+        ttk.Label(LocalPolicyPageIn, text='Local Security Policy Options', font='Verdana 10').grid(row=l2, column=0, stick=W)
+        ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l2, column=2)
         for i, t in enumerate(vulnerability_settings["Local Policy Options"].keys()):
-            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Options"][t], t, i + l + 1, nb)
+            self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Options"][t], t, i * 2 + l2 + 1, nb)
 
         ProgramFilePage = VerticalScrolledFrame(nb)
         ProgramFilePageIn = ProgramFilePage.interior
         ProgramFilePageIn.grid_columnconfigure(1, weight=1)
         ttk.Label(ProgramFilePageIn, text='This section is for scoring program and file manipulation. The options that will take multiple test points can be setup by clicking the "Modify" button. Once the "Modify" button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Separator(ProgramFilePageIn, orient=HORIZONTAL).grid(row=1, column=0, columnspan=3, sticky=EW)
         ttk.Label(ProgramFilePageIn, text='Programs', font='Verdana 10').grid(row=1, column=0, stick=W)
-        ttk.Label(ProgramFilePageIn, text="Modify", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        ttk.Label(ProgramFilePageIn, text="Modify", font='Verdana 10 bold').grid(row=1, column=2)
         for i, t in enumerate(vulnerability_settings["Program Management"].keys()):
-            self.add_option(ProgramFilePageIn, vulnerability_settings["Program Management"][t], t, i + 2, nb)
-            l = i + 3
+            self.add_option(ProgramFilePageIn, vulnerability_settings["Program Management"][t], t, i * 2 + 2, nb)
+            l = i * 2 + 1
         ttk.Label(ProgramFilePageIn, text='Files', font='Verdana 10').grid(row=l, column=0, stick=W)
-        ttk.Label(ProgramFilePageIn, text="Modify", font='Verdana 10 bold').grid(row=l, column=2, stick=W)
+        ttk.Label(ProgramFilePageIn, text="Modify", font='Verdana 10 bold').grid(row=l, column=2)
         for i, t in enumerate(vulnerability_settings["File Management"].keys()):
-            self.add_option(ProgramFilePageIn, vulnerability_settings["File Management"][t], t, i + l + 1, nb)
+            self.add_option(ProgramFilePageIn, vulnerability_settings["File Management"][t], t, i * 2 + l + 1, nb)
 
         MiscellaneousPage = VerticalScrolledFrame(nb)
         MiscellaneousPageIn = MiscellaneousPage.interior
         MiscellaneousPageIn.grid_columnconfigure(1, weight=1)
         ttk.Label(MiscellaneousPageIn, text='This section is for scoring the options that do not fit into and of the other or multiple catagories. The options that will take multiple test points can be setup by clicking the "Modify" button. Once the "Modify" button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.', padding='10 5').grid(row=0, column=0, columnspan=3)
+        ttk.Separator(MiscellaneousPageIn, orient=HORIZONTAL).grid(row=1, column=0, columnspan=3, sticky=EW)
         ttk.Label(MiscellaneousPageIn, text='Miscellaneous', font='Verdana 10').grid(row=1, column=0, stick=W)
-        ttk.Label(MiscellaneousPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2, stick=W)
+        ttk.Label(MiscellaneousPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2)
         for i, t in enumerate(vulnerability_settings["Miscellaneous"].keys()):
-            self.add_option(MiscellaneousPageIn, vulnerability_settings["Miscellaneous"][t], t, i + 2, nb)
+            self.add_option(MiscellaneousPageIn, vulnerability_settings["Miscellaneous"][t], t, i * 2 + 2, nb)
 
         ReportPage = VerticalScrolledFrame(nb)
         ReportPageIn = ReportPage.interior
@@ -359,6 +363,7 @@ class Config(Tk):
             ttk.Button(frame, text='Modify', command=lambda: self.modify_settings(name, entry, return_frame)).grid(row=row, column=2)
         else:
             ttk.Entry(frame, width=5, textvariable=entry["Categories"]["Points"][0]).grid(row=row, column=2)
+        ttk.Separator(frame, orient=HORIZONTAL).grid(row=row + 1, column=0, columnspan=3, sticky=EW)
 
     def modify_settings(self, option, entry, packing):
         self.pack_slaves()[0].pack_forget()
