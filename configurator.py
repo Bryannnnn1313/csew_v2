@@ -340,9 +340,10 @@ class Config(Tk):
 
         ReportPage = VerticalScrolledFrame(nb)
         ReportPageIn = ReportPage.interior
+        reportWidgets = []
         ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Export to HTML').grid(row=1, column=0, stick=EW)
-        ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageIn))).grid(row=2, column=0, stick=EW)
+        ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageIn, reportWidgets))).grid(row=2, column=0, stick=EW)
         ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button(WIP).').grid(row=0, column=1, rowspan=3, columnspan=4)
 
         nb.add(MainPage, text='Main Page')
@@ -375,11 +376,6 @@ class Config(Tk):
         modifyPageIn.pack(before=modifyPage.canvas, fill=X)
         if entry["Enabled"].get() != 1:
             entry["Enabled"].set(1)
-        if len(widgetDict["Modify"]) > 0:
-            for i in widgetDict["Modify"]:
-                for t in widgetDict["Modify"][i]:
-                    t.destroy()
-            widgetDict["Modify"].clear()
         ttk.Button(modifyPageIn, text="Save", command=lambda: (self.pack_slaves()[0].pack_forget(), packing.pack(expand=1, fill="both"))).grid(row=0, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=option + ' Modification', font='Verdana 15').grid(row=0, column=1, columnspan=len(entry["Categories"]))
         ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageList, entry))).grid(row=1, column=0, sticky=EW)
@@ -395,10 +391,10 @@ class Config(Tk):
         for i in range(len(entry["Categories"]["Points"])):
             load_modify_settings(modifyPageList, entry, i)
 
-    def generate_report(self, frame):
-        for i in widgetDict["Report"]:
+    def generate_report(self, frame, report_widgets):
+        for i in report_widgets:
             i.destroy()
-        widgetDict["Report"] = []
+        report_widgets = []
         wrap = int(self.winfo_screenwidth() * 2 / 3 / 5) - 86
         final_row = 4
         for s in vulnerability_settings.keys():
@@ -451,7 +447,7 @@ class Config(Tk):
                     final_row -= 1
         for i in range(4, final_row):
             for w in frame.grid_slaves(row=i):
-                widgetDict["Report"].append(w)
+                report_widgets.append(w)
         tally()
 
 
@@ -750,7 +746,6 @@ def show_error(self, *args):
 Tk.report_callback_exception = show_error
 
 vulnerability_settings = {}
-widgetDict = {"Forensic": {}, "Modify": {}, "Report": []}
 themeList = ["aquativo", "aquativo", "black", "clearlooks", "elegance", "equilux", "keramik", "plastik", "ubuntu"]
 
 wmi = WMI()
