@@ -300,13 +300,13 @@ def local_group_policy():
 
 
 def group_manipulation():
-    groups = wmi.Win32_UserAccount()
+    groups = wmi.Win32_Group()
     group_list = {}
     for group in groups:
-        if group.GroupComponent.Name in group_list:
-            group_list[group.GroupComponent.Name].append(group.PartComponent.Name)
+        if group.Name in group_list:
+            group_list[group.Name].append(group.Name)
         else:
-            group_list.update({group.GroupComponent.Name: [group.PartComponent.Name]})
+            group_list.update({group.Name: [group.Name]})
     if save_dictionary["Account Management"]["Add Admin"]["Enabled"] == 1:
         for points, user in zip(save_dictionary["Account Management"]["Add Admin"]["Categories"]['Points'], save_dictionary["Account Management"]["Add Admin"]["Categories"]['User Name']):
             if user in group_list["Administrators"]:
@@ -547,26 +547,38 @@ index = 'C:/CyberPatriot/'
 scoreIndex = index + 'ScoreReport.html'
 
 # --------- Main Loop ---------#
+print("Building Balloon")
 w = balloontip.WindowsBalloonTip()
+print("Running Checks")
 check_runas()
+print("Creating PS")
 ps_create()
+print("Initializing Variables")
 while True:
     if not os.path.exists('trigger.cfg'):
         ps_create()
     else:
         os.remove('trigger.cfg')
-    time.sleep(60)
     possible_points = 0
     possible_vulnerabilities = 0
     total_points = 0
     total_vulnerabilities = 0
+    time.sleep(20)
+    print("Building Report Head")
     draw_head()
+    print("Checking User Management Options")
     user_management()
+    print("Checking Security Policy Options")
     security_policies()
+    print("Checking File Management Options")
     file_management()
+    print("Checking Miscellaneous Options")
     miscellaneous()
+    print("Checking Score")
     check_score()
+    print("Building Report Tail")
     draw_tail()
+    print("Finished...Looping in 30 Seconds")
     time.sleep(30)
 
 # TODO add Functions:
