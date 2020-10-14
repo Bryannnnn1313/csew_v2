@@ -138,13 +138,13 @@ def users_manipulation():
             if name not in user_list:
                 record_penalty(name + ' was removed.', points, '')
     if save_dictionary["Account Management"]["Add User"]["Enabled"] == 1:
-        for points, name in zip(save_dictionary["Account Management"]["Add User"]["Categories"]['points'], save_dictionary["Account Management"]["Add User"]["Categories"]['User Name']):
+        for points, name in zip(save_dictionary["Account Management"]["Add User"]["Categories"]['Points'], save_dictionary["Account Management"]["Add User"]["Categories"]['User Name']):
             if name in user_list:
                 record_hit(name + ' has been added.', points, '')
             else:
                 record_miss('User Management', points)
     if save_dictionary["Account Management"]["Remove User"]["Enabled"] == 1:
-        for points, name in enumerate(save_dictionary["Account Management"]["Remove User"]["Categories"]['Points'], save_dictionary["Account Management"]["Remove User"]["Categories"]['User Name']):
+        for points, name in zip(save_dictionary["Account Management"]["Remove User"]["Categories"]['Points'], save_dictionary["Account Management"]["Remove User"]["Categories"]['User Name']):
             if name not in user_list:
                 record_hit(name + ' has been removed.', points, '')
             else:
