@@ -1,4 +1,6 @@
 import json
+import sys
+import traceback
 import win32com.client
 import os
 import time
@@ -152,20 +154,21 @@ def users_manipulation():
 
 
 def turn_on_firewall():
-    firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'all'])
-    firewall_profiles = firewall.decode('utf-8').split('\r\n\r\n\r\n')
     if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1:
-        if 'ON' in firewall_profiles[0].split('\r\n', 4)[3]:
+        firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'domainprofile']).decode('utf-8')
+        if 'ON' in firewall.split('\\r\\n', 4)[3]:
             record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0], '')
         else:
             record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0])
     if save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1:
-        if 'ON' in firewall_profiles[1].split('\r\n', 3)[2]:
+        firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'privateprofile']).decode('utf-8')
+        if 'ON' in firewall.split('\r\n', 3)[2]:
             record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0], '')
         else:
             record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0])
     if save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
-        if 'ON' in firewall_profiles[2].split('\r\n', 3)[2]:
+        firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'publicprofile']).decode('utf-8')
+        if 'ON' in firewall.split('\r\n', 3)[2]:
             record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0], '')
         else:
             record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0])
@@ -555,31 +558,39 @@ print("Creating PS")
 ps_create()
 print("Initializing Variables")
 while True:
-    if not os.path.exists('trigger.cfg'):
-        ps_create()
-    else:
-        os.remove('trigger.cfg')
-    possible_points = 0
-    possible_vulnerabilities = 0
-    total_points = 0
-    total_vulnerabilities = 0
-    time.sleep(20)
-    print("Building Report Head")
-    draw_head()
-    print("Checking User Management Options")
-    user_management()
-    print("Checking Security Policy Options")
-    security_policies()
-    print("Checking File Management Options")
-    file_management()
-    print("Checking Miscellaneous Options")
-    miscellaneous()
-    print("Checking Score")
-    check_score()
-    print("Building Report Tail")
-    draw_tail()
-    print("Finished...Looping in 30 Seconds")
-    time.sleep(30)
+    try:
+        if not os.path.exists('trigger.cfg'):
+            ps_create()
+        else:
+            os.remove('trigger.cfg')
+        possible_points = 0
+        possible_vulnerabilities = 0
+        total_points = 0
+        total_vulnerabilities = 0
+        time.sleep(20)
+        print("Building Report Head")
+        draw_head()
+        print("Checking User Management Options")
+        user_management()
+        print("Checking Security Policy Options")
+        security_policies()
+        print("Checking File Management Options")
+        file_management()
+        print("Checking Miscellaneous Options")
+        miscellaneous()
+        print("Checking Score")
+        check_score()
+        print("Building Report Tail")
+        draw_tail()
+        print("Finished...Looping in 30 Seconds")
+        time.sleep(30)
+    except:
+        f = open('scoring_engine.log', 'w')
+        e = traceback.format_exc()
+        f.write(str(e))
+        f.close()
+        messagebox.showerror('Crash Report', 'The scoring engine has stopped working, a log has been saved to ' + os.path.abspath('scoring_engine.log'))
+        sys.exit()
 
 # TODO add Functions:
 #  updatecheckperiod    ["Miscellaneous"]["Update Check Period"]
