@@ -3,6 +3,7 @@ import sys
 import traceback
 import win32com.client
 import os
+import re
 import time
 import datetime
 import balloontip
@@ -115,7 +116,8 @@ def forensic_question():
 
 
 def disable_guest():
-    guest = wmi.Win32_UserAccount(Name="Guest")[0]
+    guest_name = (re.search(r"(?<=NewGuestName \= \")\w+", policy_settings_content).group(0) if re.search(r"(?<=NewGuestName \= \")\w+", policy_settings_content) else "Guest")
+    guest = wmi.Win32_UserAccount(Name=guest_name)[0]
     if guest.Disabled:
         record_hit('The guest account haas been disabled.', save_dictionary["Account Management"]["Disable Guest"]["Categories"]['Points'][0], '')
     else:
@@ -123,7 +125,8 @@ def disable_guest():
 
 
 def disable_admin():
-    admin = wmi.Win32_UserAccount(Name="Administrator")[0]
+    admin_name = (re.search(r"(?<=NewAdministratorName \= \")\w+", policy_settings_content).group(0) if re.search(r"(?<=NewAdministratorName \= \")\w+", policy_settings_content) else "Administrator")
+    admin = wmi.Win32_UserAccount(Name=admin_name)[0]
     if admin.Disabled:
         record_hit('The default administrator account has been disabled.', save_dictionary["Account Management"]["Disable Admin"]["Categories"]['Points'][0], '')
     else:
@@ -175,131 +178,106 @@ def turn_on_firewall():
 
 
 def local_group_policy():
-    os.system('secedit /export /cfg group-policy.inf')
-    p = open('group-policy.inf', 'r', encoding='utf-16-le')
-    content = p.read().splitlines()
-    p.close()
-    for i in content:
-        if 'MinimumPasswordAge' in i:
-            if save_dictionary["Local Policy Password"]["Minimum Password Age"]["Enabled"] == 1:
-                if 30 <= int(i.rsplit('=', 1)[1]) <= 60:
-                    record_hit('Minimum password age is set to 30-60.', save_dictionary["Local Policy Password"]["Minimum Password Age"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Minimum Password Age"]["Categories"]['Points'][0])
-        elif 'MaximumPasswordAge ' in i:
-            if save_dictionary["Local Policy Password"]["Maximum Password Age"]["Enabled"] == 1:
-                if 60 <= int(i.rsplit('=', 1)[1]) <= 90:
-                    record_hit('Maximum password age is set to 60-90.', save_dictionary["Local Policy Password"]["Maximum Password Age"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Maximum Password Age"]["Categories"]['Points'][0])
-        elif 'LockoutBadCount' in i:
-            if save_dictionary["Local Policy Password"]["Maximum Login Tries"]["Enabled"] == 1:
-                if 5 <= int(i.rsplit('=', 1)[1]) <= 10:
-                    record_hit('Maximum login tries is set to 5-10.', save_dictionary["Local Policy Password"]["Maximum Login Tries"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Maximum Login Tries"]["Categories"]['Points'][0])
-        elif 'LockoutDuration' in i:
-            if save_dictionary["Local Policy Password"]["Lockout Duration"]["Enabled"] == 1:
-                if 30 <= int(i.rsplit('=', 1)[1]):
-                    record_hit('Lockout duration set is set to 30.', save_dictionary["Local Policy Password"]["Lockout Duration"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Lockout Duration"]["Categories"]['Points'][0])
-        elif 'ResetLockoutCount' in i:
-            if save_dictionary["Local Policy Password"]["Lockout Reset Duration"]["Enabled"] == 1:
-                if 30 <= int(i.rsplit('=', 1)[1]):
-                    record_hit('Lockout counter reset is set to 30.', save_dictionary["Local Policy Password"]["Lockout Reset Duration"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Lockout Reset Duration"]["Categories"]['Points'][0])
-        elif 'MinimumPasswordLength' in i:
-            if save_dictionary["Local Policy Password"]["Minimum Password Length"]["Enabled"] == 1:
-                if 10 <= int(i.rsplit('=', 1)[1]):
-                    record_hit('Minimum password length is set to 10 or more.', save_dictionary["Local Policy Password"]["Minimum Password Length"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Minimum Password Length"]["Categories"]['Points'][0])
-        elif 'PasswordHistorySize' in i:
-            if save_dictionary["Local Policy Password"]["Password History"]["Enabled"] == 1:
-                if 5 <= int(i.rsplit('=', 1)[1]):
-                    record_hit('Password history size is set to 5 or more.', save_dictionary["Local Policy Password"]["Password History"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Password History"]["Categories"]['Points'][0])
-        elif 'PasswordComplexity' in i:
-            if save_dictionary["Local Policy Password"]["Password Complexity"]["Enabled"] == 1:
-                if i.endswith('1'):
-                    record_hit('Password complexity has been enabled.', save_dictionary["Local Policy Password"]["Password Complexity"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Password Complexity"]["Categories"]['Points'][0])
-        elif 'ClearTextPassword' in i:
-            if save_dictionary["Local Policy Password"]["Reversible Password Encryption"]["Enabled"] == 1:
-                if i.endswith('0'):
-                    record_hit('Reversible password encryption has been Disabled.', save_dictionary["Local Policy Password"]["Reversible Password Encryption"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Password"]["Reversible Password Encryption"]["Categories"]['Points'][0])
-        elif 'AuditAccountLogon' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Account Login"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Account Login set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Account Login"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Account Login"]["Categories"]['Points'][0])
-        elif 'AuditAccountManage' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Account Management"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Account Manage set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Account Management"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Account Management"]["Categories"]['Points'][0])
-        elif 'AuditDSAccess' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Directory Settings Access"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Directory Service Access set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Directory Settings Access"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Directory Settings Access"]["Categories"]['Points'][0])
-        elif 'AuditLogonEvents' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Logon Events"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Logon Events set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Logon Events"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Logon Events"]["Categories"]['Points'][0])
-        elif 'AuditObjectAccess' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Object Access"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Object Access set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Object Access"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Object Access"]["Categories"]['Points'][0])
-        elif 'AuditPolicyChange' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Policy Change"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Policy Change set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Policy Change"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Policy Change"]["Categories"]['Points'][0])
-        elif 'AuditPrivilegeUse' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Privilege Use"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Privilege Use set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Privilege Use"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Privilege Use"]["Categories"]['Points'][0])
-        elif 'AuditProcessTracking' in i:
-            if save_dictionary["Local Policy Audit"]["Audit Process Tracking"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit Process Tracking set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Process Tracking"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Process Tracking"]["Categories"]['Points'][0])
-        elif 'AuditSystemEvents' in i:
-            if save_dictionary["Local Policy Audit"]["Audit System Events"]["Enabled"] == 1:
-                if i.endswith('3'):
-                    record_hit('Audit System Events set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit System Events"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit System Events"]["Categories"]['Points'][0])
-        elif 'DisableCAD' in i:
-            if save_dictionary["Local Policy Options"]["Do Not Require CTRL_ALT_DEL"]["Enabled"] == 1:
-                if i.endswith('0'):
-                    record_hit('Do not require CTRL + ALT + DEL has been disabled.', save_dictionary["Local Policy Options"]["Do Not Require CTRL_ALT_DEL"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Options"]["Do Not Require CTRL_ALT_DEL"]["Categories"]['Points'][0])
-        elif 'DontDisplayLastUserName' in i:
-            if save_dictionary["Local Policy Options"]["Don't Display Last User"]["Enabled"] == 1:
-                if i.endswith('1'):
-                    record_hit('Don\'t Display Last User Name has been enabled.', save_dictionary["Local Policy Options"]["Don't Display Last User"]["Categories"]['Points'][0], '')
-                else:
-                    record_miss('Policy Management', save_dictionary["Local Policy Options"]["Don't Display Last User"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Minimum Password Age"]["Enabled"] == 1:
+        if 30 <= (int(re.search(r"(?<=MinimumPasswordAge \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=MinimumPasswordAge \= )\d", policy_settings_content) else 0) <= 60:
+            record_hit('Minimum password age is set to 30-60.', save_dictionary["Local Policy Password"]["Minimum Password Age"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Password"]["Minimum Password Age"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Maximum Password Age"]["Enabled"] == 1:
+        if 60 <= (int(re.search(r"(?<=MaximumPasswordAge \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=MaximumPasswordAge \= )\d", policy_settings_content) else 0) <= 90:
+            record_hit('Maximum password age is set to 60-90.', save_dictionary["Local Policy Password"]["Maximum Password Age"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Password"]["Maximum Password Age"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Maximum Login Tries"]["Enabled"] == 1:
+        if 5 <= (int(re.search(r"(?<=LockoutBadCount \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=LockoutBadCount \= )\d", policy_settings_content) else 0) <= 10:
+            record_hit('Maximum login tries is set to 5-10.', save_dictionary["Local Policy Password"]["Maximum Login Tries"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management1', save_dictionary["Local Policy Password"]["Maximum Login Tries"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Lockout Duration"]["Enabled"] == 1:
+        if 30 <= (int(re.search(r"(?<=LockoutDuration \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=LockoutDuration \= )\d", policy_settings_content) else 0):
+            record_hit('Lockout duration set is set to 30.', save_dictionary["Local Policy Password"]["Lockout Duration"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management2', save_dictionary["Local Policy Password"]["Lockout Duration"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Lockout Reset Duration"]["Enabled"] == 1:
+        if 30 <= (int(re.search(r"(?<=ResetLockoutCount \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=ResetLockoutCount \= )\d", policy_settings_content) else 0):
+            record_hit('Lockout counter reset is set to 30.', save_dictionary["Local Policy Password"]["Lockout Reset Duration"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management3', save_dictionary["Local Policy Password"]["Lockout Reset Duration"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Minimum Password Length"]["Enabled"] == 1:
+        if 10 <= (int(re.search(r"(?<=MinimumPasswordLength \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=MinimumPasswordLength \= )\d", policy_settings_content) else 0):
+            record_hit('Minimum password length is set to 10 or more.', save_dictionary["Local Policy Password"]["Minimum Password Length"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Password"]["Minimum Password Length"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Password History"]["Enabled"] == 1:
+        if 5 <= (int(re.search(r"(?<=PasswordHistorySize \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=PasswordHistorySize \= )\d", policy_settings_content) else 0):
+            record_hit('Password history size is set to 5 or more.', save_dictionary["Local Policy Password"]["Password History"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Password"]["Password History"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Password Complexity"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=PasswordComplexity \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=PasswordComplexity \= )\d", policy_settings_content) else 0) == 1:
+            record_hit('Password complexity has been enabled.', save_dictionary["Local Policy Password"]["Password Complexity"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Password"]["Password Complexity"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Password"]["Reversible Password Encryption"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=ClearTextPassword \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=ClearTextPassword \= )\d", policy_settings_content) else 1) == 0:
+            record_hit('Reversible password encryption has been Disabled.', save_dictionary["Local Policy Password"]["Reversible Password Encryption"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Password"]["Reversible Password Encryption"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Account Login"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditAccountLogon \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditAccountLogon \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Account Login set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Account Login"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Account Login"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Account Management"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditAccountManage \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditAccountManage \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Account Manage set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Account Management"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Account Management"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Directory Settings Access"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditDSAccess \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditDSAccess \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Directory Service Access set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Directory Settings Access"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Directory Settings Access"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Logon Events"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditLogonEvents \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditLogonEvents \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Logon Events set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Logon Events"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Logon Events"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Object Access"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditObjectAccess \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditObjectAccess \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Object Access set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Object Access"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Object Access"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Policy Change"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditPolicyChange \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditPolicyChange \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Policy Change set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Policy Change"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Policy Change"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Privilege Use"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditPrivilegeUse \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditPrivilegeUse \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Privilege Use set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Privilege Use"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Privilege Use"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit Process Tracking"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditProcessTracking \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditProcessTracking \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit Process Tracking set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit Process Tracking"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit Process Tracking"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Audit"]["Audit System Events"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=AuditSystemEvents \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=AuditSystemEvents \= )\d", policy_settings_content) else 0) == 3:
+            record_hit('Audit System Events set to Success and Failure.', save_dictionary["Local Policy Audit"]["Audit System Events"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Audit"]["Audit System Events"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Options"]["Do Not Require CTRL_ALT_DEL"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=DisableCAD \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=DisableCAD \= )\d", policy_settings_content) else 1) == 0:
+            record_hit('Do not require CTRL + ALT + DEL has been disabled.', save_dictionary["Local Policy Options"]["Do Not Require CTRL_ALT_DEL"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Do Not Require CTRL_ALT_DEL"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Options"]["Don't Display Last User"]["Enabled"] == 1:
+        if (int(re.search(r"(?<=DisableCAD \= )\d", policy_settings_content).group(0)) if re.search(r"(?<=DisableCAD \= )\d", policy_settings_content) else 0) == 1:
+            record_hit('Don\'t Display Last User Name has been enabled.', save_dictionary["Local Policy Options"]["Don't Display Last User"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Don't Display Last User"]["Categories"]['Points'][0])
 
 
 def group_manipulation():
@@ -452,6 +430,14 @@ def bad_file():
             record_miss('File Management', points)
 
 
+def load_policy_settings():
+    os.system('secedit /export /cfg group-policy.inf')
+    policy_settings = open('group-policy.inf', 'r', encoding='utf-16-le')
+    content = policy_settings.read()
+    policy_settings.close()
+    return content
+
+
 def load_config():
     global save_dictionary
     filename = 'save_data.json'
@@ -556,8 +542,8 @@ print("Running Checks")
 check_runas()
 print("Creating PS")
 ps_create()
-print("Initializing Variables")
 while True:
+    print("Initializing Variables and Running Scrips(20 seconds)")
     try:
         if not os.path.exists('trigger.cfg'):
             ps_create()
@@ -567,6 +553,7 @@ while True:
         possible_vulnerabilities = 0
         total_points = 0
         total_vulnerabilities = 0
+        policy_settings_content = load_policy_settings()
         time.sleep(20)
         print("Building Report Head")
         draw_head()
