@@ -302,12 +302,12 @@ class Config(Tk):
         ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=1, column=2)
         for i, t in enumerate(vulnerability_settings["Local Policy Password"].keys()):
             self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Password"][t], t, i * 2 + 2, nb)
-            l1 = i + 3
+            l1 = i * 2 + 3
         ttk.Label(LocalPolicyPageIn, text='Local Security Policy Audit', font='Verdana 10').grid(row=l1, column=0, stick=W)
         ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l1, column=2)
         for i, t in enumerate(vulnerability_settings["Local Policy Audit"].keys()):
             self.add_option(LocalPolicyPageIn, vulnerability_settings["Local Policy Audit"][t], t, i * 2 + l1 + 1, nb)
-            l2 = i + l1 + 2
+            l2 = l1 + i * 2 + 2
         ttk.Label(LocalPolicyPageIn, text='Local Security Policy Options', font='Verdana 10').grid(row=l2, column=0, stick=W)
         ttk.Label(LocalPolicyPageIn, text="Points", font='Verdana 10 bold').grid(row=l2, column=2)
         for i, t in enumerate(vulnerability_settings["Local Policy Options"].keys()):
