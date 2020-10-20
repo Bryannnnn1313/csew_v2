@@ -281,13 +281,16 @@ def local_group_policy():
 
 
 def group_manipulation():
-    groups = wmi.Win32_Group()
+    groups = wmi.Win32_GroupUser()
     group_list = {}
     for group in groups:
-        if group.Name in group_list:
-            group_list[group.Name].append(group.Name)
-        else:
-            group_list.update({group.Name: [group.Name]})
+        try:
+            if group.GroupComponent.Name in group_list:
+                group_list[group.GroupComponent.Name].append(group.PartComponent.Name)
+            else:
+                group_list.update({group.GroupComponent.Name: [group.PartComponent.Name]})
+        except:
+            print(group.GroupComponent.Name, "was not added.")
     if save_dictionary["Account Management"]["Add Admin"]["Enabled"] == 1:
         for points, user in zip(save_dictionary["Account Management"]["Add Admin"]["Categories"]['Points'], save_dictionary["Account Management"]["Add Admin"]["Categories"]['User Name']):
             if user in group_list["Administrators"]:
