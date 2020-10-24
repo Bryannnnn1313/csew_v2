@@ -3,7 +3,6 @@ import time
 import json
 import shutil
 import traceback
-import admin_test
 import win32com.client
 from wmi import WMI
 from tkinter import *
@@ -11,6 +10,7 @@ from tkinter import ttk as ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from ttkthemes import ThemedStyle
+import admin_test
 
 
 class VerticalScrolledFrame(Frame):
@@ -378,7 +378,7 @@ class Config(Tk):
             entry["Enabled"].set(1)
         ttk.Button(modifyPageIn, text="Save", command=lambda: (self.pack_slaves()[0].pack_forget(), packing.pack(expand=1, fill="both"))).grid(row=0, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=option + ' Modification', font='Verdana 15').grid(row=0, column=1, columnspan=len(entry["Categories"]))
-        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageList, entry))).grid(row=1, column=0, sticky=EW)
+        ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageList, entry, option))).grid(row=1, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=entry["Modify Definition"], wraplength=int(self.winfo_screenwidth() * 2 / 3 - 100)).grid(row=1, column=1, columnspan=len(entry["Categories"]))
         for i, t in enumerate(entry["Categories"]):
             if t == "Points":
@@ -389,7 +389,7 @@ class Config(Tk):
             r = i + 1
         ttk.Label(modifyPageIn, text="Remove", font='Verdana 10 bold').grid(row=2, column=r)
         for i in range(len(entry["Categories"]["Points"])):
-            load_modify_settings(modifyPageList, entry, i)
+            load_modify_settings(modifyPageList, entry, option, i)
 
     def generate_report(self, frame, report_widgets):
         for i in report_widgets:
@@ -455,7 +455,7 @@ def change_theme():
     root.ttkStyle.set_theme(vulnerability_settings["Main Menu"]["Style"].get())
 
 
-def load_modify_settings(frame, entry, i):
+def load_modify_settings(frame, entry, option, i):
     cat_var_list = []
     modifyPageListRow = ttk.Frame(frame)
     modifyPageListRow.pack(fill=X)
@@ -465,9 +465,15 @@ def load_modify_settings(frame, entry, i):
                 ttk.Entry(modifyPageListRow, width=10, textvariable=entry["Categories"]["Points"][i]).grid(row=0, column=r)
             elif t == "File Path":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
-                ttk.Entry(modifyPageListRow, textvariable=entry["Categories"][t][i]).grid(row=0, column=r, sticky=EW)
-                ttk.Button(modifyPageListRow, text='...', command=lambda: entry["Categories"][t][i].set(filedialog.askdirectory())).grid(row=0, column=r + 1)
-                c = r + 2
+                path = ttk.Frame(modifyPageListRow)
+                path.grid(row=0, column=r, sticky=EW)
+                path.grid_columnconfigure(0, weight=1)
+                ttk.Label(path, text="To point to a directory check directory otherwise leave unchecked.").grid(row=1, column=0, sticky=E)
+                switch = IntVar()
+                ttk.Checkbutton(path, variable=switch, text="Directory").grid(row=1, column=1)
+                ttk.Entry(path, textvariable=entry["Categories"][t][i]).grid(row=0, column=0, sticky=EW)
+                ttk.Button(path, text='...', command=lambda: set_file_or_directory(entry["Categories"], switch, option, i)).grid(row=0, column=1)
+                c = r + 1
             elif t == "Service Name":
                 modifyPageListRow.grid_columnconfigure(r, weight=1)
                 service_list = get_service_list()
@@ -500,7 +506,7 @@ def load_modify_settings(frame, entry, i):
         ttk.Button(modifyPageListRow, text='X', width=8, command=lambda: remove_row(entry, cat_var_list, modifyPageListRow)).grid(row=0, column=c, sticky=W)
 
 
-def add_row(frame, entry):
+def add_row(frame, entry, option):
     rwl = len(entry["Categories"]["Points"])
     cat_var_list = []
     mod_frame = Frame(frame)
@@ -517,9 +523,16 @@ def add_row(frame, entry):
             ttk.Entry(mod_frame, width=10, textvariable=entry["Categories"]["Points"][rwl]).grid(row=0, column=i)
         elif t == "File Path":
             mod_frame.grid_columnconfigure(i, weight=1)
-            ttk.Entry(mod_frame, textvariable=entry["Categories"][t][rwl]).grid(row=0, column=i, sticky=EW)
-            ttk.Button(mod_frame, text='...', command=lambda: entry["Categories"][t][rwl].set(filedialog.askdirectory())).grid(row=0, column=i + 1)
-            c = i + 2
+            frame.grid_columnconfigure(i, weight=1)
+            path = ttk.Frame(mod_frame)
+            path.grid(row=0, column=i, sticky=EW)
+            path.grid_columnconfigure(0, weight=1)
+            ttk.Label(path, text="To point to a directory check directory otherwise leave unchecked.").grid(row=1, column=0, sticky=E)
+            switch = IntVar()
+            ttk.Checkbutton(path, variable=switch, text="Directory").grid(row=1, column=1)
+            ttk.Entry(path, textvariable=entry["Categories"][t][rwl]).grid(row=0, column=0, sticky=EW)
+            ttk.Button(path, text='...', command=lambda: set_file_or_directory(entry["Categories"], switch, option, rwl)).grid(row=0, column=1)
+            c = i + 1
         elif t == "Service Name":
             mod_frame.grid_columnconfigure(i, weight=1)
             service_list = get_service_list()
@@ -558,6 +571,20 @@ def remove_row(entry, cat_var_list, widget):
                 entry["Categories"][i].remove(cat_var)
                 cat_var_list.remove(cat_var)
     widget.destroy()
+
+
+def set_file_or_directory(var, switch, mode, index):
+    if switch.get() == 1:
+        file = filedialog.askdirectory()
+        var["File Path"][index].set(file)
+    else:
+        file = filedialog.askopenfilename()
+        var["File Path"][index].set(file)
+    if mode == "File Permissions":
+        status = os.stat(file)
+        current = bin(status.st_mode)[-9:]
+        for idx, perm in enumerate(current):
+            var["Permissions"][index][idx].set(int(perm))
 
 
 def create_forensic():

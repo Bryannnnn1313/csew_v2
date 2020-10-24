@@ -6,11 +6,11 @@ import os
 import re
 import time
 import datetime
-import balloontip
-import admin_test
 import subprocess
 from wmi import WMI
 from tkinter import messagebox
+import balloontip
+import admin_test
 
 
 # Scoring Report creation

@@ -2,7 +2,13 @@ import os
 import sys
 import shutil
 import shlex
+import json
 import tempfile
+from tkinter import *
+from tkinter import ttk as ttk
+from tkinter import filedialog
+from tkinter import messagebox
+from ttkthemes import ThemedStyle
 from PyInstaller import __main__ as pyi
 
 
@@ -35,6 +41,123 @@ def convert(command):
     pyi.run()
     move_project(dist_path, output_directory)
     shutil.rmtree(temporary_directory)
+
+
+'''def build_options(frame, var_list):
+    optionList = ttk.Frame(frame)
+    ttk.Button(frame, text="Add File", command=lambda: (add_options(optionList, var_list, filedialog.askopenfilenames(title="Select Files to add to the builder", filetypes=[("Python Files", "*.py")])))).pack(anchor=NW)
+    # ttk.Button(frame, text="Remove File", command=lambda: (build_option_removal(optionList, var_list))).pack(anchor=NW)
+    optionList.pack(fill=BOTH, expand=1)
+    optionList.columnconfigure((0, 1), weight=1)
+    add_options(optionList, var_list, ())
+
+
+def add_options(frame, var_list, option_list):
+    for item in frame.grid_slaves():
+        item.destroy()
+    for path in option_list:
+        var_list.update({path.rsplit('/', 1)[1]: {"Include": IntVar(), "Path": path}})
+    for idx, file in enumerate(var_list):
+        ttk.Checkbutton(frame, text=file, variable=var_list[file]["Include"]).grid(row=int(idx / 2), column=idx % 2, sticky=W)
+        var_list[file]["Include"].set(1)
+
+
+def build_option_removal(frame, var_list):
+    removeWindow = Toplevel()
+    removeWindow.wm_title('Remove Files')
+    removeWindow.wm_geometry("{0}x{1}+{2}+{3}".format(int(root.winfo_screenwidth() * 2 / 6), int(root.winfo_screenheight() * 1 / 4), int(root.winfo_screenwidth() / 3), int(root.winfo_screenheight() / 6)))
+    removeFrame = ttk.Frame(removeWindow)
+    ttk.Label(removeWindow, text="Select the files you want to remove from the list.").pack(fill=X)
+    removeFrame.pack(fill=BOTH, expand=1)
+    removeFrame.columnconfigure((0, 1), weight=1)
+    removeList = []
+    rowidx = 0
+    for idx, file in enumerate(var_list):
+        removeList.append(IntVar())
+        ttk.Checkbutton(removeFrame, text=file, variable=removeList[idx]).grid(row=int(idx / 2), column=idx % 2, sticky=W)
+        rowidx = int(idx / 2) + 1
+    ttk.Button(removeFrame, text="Remove Files").grid(row=rowidx, column=0, columnspan=2)
+
+
+def del_option(frame, var_list, remove_list):
+    for idx, rem in enumerate(var_list):
+        if remove_list[idx].get():
+            pass
+
+
+def build_command(path_list, main_program):
+    save_build()
+    iconPath = os.path.abspath('scoring_engine_logo_windows_icon_5TN_icon.ico')
+    command = 'pyinstaller -y -F -w -i "' + iconPath + '"'
+    for path in path_list:
+        print(path_list[path]["Include"])
+        if path_list[path]["Include"]:
+            command += ' --add-data "' + path_list[path]["Path"] + '";"."'
+    command += ' "' + main_program + '"'
+    convert(command)
+    messagebox.showinfo("Build Complete", str(main_program) + " has completed building.")
+
+
+def save_build():
+    savePaths = filePaths.copy()
+    for build in filePaths:
+        for file in filePaths[build]:
+            savePaths[build][file]["Include"] = filePaths[build][file]["Include"].get()
+    f = open(filename, 'w+')
+    json.dump(savePaths, f)
+    f.close()
+
+
+def load_build():
+    for build in filePaths:
+        for file in filePaths[build]:
+            filePaths[build][file]["Include"] = IntVar()
+
+
+root = Tk()
+root.title('Configurator')
+root.geometry("{0}x{1}+{2}+{3}".format(int(root.winfo_screenwidth() * 3 / 4), int(root.winfo_screenheight() * 2 / 3), int(root.winfo_screenwidth() / 9), int(root.winfo_screenheight() / 6)))
+
+root.ttkStyle = ThemedStyle(root.winfo_toplevel())
+root.ttkStyle.set_theme("black")
+root.ttkStyle.theme_settings(themename="black", settings={"TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 / 2)}}, "TEntry": {"map": {"fieldbackground": [('disabled', '#868583')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
+
+filename = 'build_data.json'
+if os.path.exists(filename):
+    f = open(filename)
+    filePaths = json.load(f)
+    f.close()
+    load_build()
+else:
+    filePaths = {"Config": {}, "Score": {}}
+
+configPath = os.path.abspath('configurator.py')
+scoringPath = os.path.abspath('scoring_engine.py')
+
+configMain = ttk.Frame(root)
+configContent = ttk.Frame(configMain)
+scoreMain = ttk.Frame(root)
+scoreContent = ttk.Frame(scoreMain)
+configMain.pack(side=LEFT, fill=BOTH, expand=1)
+ttk.Separator(root, orient=VERTICAL).pack(side=LEFT, fill=Y)
+scoreMain.pack(side=LEFT, fill=BOTH, expand=1)
+
+configMain.rowconfigure(1, weight=1)
+configMain.columnconfigure(0, weight=1)
+ttk.Label(configMain, text="Files to include into the configurator executable. Do not include the main file in this list it is added by default", font='15').grid(row=0, column=0)
+configContent.grid(row=1, column=0, sticky=NSEW)
+build_options(configContent, filePaths["Config"])
+ttk.Button(configMain, text="Convert", command=lambda: (build_command(filePaths["Config"], configPath))).grid(row=2, column=0)
+
+scoreMain.rowconfigure(1, weight=1)
+scoreMain.columnconfigure(0, weight=1)
+ttk.Label(scoreMain, text="Files to include into the scoring engine executable. Do not include the main file in this list it is added by default", font='15').grid(row=0, column=0)
+scoreContent.grid(row=1, column=0, sticky=NSEW)
+build_options(scoreContent, filePaths["Score"])
+ttk.Button(scoreMain, text="Convert", command=lambda: (build_command(filePaths["Score"], scoringPath))).grid(row=2, column=0)
+
+
+root.mainloop()'''
 
 
 scoringPath = os.path.abspath('scoring_engine.py')
