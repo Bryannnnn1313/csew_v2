@@ -342,7 +342,7 @@ class Config(Tk):
         ReportPageIn = ReportPage.interior
         reportWidgets = []
         ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
-        ttk.Button(ReportPageIn, text='Export to HTML').grid(row=1, column=0, stick=EW)
+        ttk.Button(ReportPageIn, text='Export to HTML', command=lambda: (generate_export('.html'))).grid(row=1, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageIn, reportWidgets))).grid(row=2, column=0, stick=EW)
         ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button(WIP).').grid(row=0, column=1, rowspan=3, columnspan=4)
 
@@ -768,6 +768,232 @@ def show_error(self, *args):
         if 'expected integer but got' in i:
             err = 'There is an integer error with one of the points'
     messagebox.showerror('Exception', err)
+
+
+def generate_export(extension):
+    default = False
+    saveLocation = filedialog.asksaveasfilename(title='Select Save Location', defaultextension=extension, filetypes=(('Web Page', "*.html"), ('all files', '*.*')))
+    head = '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<meta name="viewport" content="width=device-width, initial-scale=1">\n\t\t<style>\n\t\t\t* {box-sizing: border-box}\n\n\t\t\t.banner {\n\t\t\t\tborder-bottom: 1px solid #959b94;\n\t\t\t\tfont-size: 20px;\n\t\t\t}\n\n\t\t\tspan.true {\n\t\t\t\tbackground:green;\n\t\t\t\tcolor:white;\n\t\t\t}\n\n\t\t\tspan.false {\n\t\t\t\tbackground:red;\n\t\t\t\tcolor:white;\n\t\t\t}\n\n\t\t\t.tab {\n\t\t\t\tfloat: left;\n\t\t\t\tbackground-color: #f1f1f1;\n\t\t\t\twidth: 10%;\n\t\t\t\theight: 100%;\n\t\t\t}\n\n\t\t\t.tab button {\n\t\t\t\tdisplay: block;\n\t\t\t\tbackground-color: inherit;\n\t\t\t\tcolor: black;\n\t\t\t\tpadding: 22px 16px;\n\t\t\t\twidth: 100%;\n\t\t\t\tborder: none;\n\t\t\t\toutline: none;\n\t\t\t\ttext-align: left;\n\t\t\t\tcursor: pointer;\n\t\t\t\ttransition: 0.3s;\n\t\t\t\tfont-size: 25px;\n\t\t\t}\n\n\t\t\t.tab button:hover {\n\t\t\t\tbackground-color: #ddd;\n\t\t\t}\n\n\t\t\t.tab button.active {\n\t\t\t\tbackground-color: #ccc;\n\t\t\t}\n\n\t\t\t.tabcontent {\n\t\t\t\tfloat: left;\n\t\t\t\tpadding: 0px 12px;\n\t\t\t\twidth: 70%;\n\t\t\t\tborder-left: none;\n\t\t\t\theight: 300px;\n\t\t\t}\n\n\t\t\ttable.content {\n\t\t\t\twidth: 100%;\n\t\t\t\tborder-collapse: collapse;\n\t\t\t}\n\n\t\t\ttr.head {\n\t\t\t\tfont-weight: bold;\n\t\t\t\tfont-size: 25px;\n\t\t\t}\n\n\t\t\ttr.label {\n\t\t\t\tborder: 1px solid black;\n\t\t\t\tfont-weight: bold;\n\t\t\t\tfont-size: 22px;\n\t\t\t}\n\n\t\t\ttd {\n\t\t\t\tborder: 1px solid black;\n\t\t\t}\n\n\t\t\ttd.banner {\n\t\t\t\tborder: none;\n\t\t\t\t}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<div class="banner">\n\t\t\t<table width="100%">\n\t\t\t\t<tr>\n\t\t\t\t\t<td class="banner" colspan="3">Save Location: ' + vulnerability_settings["Main Menu"]["Desktop Entry"].get() + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td class="banner" width="20%">Silent Mode: <span class="'
+    if vulnerability_settings["Main Menu"]["Silent Mode"].get():
+        head += 'true">True'
+    else:
+        head += 'false">False'
+    head += '</span></td>\n\t\t\t\t\t<td class="banner" width="20%">Server Mode: <span class="'
+    if vulnerability_settings["Main Menu"]["Server Mode"].get():
+        head += 'true">True</span></td>\n\t\t\t\t\t<td class="banner" width="60%">Sever Info: Ip:' + vulnerability_settings["Main Menu"]["Server Name"] + '\tUser Name: ' + vulnerability_settings["Main Menu"]["Server User Name"] + '\tPassword: ' + vulnerability_settings["Main Menu"]["Server Password"] + '</td>\n\t\t\t\t</tr>\n\t\t\t\t'
+    else:
+        head += 'false">False</span></td>\n\t\t\t\t'
+    head += '<tr>\n\t\t\t\t\t<td class="banner" width="20%">' + vulnerability_settings["Main Menu"]["Tally Points"].get() + '</td>\n\t\t\t\t</tr>\n\t\t\t</table>\n\t\t</div>\n\n\t\t'
+    buttons = '\n\n\t\t<div class="tab">'
+    body = ''
+    if vulnerability_settings["Forensic"]["Enabled"].get():
+        buttons += '\n\t\t\t<button class="tablinks" onclick="openOptionSet(event, \'Forensics\')"'
+        if not default:
+            default = True
+            buttons += ' id="defaultOpen"'
+        buttons += '>Forensics</button>'
+        body += '\n\n\t\t<div id="Forensics" class="tabcontent">\n\t\t\t<table class="content">\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">\n\t\t\t\t\t<td width="5%">Points</td>\n\t\t\t\t\t<td width="30%">Questions</td>\n\t\t\t\t\t<td width="30%">Answers</td>\n\t\t\t\t\t<td width="30%">Locations</td>\n\t\t\t\t</tr>'
+        for points, question, answer, location in zip(vulnerability_settings["Forensic"]["Categories"]["Points"], vulnerability_settings["Forensic"]["Categories"]["Question"], vulnerability_settings["Forensic"]["Categories"]["Answer"], vulnerability_settings["Forensic"]["Location"]):
+            body += '\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(points.get()) + '</td>\n\t\t\t\t\t<td width="30%">' + question.get() + '</td>\n\t\t\t\t\t<td width="30%">' + answer.get() + '</td>\n\t\t\t\t\t<td width="30%">' + location + '</td>\n\t\t\t\t</tr>'
+        body += '\n\t\t\t</table>\n\t\t</div>'
+
+    cat_tested = False
+    temp_body = ''
+    for option in vulnerability_settings["Account Management"]:
+        if vulnerability_settings["Account Management"][option]["Enabled"].get():
+            cat_tested = True
+            width = len(vulnerability_settings["Account Management"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width + 1) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["Account Management"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["Account Management"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["Account Management"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["Account Management"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if cat_tested:
+        buttons += '\n\t\t\t<button class="tablinks" onclick="openOptionSet(event, \'User Policy\')"'
+        if not default:
+            default = True
+            buttons += ' id="defaultOpen"'
+        buttons += '>User Policy</button>'
+        body += '\n\n\t\t<div id="User Policy" class="tabcontent">' + temp_body + '\n\t\t\t</div>'
+
+    cat_tested = False
+    tested = False
+    buffer_body = ''
+    temp_body = ''
+    for option in vulnerability_settings["Local Policy Password"]:
+        if vulnerability_settings["Local Policy Password"][option]["Enabled"].get():
+            cat_tested = True
+            tested = True
+            width = len(vulnerability_settings["Local Policy Password"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width + 1) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["Local Policy Password"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["Local Policy Password"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["Local Policy Password"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["Local Policy Password"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if tested:
+        buffer_body += temp_body
+    temp_body = ''
+    tested = False
+    for option in vulnerability_settings["Local Policy Options"]:
+        if vulnerability_settings["Local Policy Options"][option]["Enabled"].get():
+            cat_tested = True
+            tested = True
+            width = len(vulnerability_settings["Local Policy Options"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width + 1) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["Local Policy Options"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["Local Policy Options"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["Local Policy Options"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["Local Policy Options"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if tested:
+        buffer_body += temp_body
+    temp_body = ''
+    tested = False
+    for option in vulnerability_settings["Local Policy Audit"]:
+        if vulnerability_settings["Local Policy Audit"][option]["Enabled"].get():
+            cat_tested = True
+            tested = True
+            width = len(vulnerability_settings["Local Policy Audit"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width + 1) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["Local Policy Audit"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["Local Policy Audit"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["Local Policy Audit"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["Local Policy Audit"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if tested:
+        buffer_body += temp_body
+    if cat_tested:
+        buttons += '\n\t\t\t<button class="tablinks" onclick="openOptionSet(event, \'Local Policy\')"'
+        if not default:
+            default = True
+            buttons += ' id="defaultOpen"'
+        buttons += '>Local Policy</button>'
+        body += '\n\n\t\t<div id="Local Policy" class="tabcontent">' + buffer_body + '\n\t\t</div>'
+
+    cat_tested = False
+    tested = False
+    buffer_body = ''
+    temp_body = ''
+    for option in vulnerability_settings["Program Management"]:
+        if vulnerability_settings["Program Management"][option]["Enabled"].get():
+            cat_tested = True
+            tested = True
+            width = len(vulnerability_settings["Program Management"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width + 1) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["Program Management"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["Program Management"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["Program Management"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["Program Management"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if tested:
+        buffer_body += temp_body
+    temp_body = ''
+    tested = False
+    for option in vulnerability_settings["File Management"]:
+        if vulnerability_settings["File Management"][option]["Enabled"].get():
+            cat_tested = True
+            tested = True
+            width = len(vulnerability_settings["File Management"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width + 1) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["File Management"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["File Management"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["File Management"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["File Management"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if tested:
+        buffer_body += temp_body
+    if cat_tested:
+        buttons += '\n\t\t\t<button class="tablinks" onclick="openOptionSet(event, \'Programs and Files\')"'
+        if not default:
+            default = True
+            buttons += ' id="defaultOpen"'
+        buttons += '>Programs and Files</button>'
+        body += '\n\n\t\t<div id="Programs and Files" class="tabcontent">' + buffer_body + '\n\t\t</div>'
+
+    cat_tested = False
+    temp_body = ''
+    for option in vulnerability_settings["Miscellaneous"]:
+        if vulnerability_settings["Miscellaneous"][option]["Enabled"].get():
+            cat_tested = True
+            width = len(vulnerability_settings["Miscellaneous"][option]["Categories"]) - 1
+            temp_body += '\n\t\t\t<table class="content">\n\t\t\t\t<tr class="head">\n\t\t\t\t\t<td class="banner" colspan="' + str(width) + '">' + option + '</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr class="label">'
+            for idx in range(0, len(vulnerability_settings["Miscellaneous"][option]["Categories"]["Points"]) + 1):
+                for cat in vulnerability_settings["Miscellaneous"][option]["Categories"]:
+                    if idx == 0:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t\t<td width="5%">' + cat + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + cat + '</td>'
+                    else:
+                        if cat == "Points":
+                            temp_body += '\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t<td width="5%">' + str(vulnerability_settings["Miscellaneous"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+                        else:
+                            temp_body += '\n\t\t\t\t\t<td width="' + str(90 / width) + '%">' + str(vulnerability_settings["Miscellaneous"][option]["Categories"][cat][idx - 1].get()) + '</td>'
+            temp_body += '\n\t\t\t\t</tr>\n\t\t\t</table>'
+    if cat_tested:
+        buttons += '\n\t\t\t<button class="tablinks" onclick="openOptionSet(event, \'Miscellaneous\')"'
+        if not default:
+            default = True
+            buttons += ' id="defaultOpen"'
+        buttons += '>Miscellaneous</button>'
+        body += '\n\n\t\t<div id="Miscellaneous" class="tabcontent">' + temp_body + '\n\t\t</div>'
+
+    buttons += '\n\t\t</div>'
+    body += '\n\n\t\t<script>\n\t\t\tfunction openOptionSet(evt, optionName) {\n\t\t\t\tvar i, tabcontent, tablinks;\n\t\t\t\ttabcontent = document.getElementsByClassName("tabcontent");\n\t\t\t\tfor (i = 0; i < tabcontent.length; i++) {\n\t\t\t\t\ttabcontent[i].style.display = "none";\n\t\t\t\t}\n\t\t\t\ttablinks = document.getElementsByClassName("tablinks");\n\t\t\t\tfor (i = 0; i < tablinks.length; i++) {\n\t\t\t\t\ttablinks[i].className = tablinks[i].className.replace(" active", "");\n\t\t\t\t}\n\t\t\t\tdocument.getElementById(optionName).style.display = "block";\n\t\t\t\tevt.currentTarget.className += " active";\n\t\t\t}\n\n\t\t\tdocument.getElementById("defaultOpen").click();\n\t\t</script>\n\t</body>\n</html>'
+    head += buttons + body
+    f = open(saveLocation, '+w')
+    f.write(head)
+    f.close()
 
 
 Tk.report_callback_exception = show_error
