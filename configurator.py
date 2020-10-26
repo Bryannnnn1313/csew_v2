@@ -266,7 +266,7 @@ class Config(Tk):
         ForensicsPageIn.pack(before=ForensicsPage.canvas, fill=X)
         ForensicsPageIn.grid_columnconfigure(1, weight=1)
         ForensicsPageIn.grid_columnconfigure(2, weight=1)
-        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageList, vulnerability_settings["Forensic"])).grid(row=0, column=0, sticky=EW)
+        ttk.Button(ForensicsPageIn, text="Add", command=lambda: add_row(ForensicsPageList, vulnerability_settings["Forensic"], "")).grid(row=0, column=0, sticky=EW)
         ttk.Label(ForensicsPageIn, text='This section is for scoring forensic questions. To score a forensic question be sure to check "Enable". To add more questions press the "Add" button. To remove questions press the "X" button next to the question you want to remove. \nDo note that the answers are case sensitive.').grid(row=0, column=1, rowspan=2, columnspan=3)
         ttk.Checkbutton(ForensicsPageIn, text="Enable", variable=vulnerability_settings["Forensic"]["Enabled"]).grid(row=1, column=0)
         ttk.Label(ForensicsPageIn, text="Points", font='Verdana 10 bold', width=10).grid(row=2, column=0)
@@ -705,7 +705,7 @@ def load_config(forensic):
                     vulnerability_settings[s][m].set(save_dictionary[s][m])
             elif s == "Forensic":
                 for i in range(1, len(save_dictionary[s]["Categories"]["Points"])):
-                    add_row(forensic, vulnerability_settings["Forensic"])
+                    add_row(forensic, vulnerability_settings["Forensic"], "")
                 for m in save_dictionary[s]["Categories"]:
                     for i, settings in enumerate(save_dictionary[s]["Categories"][m]):
                         vulnerability_settings[s]["Categories"][m][i].set(settings)
