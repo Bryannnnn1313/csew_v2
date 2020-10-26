@@ -348,23 +348,21 @@ def check_startup():
 def add_text_to_file():
     for points, item, text in zip(save_dictionary["File Management"]["Add Text to File"]["Categories"]['Points'], save_dictionary["File Management"]["Add Text to File"]["Categories"]['File Path'], save_dictionary["File Management"]["Add Text to File"]["Categories"]['Text to Add']):
         f = open(item, 'r')
-        content = f.read().splitlines()
-        for c in content:
-            if text in c:
-                record_hit(text + ' has been added to ' + item, points, '')
-            else:
-                record_miss('File Management', points)
+        content = f.read()
+        if re.search(text, content):
+            record_hit(text + ' has been added to ' + item, points, '')
+        else:
+            record_miss('File Management', points)
 
 
 def remove_text_from_file():
     for points, item, text in zip(save_dictionary["File Management"]["Remove Text From File"]["Categories"]['Points'], save_dictionary["File Management"]["Remove Text From File"]["Categories"]['File Path'], save_dictionary["File Management"]["Remove Text From File"]["Categories"]['Text to Remove']):
         f = open(item, 'r')
-        content = f.read().splitlines()
-        for c in content:
-            if text not in c:
-                record_hit(text + ' has been removed from ' + item, points, '')
-            else:
-                record_miss('File Management', points)
+        content = f.read()
+        if not re.search(text, content):
+            record_hit(text + ' has been removed from ' + item, points, '')
+        else:
+            record_miss('File Management', points)
 
 
 def manage_services():
