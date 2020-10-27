@@ -133,15 +133,22 @@ def disable_admin():
         record_miss('User Management', save_dictionary["Account Management"]["Disable Admin"]["Categories"]['Points'][0])
 
 
+def critical_users():
+    users = wmi.Win32_UserAccount()
+    user_list = []
+    for user in users:
+        user_list.append(user.Name)
+    if save_dictionary["Account Management"]["Critical User"]["Enabled"] == 1:
+        for points, name in zip(save_dictionary["Account Management"]["Critical User"]["Categories"]['Points'], save_dictionary["Account Management"]["Critical User"]["Categories"]['User Name']):
+            if name not in user_list:
+                record_penalty(name + ' was removed.', points, '')
+
+
 def users_manipulation():
     users = wmi.Win32_UserAccount()
     user_list = []
     for user in users:
         user_list.append(user.Name)
-    if save_dictionary["Account Management"]["Keep User"]["Enabled"] == 1:
-        for points, name in zip(save_dictionary["Account Management"]["Keep User"]["Categories"]['Points'], save_dictionary["Account Management"]["Keep User"]["Categories"]['User Name']):
-            if name not in user_list:
-                record_penalty(name + ' was removed.', points, '')
     if save_dictionary["Account Management"]["Add User"]["Enabled"] == 1:
         for points, name in zip(save_dictionary["Account Management"]["Add User"]["Categories"]['Points'], save_dictionary["Account Management"]["Add User"]["Categories"]['User Name']):
             if name in user_list:
@@ -367,6 +374,26 @@ def remove_text_from_file():
             record_miss('File Management', points)
 
 
+def critical_services():
+    services = wmi.Win32_SystemServices()
+    service_list = {}
+    service_status = {}
+    for service in services:
+        service_list.update({service.PartComponent.DisplayName: service.PartComponent.Name})
+        service_status.update({service.PartComponent.Name: {"State": service.PartComponent.State, "Start Mode": service.PartComponent.StartMode}})
+
+    for points, name, status, start in zip(save_dictionary["Program Management"]["Critical Service"]["Categories"]['Points'],
+                                           save_dictionary["Program Management"]["Critical Service"]["Categories"]['Service Name'],
+                                           save_dictionary["Program Management"]["Critical Service"]["Categories"]['Service State'],
+                                           save_dictionary["Program Management"]["Critical Service"]["Categories"]['Service Start mode']):
+        if name in service_list:
+            name = service_list[name]
+        if name in service_status:
+            service_info = service_status[name]
+            if status == service_info["State"] and start == service_info["Start Mode"]:
+                record_penalty(name + ' was changed.', points, '')
+
+
 def manage_services():
     services = wmi.Win32_SystemServices()
     service_list = {}
@@ -387,6 +414,19 @@ def manage_services():
                 record_hit(name + ' has been ' + status + ' and set to ' + start, points, '')
             else:
                 record_miss('Program Management', points)
+
+
+def critical_programs():
+    k = open('programs.txt', 'r', encoding='utf-16-le')
+    content = k.read().splitlines()
+    k.close()
+    for points, program in zip(save_dictionary["Program Management"]["Critical Program"]["Categories"]['Points'], save_dictionary["Program Management"]["Critical Program"]["Categories"]['Program Name']):
+        installed = False
+        for c in content:
+            if program in c:
+                installed = True
+        if installed:
+            record_penalty(program + ' was uninstalled.', points, '')
 
 
 def programs():
@@ -473,7 +513,7 @@ def ps_create():
 
 def user_management():
     write_to_html('<H3>USER MANAGEMENT</H3>')
-    if save_dictionary["Account Management"]["Keep User"]["Enabled"] == 1 or save_dictionary["Account Management"]["Add User"]["Enabled"] == 1 or save_dictionary["Account Management"]["Remove User"]["Enabled"] == 1:
+    if save_dictionary["Account Management"]["Add User"]["Enabled"] == 1 or save_dictionary["Account Management"]["Remove User"]["Enabled"] == 1:
         users_manipulation()
     if save_dictionary["Account Management"]["User Change Password"]["Enabled"] == 1:
         user_change_password()
@@ -527,6 +567,16 @@ def miscellaneous():
     # update_auto_install()
 
 
+def critical_functions():
+    write_to_html('<H4>Critical Functions:</H4>')
+    if save_dictionary["Account Management"]["Critical Users"]["Enabled"] == 1:
+        critical_users()
+    if save_dictionary["Program Management"]["Critical Programs"]["Enabled"] == 1:
+        critical_programs()
+    if save_dictionary["Program Management"]["Critical Services"]["Enabled"] == 1:
+        critical_services()
+
+
 wmi = WMI()
 load_config()
 possible_points = 0
@@ -568,6 +618,8 @@ while True:
         file_management()
         print("Checking Miscellaneous Options")
         miscellaneous()
+        print("Checking Critical Functions")
+        critical_functions()
         print("Checking Score")
         check_score()
         print("Building Report Tail")
@@ -577,6 +629,8 @@ while True:
     except:
         f = open('scoring_engine.log', 'w')
         e = traceback.format_exc()
+        if "KeyboardInterrupt" in e:
+            sys.exit()
         f.write(str(e))
         f.close()
         messagebox.showerror('Crash Report', 'The scoring engine has stopped working, a log has been saved to ' + os.path.abspath('scoring_engine.log'))

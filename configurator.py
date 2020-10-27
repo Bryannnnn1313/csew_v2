@@ -67,10 +67,10 @@ class Config(Tk):
                                                               "Disable Admin": {"Definition": 'Enable this to score the competitor for disabling the Administrator account.',
                                                                                 "Enabled": IntVar(),
                                                                                 "Categories": {'Points': [IntVar()]}},
-                                                              "Keep User": {"Definition": 'Enable this to penalize the competitor for removing a user.',
-                                                                            "Modify Definition": 'This will penalize the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user. Do not make the point value negative.',
-                                                                            "Enabled": IntVar(),
-                                                                            "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
+                                                              "Critical Users": {"Definition": 'Enable this to penalize the competitor for removing a user.',
+                                                                                 "Modify Definition": 'This will penalize the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user. Do not make the point value negative.',
+                                                                                 "Enabled": IntVar(),
+                                                                                 "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
                                                               "Add Admin": {"Definition": 'Enable this to score the competitor for elevating a user to an Administrator.',
                                                                             "Modify Definition": 'This will score the competitor for elevating a user to an Administrator. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                             "Enabled": IntVar(),
@@ -168,7 +168,11 @@ class Config(Tk):
                                                               "Audit System Events": {"Definition": 'Enable this to score the competitor for setting system events audit to success and failure.',
                                                                                       "Enabled": IntVar(),
                                                                                       "Categories": {'Points': [IntVar()]}}},
-                                       "Program Management": {"Good Program": {"Definition": 'Enable this to score the competitor for installing a program.',
+                                       "Program Management": {"Critical Programs": {"Definition": 'Enable this to penalize the competitor for removing a program.',
+                                                                                    "Modify Definition": 'This will penalize the competitor for removing a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
+                                                                                    "Enabled": IntVar(),
+                                                                                    "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
+                                                              "Good Program": {"Definition": 'Enable this to score the competitor for installing a program.',
                                                                                "Modify Definition": 'This will score the competitor for installing a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
                                                                                "Enabled": IntVar(),
                                                                                "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}},
@@ -188,6 +192,10 @@ class Config(Tk):
                                                                                  "Modify Definition": '(WIP)This will score the competitor for removing a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.',
                                                                                  "Enabled": IntVar(),
                                                                                  "Categories": {'Points': [IntVar()], 'Feature Name': [StringVar()]}},
+                                                              "Critical Services": {"Definition": 'Enable this to penalize the competitor for modifying a services run ability.',
+                                                                                    "Modify Definition": 'This will penalize the competitor for modifying a services run ability. To add more services press the "Add" button. To remove a service press the "X" button next to the service you want to remove. Keep it one service per line.',
+                                                                                    "Enabled": IntVar(),
+                                                                                    "Categories": {'Points': [IntVar()], 'Service Name': [StringVar()], 'Service State': [StringVar()], 'Service Start Mode': [StringVar()]}},
                                                               "Services": {"Definition": 'Enable this to score the competitor for modifying a services run ability.',
                                                                            "Modify Definition": 'This will score the competitor for modifying a services run ability. To add more services press the "Add" button. To remove a service press the "X" button next to the service you want to remove. Keep it one service per line. The name can be the services system name or the displayed name.',
                                                                            "Enabled": IntVar(),
@@ -686,7 +694,7 @@ def tally():
                     tally_score += int(p.get())
         elif s != "Main Menu":
             for o in vulnerability_settings[s].keys():
-                if vulnerability_settings[s][o]["Enabled"].get() == 1 and o != "Keep User":
+                if vulnerability_settings[s][o]["Enabled"].get() == 1 and o != "Critical Users" and o != "Critical Programs" and o != "Critical Services":
                     for settings in vulnerability_settings[s][o]["Categories"]["Points"]:
                         if settings != 0:
                             tally_settings += 1
