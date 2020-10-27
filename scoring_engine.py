@@ -157,24 +157,26 @@ def users_manipulation():
 
 
 def turn_on_firewall():
-    if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1:
-        firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'domainprofile']).decode('utf-8')
-        if 'ON' in firewall.split('\\r\\n', 4)[3]:
-            record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0], '')
-        else:
-            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0])
-    if save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1:
-        firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'privateprofile']).decode('utf-8')
-        if 'ON' in firewall.split('\r\n', 3)[2]:
-            record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0], '')
-        else:
-            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0])
-    if save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
-        firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'publicprofile']).decode('utf-8')
-        if 'ON' in firewall.split('\r\n', 3)[2]:
-            record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0], '')
-        else:
-            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0])
+    osType = wmi.Win32_OperatingSystem()
+    if osType[0].ProductType == 1:
+        if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1:
+            firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'domainprofile', 'state']).decode('utf-8')
+            if re.search("ON", firewall):
+                record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0], '')
+            else:
+                record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0])
+        if save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1:
+            firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'privateprofile', 'state']).decode('utf-8')
+            if re.search("ON", firewall):
+                record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0], '')
+            else:
+                record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0])
+        if save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
+            firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'publicprofile', 'state']).decode('utf-8')
+            if re.search("ON", firewall):
+                record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0], '')
+            else:
+                record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0])
 
 
 def local_group_policy():
@@ -555,7 +557,7 @@ while True:
         total_points = 0
         total_vulnerabilities = 0
         policy_settings_content = load_policy_settings()
-        time.sleep(20)
+        time.sleep(5)
         print("Building Report Head")
         draw_head()
         print("Checking User Management Options")
