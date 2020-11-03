@@ -167,19 +167,19 @@ def turn_on_firewall():
     osType = wmi.Win32_OperatingSystem()
     if osType[0].ProductType == 1:
         if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1:
-            firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'domainprofile', 'state']).decode('utf-8')
+            firewall = subprocess.run(["netsh", 'advfirewall', 'show', 'domainprofile', 'state'], stdout=subprocess.PIPE).stdout.decode('utf-8')
             if re.search("ON", firewall):
                 record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0], '')
             else:
                 record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0])
         if save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1:
-            firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'privateprofile', 'state']).decode('utf-8')
+            firewall = subprocess.run(["netsh", 'advfirewall', 'show', 'privateprofile', 'state'], stdout=subprocess.PIPE).stdout.decode('utf-8')
             if re.search("ON", firewall):
                 record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0], '')
             else:
                 record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0])
         if save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
-            firewall = subprocess.check_output(["netsh", 'advfirewall', 'show', 'publicprofile', 'state']).decode('utf-8')
+            firewall = subprocess.run(["netsh", 'advfirewall', 'show', 'publicprofile', 'state'], stdout=subprocess.PIPE).stdout.decode('utf-8')
             if re.search("ON", firewall):
                 record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0], '')
             else:
@@ -328,8 +328,8 @@ def group_manipulation():
 
 def user_change_password():
     for points, name in zip(save_dictionary["Account Management"]["User Change Password"]["Categories"]['Points'], save_dictionary["Account Management"]["User Change Password"]["Categories"]['User Name']):
-        user_info = subprocess.check_output(["net", "user", name])
-        last_changed_list = user_info.decode('utf-8').split('\r\n')[8].rsplit(' ', 3)[1].split('/')
+        user_info = subprocess.run(["net", "user", name], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        last_changed_list = user_info.split('\r\n')[8].rsplit(' ', 3)[1].split('/')
         last_changed = ''
         for date in last_changed_list:
             if int(date) < 10:
@@ -358,6 +358,7 @@ def add_text_to_file():
     for points, item, text in zip(save_dictionary["File Management"]["Add Text to File"]["Categories"]['Points'], save_dictionary["File Management"]["Add Text to File"]["Categories"]['File Path'], save_dictionary["File Management"]["Add Text to File"]["Categories"]['Text to Add']):
         f = open(item, 'r')
         content = f.read()
+        f.close()
         if re.search(text, content):
             record_hit(text + ' has been added to ' + item, points, '')
         else:
@@ -368,6 +369,7 @@ def remove_text_from_file():
     for points, item, text in zip(save_dictionary["File Management"]["Remove Text From File"]["Categories"]['Points'], save_dictionary["File Management"]["Remove Text From File"]["Categories"]['File Path'], save_dictionary["File Management"]["Remove Text From File"]["Categories"]['Text to Remove']):
         f = open(item, 'r')
         content = f.read()
+        f.close()
         if not re.search(text, content):
             record_hit(text + ' has been removed from ' + item, points, '')
         else:

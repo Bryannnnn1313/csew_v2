@@ -177,7 +177,7 @@ while True:
         convert(command_score)
         convert(command_config)
     elif ask.lower() == 'temp':
-        temp_path = 'B:\\Users\\Shaun\\ProjectsFolder\\program_checking\\Wire_Game_Program.py'
+        temp_path = os.path.abspath('db_handler.py')
         # -c for console -w for window
         temp = 'pyinstaller -y -F -c "' + temp_path + '"'
         convert(temp)

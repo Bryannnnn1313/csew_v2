@@ -87,7 +87,7 @@ class Config(Tk):
                                                                               "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                               "Enabled": IntVar(),
                                                                               "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
-                                                              "User Change Password": {"Definition": 'Enable this to score the competitor for changing a users password.',
+                                                              "User Change Password": {"Definition": '(WIP)Enable this to score the competitor for changing a users password.',
                                                                                        "Modify Definition": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                                        "Enabled": IntVar(),
                                                                                        "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
@@ -102,13 +102,13 @@ class Config(Tk):
                                        "Local Policy Options": {"Do Not Require CTRL_ALT_DEL": {"Definition": 'Enable this to score the competitor for disabling Do Not Require CTRL_ALT_DEL.',
                                                                                                 "Enabled": IntVar(),
                                                                                                 "Categories": {'Points': [IntVar()]}},
-                                                                "Turn On Domain Firewall": {"Definition": 'Enable this to score the competitor for turning on the domain firewall profile. Does not work for Windows Server.',
+                                                                "Turn On Domain Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the domain firewall profile. Does not work for Windows Server.',
                                                                                             "Enabled": IntVar(),
                                                                                             "Categories": {'Points': [IntVar()]}},
-                                                                "Turn On Private Firewall": {"Definition": 'Enable this to score the competitor for turning on the private firewall profile. Does not work for Windows Server.',
+                                                                "Turn On Private Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the private firewall profile. Does not work for Windows Server.',
                                                                                              "Enabled": IntVar(),
                                                                                              "Categories": {'Points': [IntVar()]}},
-                                                                "Turn On Public Firewall": {"Definition": 'Enable this to score the competitor for turning on the public firewall profile. Does not work for Windows Server.',
+                                                                "Turn On Public Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the public firewall profile. Does not work for Windows Server.',
                                                                                             "Enabled": IntVar(),
                                                                                             "Categories": {'Points': [IntVar()]}},
                                                                 "Don't Display Last User": {"Definition": 'Enable this to score the competitor for enabling Don\'t Display Last User.',
@@ -1029,3 +1029,5 @@ root.ttkStyle.theme_settings(themename="plastik", settings={"TNotebook": {"confi
 root.ttkStyle.theme_settings(themename="ubuntu", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 170)}, "map": {"foreground": [('disabled', '#c2c2c2')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
 
 root.mainloop()
+
+print("This Works")
