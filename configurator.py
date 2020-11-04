@@ -11,6 +11,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from ttkthemes import ThemedStyle
 import admin_test
+import db_handler
 
 
 class VerticalScrolledFrame(Frame):
@@ -60,7 +61,7 @@ class VerticalScrolledFrame(Frame):
 class Config(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-        vulnerability_settings.update({"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()}, "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()],  "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
+        '''vulnerability_settings.update({"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()}, "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()],  "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
                                        "Account Management": {"Disable Guest": {"Definition": 'Enable this to score the competitor for disabling the Guest account.',
                                                                                 "Enabled": IntVar(),
                                                                                 "Categories": {'Points': [IntVar()]}},
@@ -236,7 +237,7 @@ class Config(Tk):
                                                          "Check Startup": {"Definition": '(WIP)Enable this to score the competitor for removing or disabling a program from the startup.',
                                                                            "Modify Definition": '(WIP)This will score the competitor for removing or disabling a program from the startup. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
                                                                            "Enabled": IntVar(),
-                                                                           "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}}}})
+                                                                           "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}}}})'''
         vulnerability_settings["Main Menu"]["Tally Points"].set("Vulnerabilities: 0 Total Points: 0")
 
         nb = ttk.Notebook(self)
@@ -1031,3 +1032,5 @@ root.ttkStyle.theme_settings(themename="ubuntu", settings={"TNotebook": {"config
 root.mainloop()
 
 print("This Works")
+
+
