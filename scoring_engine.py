@@ -164,26 +164,27 @@ def users_manipulation():
 
 
 def turn_on_firewall():
-    osType = wmi.Win32_OperatingSystem()
-    if osType[0].ProductType == 1:
-        if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1:
-            firewall = subprocess.run(["netsh", 'advfirewall', 'show', 'domainprofile', 'state'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            if re.search("ON", firewall):
-                record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0], '')
-            else:
-                record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0])
-        if save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1:
-            firewall = subprocess.run(["netsh", 'advfirewall', 'show', 'privateprofile', 'state'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            if re.search("ON", firewall):
-                record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0], '')
-            else:
-                record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0])
-        if save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
-            firewall = subprocess.run(["netsh", 'advfirewall', 'show', 'publicprofile', 'state'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            if re.search("ON", firewall):
-                record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0], '')
-            else:
-                record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0])
+    file = open('firewall_status.txt')
+    content = file.read()
+    file.close()
+    if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1:
+        firewall = re.search(r"Domain Profile Settings: \n-+\n\w+\s+\w+\n\n", content).group(0)
+        if re.search("ON", firewall):
+            record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1:
+        firewall = re.search(r"Private Profile Settings: \n-+\n\w+\s+\w+\n\n", content).group(0)
+        if re.search("ON", firewall):
+            record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Categories"]['Points'][0])
+    if save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
+        firewall = re.search(r"Public Profile Settings: \n-+\n\w+\s+\w+\n", content).group(0)
+        if re.search("ON", firewall):
+            record_hit('Firewall has been turned on.', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0], '')
+        else:
+            record_miss('Policy Management', save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Categories"]['Points'][0])
 
 
 def local_group_policy():
@@ -328,8 +329,10 @@ def group_manipulation():
 
 def user_change_password():
     for points, name in zip(save_dictionary["Account Management"]["User Change Password"]["Categories"]['Points'], save_dictionary["Account Management"]["User Change Password"]["Categories"]['User Name']):
-        user_info = subprocess.run(["net", "user", name], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        last_changed_list = user_info.split('\r\n')[8].rsplit(' ', 3)[1].split('/')
+        file = open('user_' + name.lower() + '.txt')
+        content = file.read()
+        file.close()
+        last_changed_list = re.search(r"(?<=Password last set\s{12})\S+", content).group(0).split('/')
         last_changed = ''
         for date in last_changed_list:
             if int(date) < 10:
@@ -503,6 +506,11 @@ def ps_create():
     m.close()
     m = open('check.bat', 'w+')
     m.write('echo > trigger.cfg\n')
+    if save_dictionary["Account Management"]["User Change Password"]["Enabled"] == 1:
+        for name in save_dictionary["Account Management"]["User Change Password"]["Categories"]['User Name']:
+            m.write('net user ' + name.lower() + ' > user_' + name.lower() + '.txt\n')
+    if save_dictionary["Local Policy Options"]["Turn On Domain Firewall"]["Enabled"] == 1 or save_dictionary["Local Policy Options"]["Turn On Private Firewall"]["Enabled"] == 1 or save_dictionary["Local Policy Options"]["Turn On Public Firewall"]["Enabled"] == 1:
+        m.write('netsh advfirewall show allprofiles state > firewall_status.txt\n')
     if save_dictionary["Program Management"]["Bad Program"]["Enabled"] == 1 or save_dictionary["Program Management"]["Good Program"]["Enabled"] == 1 or save_dictionary["Miscellaneous"]["Anti-Virus"]["Enabled"] == 1:
         m.write('Powershell.exe -Command "& {Start-Process Powershell.exe -ArgumentList \'-ExecutionPolicy Bypass -File "check.ps1"\' -Verb RunAs -Wait -WindowStyle Hidden}"\n')
     m.write('timeout 60')
