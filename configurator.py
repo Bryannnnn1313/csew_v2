@@ -555,8 +555,9 @@ def tally():
     for vuln in vuln_settings:
         if int(vuln_settings[vuln][1]["Enabled"].get()) == 1:
             for settings in vuln_settings[vuln]:
-                tally_vuln += 1
-                tally_score += int(vuln_settings[vuln][settings]["Points"].get())
+                if settings != 1:
+                    tally_vuln += 1
+                    tally_score += int(vuln_settings[vuln][settings]["Points"].get())
     root.MenuSettings["Tally Points"].set(tally_score)
     root.MenuSettings["Tally Vulnerabilities"].set(tally_vuln)
 
