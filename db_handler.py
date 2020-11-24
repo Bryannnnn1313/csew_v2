@@ -206,7 +206,6 @@ class OptionTables:
             session.query(self.models[vulnerability]).filter_by(id=vuln.id).update(vuln_update)
             session.commit()
 
-
     def remove_from_table(self, vulnerability, vuln_id):
         vuln = session.query(self.models[vulnerability]).filter_by(id=vuln_id).one()
         session.delete(vuln)

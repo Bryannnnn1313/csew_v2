@@ -417,8 +417,8 @@ def manage_services(vulnerability):
                 name = service_list[name]
             if name in service_status:
                 service_info = service_status[name]
-                if vulnerability[vuln]['Service State'] == service_info["State"] and vulnerability[vuln]['Service Start mode'] == service_info["Start Mode"]:
-                    record_hit(name + ' has been ' + vulnerability[vuln]['Service State'] + ' and set to ' + vulnerability[vuln]['Service Start mode'], vulnerability[vuln]['Points'], '')
+                if vulnerability[vuln]['Service State'] == service_info["State"] and vulnerability[vuln]['Service Start Mode'] == service_info["Start Mode"]:
+                    record_hit(name + ' has been ' + vulnerability[vuln]['Service State'] + ' and set to ' + vulnerability[vuln]['Service Start Mode'], vulnerability[vuln]['Points'], '')
                 else:
                     record_miss('Program Management', vulnerability[vuln]['Points'])
 
