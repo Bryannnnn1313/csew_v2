@@ -162,11 +162,15 @@ root.mainloop()'''
 
 scoringPath = os.path.abspath('scoring_engine.py')
 configPath = os.path.abspath('configurator.py')
+dbHandlerPath = os.path.abspath('db_handler.py')
 balloonPath = os.path.abspath('balloontip.py')
 adminPath = os.path.abspath('admin_test.py')
 iconPath = os.path.abspath('scoring_engine_logo_windows_icon_5TN_icon.ico')
-command_score = 'pyinstaller -y -F -w -i "' + iconPath + '" --add-data "' + balloonPath + '";"." --add-data "' + adminPath + '";"." "' + scoringPath + '"'
-command_config = 'pyinstaller -y -F -w -i "' + iconPath + '" --add-data "' + adminPath + '";"." "' + configPath + '"'
+cccLogoPath = os.path.abspath('CCC_logo.png')
+SoCalPath = os.path.abspath('SoCalCCCC.png')
+enginePath = os.path.abspath('scoring_engine.exe')
+command_score = 'pyinstaller -y -F -w -i "' + iconPath + '" --add-data "' + balloonPath + '";"." --add-data "' + adminPath + '";"." --add-data "' + dbHandlerPath + '";"." "' + scoringPath + '"'
+command_config = 'pyinstaller -y -F -w -i "' + iconPath + '" --add-data "' + adminPath + '";"." --add-data "' + dbHandlerPath + '";"." --add-data "' + cccLogoPath + '";".\\extras" --add-data "' + SoCalPath + '";".\\extras" --add-data "' + iconPath + '";".\\extras" --add-data "' + enginePath + '";".\\extras" "' + configPath + '"'
 while True:
     ask = input("To rebuild the configurator type: config. To rebuild the scoring engine type: score. To rebuild both type: both. To exit type: exit.\n")
     if ask.lower() == 'config':

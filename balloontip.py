@@ -1,4 +1,5 @@
 # -- coding: utf-8 --
+"""https://gist.github.com/wontoncc/1808234"""
  
 import os
 import sys
