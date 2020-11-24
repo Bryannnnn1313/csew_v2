@@ -11,6 +11,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from ttkthemes import ThemedStyle
 import admin_test
+import db_handler
 
 
 class VerticalScrolledFrame(Frame):
@@ -60,7 +61,7 @@ class VerticalScrolledFrame(Frame):
 class Config(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-        vulnerability_settings.update({"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()}, "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()],  "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
+        '''vulnerability_settings.update({"Main Menu": {"Style": StringVar(), "Desktop Checkbox": IntVar(), "Desktop Entry": StringVar(), "Silent Mode": IntVar(), "Server Mode": IntVar(), "Server Name": StringVar(), "Server User Name": StringVar(), "Server Password": StringVar(), "Tally Points": StringVar()}, "Forensic": {"Enabled": IntVar(), "Categories": {"Points": [IntVar()],  "Question": [StringVar()], "Answer": [StringVar()]}, "Location": ['']},
                                        "Account Management": {"Disable Guest": {"Definition": 'Enable this to score the competitor for disabling the Guest account.',
                                                                                 "Enabled": IntVar(),
                                                                                 "Categories": {'Points': [IntVar()]}},
@@ -87,7 +88,7 @@ class Config(Tk):
                                                                               "Modify Definition": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                               "Enabled": IntVar(),
                                                                               "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
-                                                              "User Change Password": {"Definition": 'Enable this to score the competitor for changing a users password.',
+                                                              "User Change Password": {"Definition": '(WIP)Enable this to score the competitor for changing a users password.',
                                                                                        "Modify Definition": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can type the user name in the field. Otherwise use the drop down to select a user.',
                                                                                        "Enabled": IntVar(),
                                                                                        "Categories": {'Points': [IntVar()], 'User Name': [StringVar()]}},
@@ -102,13 +103,13 @@ class Config(Tk):
                                        "Local Policy Options": {"Do Not Require CTRL_ALT_DEL": {"Definition": 'Enable this to score the competitor for disabling Do Not Require CTRL_ALT_DEL.',
                                                                                                 "Enabled": IntVar(),
                                                                                                 "Categories": {'Points': [IntVar()]}},
-                                                                "Turn On Domain Firewall": {"Definition": 'Enable this to score the competitor for turning on the domain firewall profile. Does not work for Windows Server.',
+                                                                "Turn On Domain Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the domain firewall profile. Does not work for Windows Server.',
                                                                                             "Enabled": IntVar(),
                                                                                             "Categories": {'Points': [IntVar()]}},
-                                                                "Turn On Private Firewall": {"Definition": 'Enable this to score the competitor for turning on the private firewall profile. Does not work for Windows Server.',
+                                                                "Turn On Private Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the private firewall profile. Does not work for Windows Server.',
                                                                                              "Enabled": IntVar(),
                                                                                              "Categories": {'Points': [IntVar()]}},
-                                                                "Turn On Public Firewall": {"Definition": 'Enable this to score the competitor for turning on the public firewall profile. Does not work for Windows Server.',
+                                                                "Turn On Public Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the public firewall profile. Does not work for Windows Server.',
                                                                                             "Enabled": IntVar(),
                                                                                             "Categories": {'Points': [IntVar()]}},
                                                                 "Don't Display Last User": {"Definition": 'Enable this to score the competitor for enabling Don\'t Display Last User.',
@@ -236,7 +237,7 @@ class Config(Tk):
                                                          "Check Startup": {"Definition": '(WIP)Enable this to score the competitor for removing or disabling a program from the startup.',
                                                                            "Modify Definition": '(WIP)This will score the competitor for removing or disabling a program from the startup. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
                                                                            "Enabled": IntVar(),
-                                                                           "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}}}})
+                                                                           "Categories": {'Points': [IntVar()], 'Program Name': [StringVar()]}}}})'''
         vulnerability_settings["Main Menu"]["Tally Points"].set("Vulnerabilities: 0 Total Points: 0")
 
         nb = ttk.Notebook(self)
@@ -1029,3 +1030,7 @@ root.ttkStyle.theme_settings(themename="plastik", settings={"TNotebook": {"confi
 root.ttkStyle.theme_settings(themename="ubuntu", settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0]}}, "TNotebook.Tab": {"configure": {"width": int(root.winfo_screenwidth() * 3 / 4 / 7), "anchor": 'center'}}, "TLabel": {"configure": {"padding": '5 0', "justify": 'center', "wraplength": int(root.winfo_screenwidth() * 3 / 4 - 170)}, "map": {"foreground": [('disabled', '#c2c2c2')]}}, "TButton": {"configure": {"anchor": 'center', "width": '13'}}})
 
 root.mainloop()
+
+print("This Works")
+
+
