@@ -318,7 +318,7 @@ class Config(Tk):
         ttk.Label(modifyPageIn, text="Remove", font='Verdana 10 bold').grid(row=2, column=r)
         for vuln in entry:
             if vuln != 1:
-                load_modify_settings(modifyPageList, entry[vuln], name, vuln)
+                load_modify_settings(modifyPageList, entry, name, vuln)
 
     def generate_report(self, frame, report_widgets):
         save_config()
@@ -378,9 +378,9 @@ class Config(Tk):
 def load_modify_settings(frame, entry, name, idx):
     modifyPageListRow = ttk.Frame(frame)
     modifyPageListRow.pack(fill=X)
-    ttk.Entry(modifyPageListRow, width=10, textvariable=entry["Points"]).grid(row=0, column=0)
+    ttk.Entry(modifyPageListRow, width=10, textvariable=entry[idx]["Points"]).grid(row=0, column=0)
     c = 0
-    for r, t in enumerate(entry["Checks"]):
+    for r, t in enumerate(entry[idx]["Checks"]):
         r += 1
         if t == "File Path":
             modifyPageListRow.grid_columnconfigure(r, weight=1)
@@ -390,38 +390,38 @@ def load_modify_settings(frame, entry, name, idx):
             ttk.Label(path, text="To point to a directory check directory otherwise leave unchecked.").grid(row=1, column=0, sticky=E)
             switch = IntVar()
             ttk.Checkbutton(path, variable=switch, text="Directory").grid(row=1, column=1)
-            ttk.Entry(path, textvariable=entry["Checks"][t]).grid(row=0, column=0, sticky=EW)
-            ttk.Button(path, text='...', command=lambda: set_file_or_directory(entry["Checks"], switch, name)).grid(row=0, column=1)
+            ttk.Entry(path, textvariable=entry[idx]["Checks"][t]).grid(row=0, column=0, sticky=EW)
+            ttk.Button(path, text='...', command=lambda: set_file_or_directory(entry[idx]["Checks"], switch, name)).grid(row=0, column=1)
             c = r + 1
         elif t == "Service Name":
             modifyPageListRow.grid_columnconfigure(r, weight=1)
             service_list = get_service_list()
-            ttk.Combobox(modifyPageListRow, textvariable=entry["Checks"][t], values=service_list).grid(row=0, column=r, sticky=EW)
+            ttk.Combobox(modifyPageListRow, textvariable=entry[idx]["Checks"][t], values=service_list).grid(row=0, column=r, sticky=EW)
             c = r + 1
         elif t == "Service State":
             modifyPageListRow.grid_columnconfigure(r, weight=1)
-            ttk.OptionMenu(modifyPageListRow, entry["Checks"][t], *["Running", "Running", "Stopped"]).grid(row=0, column=r, sticky=EW)
+            ttk.OptionMenu(modifyPageListRow, entry[idx]["Checks"][t], *["Running", "Running", "Stopped"]).grid(row=0, column=r, sticky=EW)
             c = r + 1
         elif t == "Service Start Mode":
             modifyPageListRow.grid_columnconfigure(r, weight=1)
-            ttk.OptionMenu(modifyPageListRow, entry["Checks"][t], *["Auto", "Auto", "Manual", "Disabled"]).grid(row=0, column=r, sticky=EW)
+            ttk.OptionMenu(modifyPageListRow, entry[idx]["Checks"][t], *["Auto", "Auto", "Manual", "Disabled"]).grid(row=0, column=r, sticky=EW)
             c = r + 1
         elif t == "User Name":
             modifyPageListRow.grid_columnconfigure(r, weight=1)
             user_list = get_user_list()
-            ttk.Combobox(modifyPageListRow, textvariable=entry["Checks"][t], values=user_list).grid(row=0, column=r, sticky=EW)
+            ttk.Combobox(modifyPageListRow, textvariable=entry[idx]["Checks"][t], values=user_list).grid(row=0, column=r, sticky=EW)
             c = r + 1
         elif t == "Group Name":
             modifyPageListRow.grid_columnconfigure(r, weight=1)
             group_list = get_group_list()
-            ttk.Combobox(modifyPageListRow, textvariable=entry["Checks"][t], values=group_list).grid(row=0, column=r, sticky=EW)
+            ttk.Combobox(modifyPageListRow, textvariable=entry[idx]["Checks"][t], values=group_list).grid(row=0, column=r, sticky=EW)
             c = r + 1
         else:
             print(t)
             modifyPageListRow.grid_columnconfigure(r, weight=1)
-            ttk.Entry(modifyPageListRow, textvariable=entry["Checks"][t]).grid(row=0, column=r, sticky=EW)
+            ttk.Entry(modifyPageListRow, textvariable=entry[idx]["Checks"][t]).grid(row=0, column=r, sticky=EW)
             c = r + 1
-    ttk.Button(modifyPageListRow, text='X', width=8, command=lambda: (remove_row(entry, modifyPageListRow), Vulnerabilities.remove_from_table(name, idx))).grid(row=0, column=c, sticky=W)
+    ttk.Button(modifyPageListRow, text='X', width=8, command=lambda: (remove_row(entry, idx, modifyPageListRow), Vulnerabilities.remove_from_table(name, idx))).grid(row=0, column=c, sticky=W)
 
 
 def add_row(frame, entry, name):
@@ -473,11 +473,11 @@ def add_row(frame, entry, name):
             mod_frame.grid_columnconfigure(r, weight=1)
             ttk.Entry(mod_frame, textvariable=entry[idx]["Checks"][t]).grid(row=0, column=r, sticky=EW)
             c = r + 1
-    ttk.Button(mod_frame, text='X', width=8, command=lambda: (remove_row(entry[idx], mod_frame), Vulnerabilities.remove_from_table(name, idx))).grid(row=0, column=c, sticky=W)
+    ttk.Button(mod_frame, text='X', width=8, command=lambda: (remove_row(entry[idx], idx, mod_frame), Vulnerabilities.remove_from_table(name, idx))).grid(row=0, column=c, sticky=W)
 
 
-def remove_row(entry, widget):
-    del entry
+def remove_row(entry, idx, widget):
+    del entry[idx]
     widget.destroy()
 
 
