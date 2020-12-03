@@ -182,9 +182,9 @@ class VerticalScrolledFrame(Frame):
     def __init__(self, parent, *args, **kw):
         Frame.__init__(self, parent, *args, **kw)
         # create a canvas object and a vertical scrollbar for scrolling it
-        vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
+        self.canvas = canvas = Canvas(self, bd=0, highlightthickness=0)
+        vscrollbar = ttk.Scrollbar(self, orient=VERTICAL, command=canvas.yview)
         vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
-        self.canvas = canvas = Canvas(self, bd=0, highlightthickness=0, yscrollcommand=vscrollbar.set)
         canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         vscrollbar.config(command=canvas.yview)
         # reset the view
@@ -211,7 +211,7 @@ class VerticalScrolledFrame(Frame):
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # update the inner frame's width to fill the canvas
                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())
-                canvas.configure(background=root.ttkStyle.lookup(".", "background"))
+                canvas.configure(background=root.ttkStyle.lookup(".", "background"), yscrollcommand=vscrollbar.set)
 
         canvas.bind('<Configure>', _configure_canvas)
 
@@ -257,8 +257,9 @@ class Config(Tk):
         pages = {}
         for category in Categories.get_categories():
             page = VerticalScrolledFrame(nb)
-            pageList = page.interior
+            pageList = ttk.Frame(page.interior)
             pageList.pack(fill=X)
+            pageList.grid_columnconfigure(1, weight=1)
             pageIn = ttk.Frame(page)
             pageIn.pack(before=page.canvas, fill=X)
             pageIn.grid_columnconfigure(1, weight=1)
@@ -268,16 +269,18 @@ class Config(Tk):
             for i, vuln in enumerate(Vulnerabilities.get_option_template_by_category(category.id)):
                 vuln_settings.update({vuln.name: {}})
                 vuln_settings[vuln.name] = Vulnerabilities.get_option_table(vuln.name).copy()
-                self.add_option(pageIn, vuln_settings[vuln.name], vuln.name, i * 2 + 2, nb)
+                self.add_option(pageList, vuln_settings[vuln.name], vuln.name, i * 2 + 2, nb)
             pages.update({category.name: page})
 
         ReportPage = VerticalScrolledFrame(nb)
-        ReportPageIn = ReportPage.interior
-        reportWidgets = []
+        ReportPageList = ttk.Frame(ReportPage.interior)
+        ReportPageList.pack(fill=X)
+        ReportPageIn = ttk.Frame(ReportPage)
+        ReportPageIn.pack(before=ReportPage.canvas, fill=X)
         ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Export to HTML', command=lambda: (generate_export('.html'))).grid(row=1, column=0, stick=EW)
-        ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageIn, reportWidgets))).grid(row=2, column=0, stick=EW)
-        ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button(WIP).').grid(row=0, column=1, rowspan=3, columnspan=4)
+        ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageList))).grid(row=2, column=0, stick=EW)
+        ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button.').grid(row=0, column=1, rowspan=3, columnspan=4)
         ttk.Separator(ReportPageIn, orient=HORIZONTAL).grid(row=3, column=0, columnspan=5, sticky=EW)
 
         nb.add(MainPage, text='Main Page')
@@ -311,6 +314,7 @@ class Config(Tk):
         ttk.Button(modifyPageIn, text="Add", command=lambda: (add_row(modifyPageList, entry, name))).grid(row=1, column=0, sticky=EW)
         ttk.Label(modifyPageIn, text=Vulnerabilities.get_option_template(name).description, wraplength=int(self.winfo_screenwidth() * 2 / 3 - 100)).grid(row=1, column=1, columnspan=len(entry[1]["Checks"]))
         ttk.Label(modifyPageIn, text="Points", font='Verdana 10 bold', width=10).grid(row=2, column=0)
+        r = 2
         for i, t in enumerate(entry[1]["Checks"]):
             modifyPageIn.grid_columnconfigure(i + 1, weight=1)
             ttk.Label(modifyPageIn, text=t, font='Verdana 10 bold').grid(row=2, column=i + 1)
@@ -320,11 +324,10 @@ class Config(Tk):
             if vuln != 1:
                 load_modify_settings(modifyPageList, entry, name, vuln)
 
-    def generate_report(self, frame, report_widgets):
+    def generate_report(self, frame):
         save_config()
-        for i in report_widgets:
+        for i in frame.grid_slaves():
             i.destroy()
-        report_widgets = []
         wrap = int(self.winfo_screenwidth() * 2 / 3 / 5) - 86
         final_row = 5
 
@@ -369,10 +372,6 @@ class Config(Tk):
                                 temp_col += 1
             if not cat_tested:
                 category_frame.destroy()
-
-        for i in range(4, final_row):
-            for w in frame.grid_slaves(row=i):
-                report_widgets.append(w)
 
 
 def load_modify_settings(frame, entry, name, idx):
@@ -506,6 +505,7 @@ def create_forensic():
                 if location == "":
                     vuln_settings["Forensic"][question]["Checks"]["Location"].set(str(root.MenuSettings["Desktop"].get()) + 'Forensic Question ' + str(q_num) + '.txt')
                     location = vuln_settings["Forensic"][question]["Checks"]["Location"].get()
+                    q_num += 1
                 g = open(location, 'w+')
                 g.write(qHeader + vuln_settings["Forensic"][question]["Checks"]["Question"].get() + qFooter)
                 g.close()
