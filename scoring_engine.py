@@ -15,25 +15,25 @@ import db_handler
 
 # Scoring Report creation
 def draw_head():
-    f = open(scoreIndex, 'w+')
-    f.write('<!doctype html><html><head><title>CSEW Score Report</title><meta http-equiv="refresh" content="60"></head><body style="background-color:powderblue;">''\n')
-    f.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/CCC_logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v1.0</H2></div></td><td><img src="C:/CyberPatriot/SoCalCCCC.png"></td></tr></table>If you see this wait a few seconds then refresh<br><H2>Your Score: #TotalScore#/' + str(menuSettings["Tally Points"]) + '</H2><H2>Vulnerabilities: #TotalVuln#/' + str(menuSettings["Tally Vulnerabilities"]) + '</H2><hr>')
-    f.close()
+    file = open(scoreIndex, 'w+')
+    file.write('<!doctype html><html><head><title>CSEW Score Report</title><meta http-equiv="refresh" content="60"></head><body style="background-color:powderblue;">''\n')
+    file.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/CCC_logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v1.0</H2></div></td><td><img src="C:/CyberPatriot/SoCalCCCC.png"></td></tr></table>If you see this wait a few seconds then refresh<br><H2>Your Score: #TotalScore#/' + str(menuSettings["Tally Points"]) + '</H2><H2>Vulnerabilities: #TotalVuln#/' + str(menuSettings["Tally Vulnerabilities"]) + '</H2><hr>')
+    file.close()
 
 
-def record_hit(name, points, message):
+def record_hit(name, points):
     global total_points, total_vulnerabilities
     write_to_html(('<p style="color:green">' + name + ' (' + str(points) + ' points)</p>'))
     total_points += int(points)
     total_vulnerabilities += 1
 
 
-def record_miss(name, points):
+def record_miss(name):
     if not menuSettings['Silent Mode']:
         write_to_html(('<p style="color:red">MISS ' + name + ' Issue</p>'))
 
 
-def record_penalty(name, points, message):
+def record_penalty(name, points):
     global total_points
     write_to_html(('<p style="color:red">' + name + ' (' + str(points) + ' points)</p>'))
     total_points -= int(points)
@@ -80,9 +80,9 @@ def check_score():
 
 
 def write_to_html(message):
-    f = open(scoreIndex, 'a')
-    f.write(message)
-    f.close()
+    file = open(scoreIndex, 'a')
+    file.write(message)
+    file.close()
 
 
 def replace_section(loc, search, replace):
@@ -100,32 +100,32 @@ def replace_section(loc, search, replace):
 def forensic_question(vulnerability):
     for idx, vuln in enumerate(vulnerability):
         if vuln != 1:
-            f = open(vulnerability[vuln]["Location"], 'r')
-            content = f.read().splitlines()
+            file = open(vulnerability[vuln]["Location"], 'r')
+            content = file.read().splitlines()
             for c in content:
                 if 'ANSWER:' in c:
                     if vulnerability[vuln]["Answers"] in c:
-                        record_hit('Forensic question number ' + str(idx) + ' has been answered.', vulnerability[vuln]['Points'], '')
+                        record_hit('Forensic question number ' + str(idx) + ' has been answered.', vulnerability[vuln]['Points'])
                     else:
-                        record_miss('Forensic Question', vulnerability[vuln]['Points'])
+                        record_miss('Forensic Question')
 
 
 def disable_guest(vulnerability):
-    guest_name = (re.search(r"(?<=NewGuestName \= \")\w+", policy_settings_content).group(0) if re.search(r"(?<=NewGuestName \= \")\w+", policy_settings_content) else "Guest")
+    guest_name = (re.search(r"(?<=NewGuestName = \")\w+", policy_settings_content).group(0) if re.search(r"(?<=NewGuestName = \")\w+", policy_settings_content) else "Guest")
     guest = wmi.Win32_UserAccount(Name=guest_name)[0]
     if guest.Disabled:
-        record_hit('The guest account haas been disabled.', vulnerability[1]['Points'], '')
+        record_hit('The guest account haas been disabled.', vulnerability[1]['Points'])
     else:
-        record_miss('User Management', vulnerability[1]['Points'])
+        record_miss('User Management')
 
 
 def disable_admin(vulnerability):
-    admin_name = (re.search(r"(?<=NewAdministratorName \= \")\w+", policy_settings_content).group(0) if re.search(r"(?<=NewAdministratorName \= \")\w+", policy_settings_content) else "Administrator")
+    admin_name = (re.search(r"(?<=NewAdministratorName = \")\w+", policy_settings_content).group(0) if re.search(r"(?<=NewAdministratorName = \")\w+", policy_settings_content) else "Administrator")
     admin = wmi.Win32_UserAccount(Name=admin_name)[0]
     if admin.Disabled:
-        record_hit('The default administrator account has been disabled.', vulnerability[1]['Points'], '')
+        record_hit('The default administrator account has been disabled.', vulnerability[1]['Points'])
     else:
-        record_miss('User Management', vulnerability[1]['Points'])
+        record_miss('User Management')
 
 
 def critical_users(vulnerability):
@@ -136,7 +136,7 @@ def critical_users(vulnerability):
     for vuln in vulnerability:
         if vuln != 1:
             if vulnerability[1]['User Name'] not in user_list:
-                record_penalty(vulnerability[vuln]['User Name'] + ' was removed.', vulnerability[vuln]['Points'], '')
+                record_penalty(vulnerability[vuln]['User Name'] + ' was removed.', vulnerability[vuln]['Points'])
 
 
 def users_manipulation(vulnerability, name):
@@ -148,16 +148,16 @@ def users_manipulation(vulnerability, name):
         for vuln in vulnerability:
             if vuln != 1:
                 if vulnerability[vuln]['User Name'] in user_list:
-                    record_hit(vulnerability[vuln]['User Name'] + ' has been added.', vulnerability[vuln]['Points'], '')
+                    record_hit(vulnerability[vuln]['User Name'] + ' has been added.', vulnerability[vuln]['Points'])
                 else:
-                    record_miss('User Management', vulnerability[vuln]['Points'])
+                    record_miss('User Management')
     if name == "Remove User":
         for vuln in vulnerability:
             if vuln != 1:
                 if vulnerability[vuln]['User Name'] not in user_list:
-                    record_hit(vulnerability[vuln]['User Name'] + ' has been removed.', vulnerability[vuln]['Points'], '')
+                    record_hit(vulnerability[vuln]['User Name'] + ' has been removed.', vulnerability[vuln]['Points'])
                 else:
-                    record_miss('User Management', vulnerability[vuln]['Points'])
+                    record_miss('User Management')
 
 
 def turn_on_firewall(vulnerability, name):
@@ -167,124 +167,124 @@ def turn_on_firewall(vulnerability, name):
     if name == "Turn On Domain Firewall":
         firewall = re.search(r"Domain Profile Settings: \n-+\n\w+\s+\w+\n\n", content).group(0)
         if re.search("ON", firewall):
-            record_hit('Firewall has been turned on.', vulnerability[1]['Points'], '')
+            record_hit('Firewall has been turned on.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Turn On Private Firewall":
         firewall = re.search(r"Private Profile Settings: \n-+\n\w+\s+\w+\n\n", content).group(0)
         if re.search("ON", firewall):
-            record_hit('Firewall has been turned on.', vulnerability[1]['Points'], '')
+            record_hit('Firewall has been turned on.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Turn On Public Firewall":
         firewall = re.search(r"Public Profile Settings: \n-+\n\w+\s+\w+\n", content).group(0)
         if re.search("ON", firewall):
-            record_hit('Firewall has been turned on.', vulnerability[1]['Points'], '')
+            record_hit('Firewall has been turned on.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
 
 
 def local_group_policy(vulnerability, name):
     if name == "Minimum Password Age":
-        if 30 <= (int(re.search(r"(?<=MinimumPasswordAge \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=MinimumPasswordAge \= )\d+", policy_settings_content) else 0) <= 60:
-            record_hit('Minimum password age is set to 30-60.', vulnerability[1]['Points'], '')
+        if 30 <= (int(re.search(r"(?<=MinimumPasswordAge = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=MinimumPasswordAge = )\d+", policy_settings_content) else 0) <= 60:
+            record_hit('Minimum password age is set to 30-60.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Maximum Password Age":
-        if 60 <= (int(re.search(r"(?<=MaximumPasswordAge \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=MaximumPasswordAge \= )\d+", policy_settings_content) else 0) <= 90:
-            record_hit('Maximum password age is set to 60-90.', vulnerability[1]['Points'], '')
+        if 60 <= (int(re.search(r"(?<=MaximumPasswordAge = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=MaximumPasswordAge = )\d+", policy_settings_content) else 0) <= 90:
+            record_hit('Maximum password age is set to 60-90.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Maximum Login Tries":
-        if 5 <= (int(re.search(r"(?<=LockoutBadCount \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=LockoutBadCount \= )\d+", policy_settings_content) else 0) <= 10:
-            record_hit('Maximum login tries is set to 5-10.', vulnerability[1]['Points'], '')
+        if 5 <= (int(re.search(r"(?<=LockoutBadCount = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=LockoutBadCount = )\d+", policy_settings_content) else 0) <= 10:
+            record_hit('Maximum login tries is set to 5-10.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management1', vulnerability[1]['Points'])
+            record_miss('Policy Management1')
     if name == "Lockout Duration":
-        if 30 <= (int(re.search(r"(?<=LockoutDuration \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=LockoutDuration \= )\d+", policy_settings_content) else 0):
-            record_hit('Lockout duration set is set to 30.', vulnerability[1]['Points'], '')
+        if 30 <= (int(re.search(r"(?<=LockoutDuration = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=LockoutDuration = )\d+", policy_settings_content) else 0):
+            record_hit('Lockout duration set is set to 30.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management2', vulnerability[1]['Points'])
+            record_miss('Policy Management2')
     if name == "Lockout Reset Duration":
-        if 30 <= (int(re.search(r"(?<=ResetLockoutCount \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=ResetLockoutCount \= )\d+", policy_settings_content) else 0):
-            record_hit('Lockout counter reset is set to 30.', vulnerability[1]['Points'], '')
+        if 30 <= (int(re.search(r"(?<=ResetLockoutCount = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=ResetLockoutCount = )\d+", policy_settings_content) else 0):
+            record_hit('Lockout counter reset is set to 30.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Minimum Password Length":
-        if 10 <= (int(re.search(r"(?<=MinimumPasswordLength \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=MinimumPasswordLength \= )\d+", policy_settings_content) else 0):
-            record_hit('Minimum password length is set to 10 or more.', vulnerability[1]['Points'], '')
+        if 10 <= (int(re.search(r"(?<=MinimumPasswordLength = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=MinimumPasswordLength = )\d+", policy_settings_content) else 0):
+            record_hit('Minimum password length is set to 10 or more.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Password History":
-        if 5 <= (int(re.search(r"(?<=PasswordHistorySize \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=PasswordHistorySize \= )\d+", policy_settings_content) else 0):
-            record_hit('Password history size is set to 5 or more.', vulnerability[1]['Points'], '')
+        if 5 <= (int(re.search(r"(?<=PasswordHistorySize = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=PasswordHistorySize = )\d+", policy_settings_content) else 0):
+            record_hit('Password history size is set to 5 or more.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Password Complexity":
-        if (int(re.search(r"(?<=PasswordComplexity \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=PasswordComplexity \= )\d+", policy_settings_content) else 0) == 1:
-            record_hit('Password complexity has been enabled.', vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=PasswordComplexity = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=PasswordComplexity = )\d+", policy_settings_content) else 0) == 1:
+            record_hit('Password complexity has been enabled.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Reversible Password Encryption":
-        if (int(re.search(r"(?<=ClearTextPassword \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=ClearTextPassword \= )\d+", policy_settings_content) else 1) == 0:
-            record_hit('Reversible password encryption has been Disabled.', vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=ClearTextPassword = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=ClearTextPassword = )\d+", policy_settings_content) else 1) == 0:
+            record_hit('Reversible password encryption has been Disabled.', vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Account Login":
-        if (int(re.search(r"(?<=AuditAccountLogon \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditAccountLogon \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Account Login set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditAccountLogon = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditAccountLogon = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Account Login set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Account Management":
-        if (int(re.search(r"(?<=AuditAccountManage \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditAccountManage \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Account Manage set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditAccountManage = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditAccountManage = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Account Manage set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Directory Settings Access":
-        if (int(re.search(r"(?<=AuditDSAccess \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditDSAccess \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Directory Service Access set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditDSAccess = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditDSAccess = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Directory Service Access set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Logon Events":
-        if (int(re.search(r"(?<=AuditLogonEvents \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditLogonEvents \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Logon Events set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditLogonEvents = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditLogonEvents = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Logon Events set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Object Access":
-        if (int(re.search(r"(?<=AuditObjectAccess \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditObjectAccess \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Object Access set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditObjectAccess = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditObjectAccess = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Object Access set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Policy Change":
-        if (int(re.search(r"(?<=AuditPolicyChange \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditPolicyChange \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Policy Change set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditPolicyChange = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditPolicyChange = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Policy Change set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Privilege Use":
-        if (int(re.search(r"(?<=AuditPrivilegeUse \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditPrivilegeUse \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Privilege Use set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditPrivilegeUse = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditPrivilegeUse = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Privilege Use set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit Process Tracking":
-        if (int(re.search(r"(?<=AuditProcessTracking \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditProcessTracking \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit Process Tracking set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditProcessTracking = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditProcessTracking = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit Process Tracking set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Audit System Events":
-        if (int(re.search(r"(?<=AuditSystemEvents \= )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditSystemEvents \= )\d+", policy_settings_content) else 0) == 3:
-            record_hit('Audit System Events set to Success and Failure.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=AuditSystemEvents = )\d+", policy_settings_content).group(0)) if re.search(r"(?<=AuditSystemEvents = )\d+", policy_settings_content) else 0) == 3:
+            record_hit('Audit System Events set to Success and Failure.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Do Not Require CTRL_ALT_DEL":
-        if (int(re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableCAD\=\d,)\d+", policy_settings_content).group(0)) if re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableCAD\=\d,)\d+", policy_settings_content) else 1) == 0:
-            record_hit('Do not require CTRL + ALT + DEL has been disabled.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableCAD=\d,)\d+", policy_settings_content).group(0)) if re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableCAD=\d,)\d+", policy_settings_content) else 1) == 0:
+            record_hit('Do not require CTRL + ALT + DEL has been disabled.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
     if name == "Don't Display Last User":
-        if (int(re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DontDisplayLastUserName\=\d,)\d+", policy_settings_content).group(0)) if re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DontDisplayLastUserName\=\d,)\d+", policy_settings_content) else 0) == 1:
-            record_hit('Don\'t Display Last User Name has been enabled.',  vulnerability[1]['Points'], '')
+        if (int(re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DontDisplayLastUserName=\d,)\d+", policy_settings_content).group(0)) if re.search(r"(?<=MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DontDisplayLastUserName=\d,)\d+", policy_settings_content) else 0) == 1:
+            record_hit('Don\'t Display Last User Name has been enabled.',  vulnerability[1]['Points'])
         else:
-            record_miss('Policy Management',  vulnerability[1]['Points'])
+            record_miss('Policy Management')
 
 
 def group_manipulation(vulnerability, name):
@@ -302,30 +302,30 @@ def group_manipulation(vulnerability, name):
         for vuln in vulnerability:
             if vuln != 1:
                 if vulnerability[vuln]['User Name'] in group_list["Administrators"]:
-                    record_hit(vulnerability[vuln]['User Name'] + ' has been promoted to administrator.', vulnerability[vuln]['Points'], '')
+                    record_hit(vulnerability[vuln]['User Name'] + ' has been promoted to administrator.', vulnerability[vuln]['Points'])
                 else:
-                    record_miss('User Management', vulnerability[vuln]['Points'])
+                    record_miss('User Management')
     if name == "Remove Admin":
         for vuln in vulnerability:
             if vuln != 1:
                 if vulnerability[vuln]['User Name'] not in group_list["Administrators"]:
-                    record_hit(vulnerability[vuln]['User Name'] + ' has been demoted to standard user.', vulnerability[vuln]['Points'], '')
+                    record_hit(vulnerability[vuln]['User Name'] + ' has been demoted to standard user.', vulnerability[vuln]['Points'])
                 else:
-                    record_miss('User Management', vulnerability[vuln]['Points'])
+                    record_miss('User Management')
     if name == "Add User to Group":
         for vuln in vulnerability:
             if vuln != 1:
                 if vulnerability[vuln]['User Name'] in group_list[vulnerability[vuln]['Group Name']]:
-                    record_hit(vulnerability[vuln]['User Name'] + ' is in the ' + vulnerability[vuln]['Group Name'] + ' group.', vulnerability[vuln]['Points'], '')
+                    record_hit(vulnerability[vuln]['User Name'] + ' is in the ' + vulnerability[vuln]['Group Name'] + ' group.', vulnerability[vuln]['Points'])
                 else:
-                    record_miss('User Management', vulnerability[vuln]['Points'])
+                    record_miss('User Management')
     if name == "Remove User from Group":
         for vuln in vulnerability:
             if vuln != 1:
                 if vulnerability[vuln]['User Name'] not in group_list[vulnerability[vuln]['Group Name']]:
-                    record_hit(vulnerability[vuln]['User Name'] + ' is no longer in the ' + vulnerability[vuln]['Group Name'] + ' group.', vulnerability[vuln]['Points'], '')
+                    record_hit(vulnerability[vuln]['User Name'] + ' is no longer in the ' + vulnerability[vuln]['Group Name'] + ' group.', vulnerability[vuln]['Points'])
                 else:
-                    record_miss('User Management', vulnerability[vuln]['Points'])
+                    record_miss('User Management')
 
 
 def user_change_password(vulnerability):
@@ -342,45 +342,45 @@ def user_change_password(vulnerability):
                 temp = date
             last_changed = last_changed + temp + '/'
         if datetime.datetime.now().strftime('%m/%d/%Y') == last_changed.rsplit('/', 1)[0]:
-            record_hit(vulnerability[vuln]['User Name'] + '\'s password was changed.', vulnerability[vuln]['Points'], '')
+            record_hit(vulnerability[vuln]['User Name'] + '\'s password was changed.', vulnerability[vuln]['Points'])
         else:
-            record_miss('Policy Management', vulnerability[vuln]['Points'])
+            record_miss('Policy Management')
 
 
 def check_startup(vulnerability):
-    f = open('startup.txt', 'r', encoding='utf-16-le')
-    content = f.read().splitlines()
-    f.close()
+    file = open('startup.txt', 'r', encoding='utf-16-le')
+    content = file.read().splitlines()
+    file.close()
     for vuln in vulnerability:
         if vuln != 1:
             if vulnerability[vuln]['Program Name'] in content:
-                record_hit('Program Removed from Startup', vulnerability[vuln]['Points'], '')
+                record_hit('Program Removed from Startup', vulnerability[vuln]['Points'])
             else:
-                record_miss('Program Management', vulnerability[vuln]['Points'])
+                record_miss('Program Management')
 
 
 def add_text_to_file(vulnerability):
     for vuln in vulnerability:
         if vuln != 1:
-            f = open(vulnerability[vuln]["File Path"], 'r')
-            content = f.read()
-            f.close()
+            file = open(vulnerability[vuln]["File Path"], 'r')
+            content = file.read()
+            file.close()
             if re.search(vulnerability[vuln]["Text to Add"], content):
-                record_hit(vulnerability[vuln]["Text to Add"] + ' has been added to ' + vulnerability[vuln]["File Path"], vulnerability[vuln]["Points"], '')
+                record_hit(vulnerability[vuln]["Text to Add"] + ' has been added to ' + vulnerability[vuln]["File Path"], vulnerability[vuln]["Points"])
             else:
-                record_miss('File Management', vulnerability[vuln]["Points"])
+                record_miss('File Management')
 
 
 def remove_text_from_file(vulnerability):
     for vuln in vulnerability:
         if vuln != 1:
-            f = open(vulnerability[vuln]["File Path"], 'r')
-            content = f.read()
-            f.close()
+            file = open(vulnerability[vuln]["File Path"], 'r')
+            content = file.read()
+            file.close()
             if not re.search(vulnerability[vuln]["Text to Remove"], content):
-                record_hit(vulnerability[vuln]["Text to Remove"] + ' has been removed from ' + vulnerability[vuln]["File Path"], vulnerability[vuln]["Points"], '')
+                record_hit(vulnerability[vuln]["Text to Remove"] + ' has been removed from ' + vulnerability[vuln]["File Path"], vulnerability[vuln]["Points"])
             else:
-                record_miss('File Management', vulnerability[vuln]["Points"])
+                record_miss('File Management')
 
 
 def critical_services(vulnerability):
@@ -399,7 +399,7 @@ def critical_services(vulnerability):
             if name in service_status:
                 service_info = service_status[name]
                 if vulnerability[vuln]['Service State'] == service_info["State"] and vulnerability[vuln]['Service Start mode'] == service_info["Start Mode"]:
-                    record_penalty(name + ' was changed.', vulnerability[vuln]['Points'], '')
+                    record_penalty(name + ' was changed.', vulnerability[vuln]['Points'])
 
 
 def manage_services(vulnerability):
@@ -418,9 +418,9 @@ def manage_services(vulnerability):
             if name in service_status:
                 service_info = service_status[name]
                 if vulnerability[vuln]['Service State'] == service_info["State"] and vulnerability[vuln]['Service Start Mode'] == service_info["Start Mode"]:
-                    record_hit(name + ' has been ' + vulnerability[vuln]['Service State'] + ' and set to ' + vulnerability[vuln]['Service Start Mode'], vulnerability[vuln]['Points'], '')
+                    record_hit(name + ' has been ' + vulnerability[vuln]['Service State'] + ' and set to ' + vulnerability[vuln]['Service Start Mode'], vulnerability[vuln]['Points'])
                 else:
-                    record_miss('Program Management', vulnerability[vuln]['Points'])
+                    record_miss('Program Management')
 
 
 def critical_programs(vulnerability):
@@ -434,7 +434,7 @@ def critical_programs(vulnerability):
                 if vulnerability[vuln]['Program Name'] in c:
                     installed = True
             if installed:
-                record_penalty(vulnerability[vuln]['Program Name'] + ' was uninstalled.', vulnerability[vuln]['Points'], '')
+                record_penalty(vulnerability[vuln]['Program Name'] + ' was uninstalled.', vulnerability[vuln]['Points'])
 
 
 def programs(vulnerability, name):
@@ -449,9 +449,9 @@ def programs(vulnerability, name):
                     if vulnerability[vuln]["Program Name"] in c:
                         installed = True
                 if installed:
-                    record_hit(vulnerability[vuln]["Program Name"] + ' is installed', vulnerability[vuln]["Points"], '')
+                    record_hit(vulnerability[vuln]["Program Name"] + ' is installed', vulnerability[vuln]["Points"])
                 else:
-                    record_miss('Program Management', vulnerability[vuln]["Points"])
+                    record_miss('Program Management')
     if name == "Bad Program":
         for vuln in vulnerability:
             installed = False
@@ -459,9 +459,9 @@ def programs(vulnerability, name):
                 if vulnerability[vuln]["Program Name"] in c:
                     installed = True
             if not installed:
-                record_hit(vulnerability[vuln]["Program Name"] + ' is uninstalled', vulnerability[vuln]["Points"], '')
+                record_hit(vulnerability[vuln]["Program Name"] + ' is uninstalled', vulnerability[vuln]["Points"])
             else:
-                record_miss('Program Management', vulnerability[vuln]["Points"])
+                record_miss('Program Management')
 
 
 def anti_virus(vulnerability):
@@ -469,18 +469,18 @@ def anti_virus(vulnerability):
     content = z.read()
     z.close()
     if 'Real-time Protection Status : Enabled' in content:
-        record_hit('Virus & threat protection enabled.', vulnerability[1]['Points'], '')
+        record_hit('Virus & threat protection enabled.', vulnerability[1]['Points'])
     else:
-        record_miss('Security', vulnerability[1]['Points'])
+        record_miss('Security')
 
 
 def bad_file(vulnerability):
     for vuln in vulnerability:
         if vuln != 1:
             if not os.path.exists(vulnerability[vuln]["File Path"]):
-                record_hit('The item ' + vulnerability[vuln]["File Path"] + ' has been removed.', vulnerability[vuln]["Points"], '')
+                record_hit('The item ' + vulnerability[vuln]["File Path"] + ' has been removed.', vulnerability[vuln]["Points"])
             else:
-                record_miss('File Management', vulnerability[vuln]["Points"])
+                record_miss('File Management')
 
 
 def no_scoring_available(name):
@@ -598,6 +598,7 @@ def critical_functions(vulnerabilities):
             vulnerability_def[vuln.name](vulnerability)
 
 
+print("Loading Settings")
 wmi = WMI()
 try:
     Settings = db_handler.Settings()
@@ -641,7 +642,7 @@ while True:
         total_vulnerabilities = 0
         critical_items = []
         policy_settings_content = load_policy_settings()
-        time.sleep(5)
+        time.sleep(20)
         print("Building Report Head")
         draw_head()
         for category in categories:
