@@ -1,6 +1,9 @@
 import os
+import subprocess
+import sys
 import time
 import shutil
+import tkinter
 import traceback
 import win32com.client
 from wmi import WMI
@@ -12,6 +15,8 @@ from ttkthemes import ThemedStyle
 import admin_test
 import db_handler
 
+
+# region database for save data
 Settings = db_handler.Settings()
 Categories = db_handler.Categories()
 vulnerability_template = {"Disable Guest": {"Definition": 'Enable this to score the competitor for disabling the Guest account.',
@@ -38,10 +43,10 @@ vulnerability_template = {"Disable Guest": {"Definition": 'Enable this to score 
                                           "Description": 'This will score the competitor for removing a user. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can Category the user name in the field. Otherwise use the drop down to select a user.',
                                           "Checks": 'User Name:Str',
                                           "Category": 'Account Management'},
-                          "User Change Password": {"Definition": '(WIP)Enable this to score the competitor for changing a users password.',
-                                                   "Description": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can Category the user name in the field. Otherwise use the drop down to select a user.',
-                                                   "Checks": 'User Name:Str',
-                                                   "Category": 'Account Management'},
+                          #User Change Password": {"Definition": '(WIP)Enable this to score the competitor for changing a users password.',
+                          #                         "Description": 'This will score the competitor for changing a users password. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user per line. To add users that are not on the computer, then you can Category the user name in the field. Otherwise use the drop down to select a user.',
+                          #                         "Checks": 'User Name:Str',
+                          #                         "Category": 'Account Management'},
                           "Add User to Group": {"Definition": 'Enable this to score the competitor for adding a user to a group other than the Administrative group.',
                                                 "Description": 'This will score the competitor for adding a user to a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user  and group per line. To add users or group that are not on the computer, then you can type the user or group name in the field. Otherwise use the drop down to select a user or group.',
                                                 "Checks": 'User Name:Str,Group Name:Str',
@@ -50,12 +55,20 @@ vulnerability_template = {"Disable Guest": {"Definition": 'Enable this to score 
                                                      "Description": 'This will score the competitor for removing a user from a group other than the Administrative group. To add more users press the "Add" button. To remove a user press the "X" button next to the user you want to remove. Keep it one user and group per line. To add users or group that are not on the computer, then you can type the user or group name in the field. Otherwise use the drop down to select a user or group.',
                                                      "Checks": 'User Name:Str,Group Name:Str',
                                                      "Category": 'Account Management'},
-                          "Turn On Domain Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the domain firewall profile. Does not work for Windows Server.',
-                                                      "Category": 'Local Policy'},
-                          "Turn On Private Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the private firewall profile. Does not work for Windows Server.',
-                                                       "Category": 'Local Policy'},
-                          "Turn On Public Firewall": {"Definition": '(WIP)Enable this to score the competitor for turning on the public firewall profile. Does not work for Windows Server.',
-                                                      "Category": 'Local Policy'},
+                          "Turn On Domain Firewall": {"Definition": 'Enable this to score the competitor for turning on the domain firewall. Does not work for Windows Server.',
+                                                     "Category": 'Firewall Management'},
+                          "Turn On Private Firewall": {"Definition": 'Enable this to score the competitor for turning on the private firewall. Does not work for Windows Server.',
+                                                       "Category": 'Firewall Management'},
+                          "Turn On Public Firewall": {"Definition": 'Enable this to score the competitor for turning on the public firewall. Does not work for Windows Server.',
+                                                      "Category": 'Firewall Management'},
+                          "Check Port Open": {"Definition": 'Enable this to score the competitor for opening a port. Does not work for Windows Server.',
+                                                      "Description": 'This will score the competitor for opening a port. To add more ports press the "Add" button. To remove a port press the "X" button next to the port you want to remove. Keep it one port per line.',
+                                                      "Checks": 'IP:Str,Port:Str,Protocol:Str',
+                                                      "Category": 'Firewall Management'},
+                          "Check Port Closed": {"Definition": 'Enable this to score the competitor for closing a port. Does not work for Windows Server.',
+                                                      "Description": 'This will score the competitor for blocking or a port. To add more ports press the "Add" button. To remove a port press the "X" button next to the port you want to remove. Keep it one port per line.',
+                                                      "Checks": 'IP:Str,Port:Str,Protocol:Str',
+                                                      "Category": 'Firewall Management'},
                           "Do Not Require CTRL_ALT_DEL": {"Definition": 'Enable this to score the competitor for disabling Do Not Require CTRL_ALT_DEL.',
                                                           "Category": 'Local Policy'},
                           "Don't Display Last User": {"Definition": 'Enable this to score the competitor for enabling Don\'t Display Last User.',
@@ -108,18 +121,18 @@ vulnerability_template = {"Disable Guest": {"Definition": 'Enable this to score 
                                           "Description": 'This will score the competitor for uninstalling a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
                                           "Checks": 'Program Name:Str',
                                           "Category": 'Program Management'},
-                          "Update Program": {"Definition": '(WIP)Enable this to score the competitor for updating a program.',
-                                             "Description": '(WIP)This will score the competitor for updating a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
-                                             "Checks": 'Program Name:Str',
-                                             "Category": 'Program Management'},
-                          "Add Feature": {"Definition": '(WIP)Enable this to score the competitor for adding a feature.',
-                                          "Description": '(WIP)This will score the competitor for adding a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.',
-                                          "Checks": 'Feature Name:Str',
-                                          "Category": 'Program Management'},
-                          "Remove Feature": {"Definition": '(WIP)Enable this to score the competitor for removing a feature.',
-                                             "Description": '(WIP)This will score the competitor for removing a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.',
-                                             "Checks": 'Feature Name:Str',
-                                             "Category": 'Program Management'},
+                          #"Update Program": {"Definition": '(WIP)Enable this to score the competitor for updating a program.',
+                          #                   "Description": '(WIP)This will score the competitor for updating a program. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
+                          #                   "Checks": 'Program Name:Str',
+                          #                   "Category": 'Program Management'},
+                          #"Add Feature": {"Definition": '(WIP)Enable this to score the competitor for adding a feature.',
+                          #                "Description": '(WIP)This will score the competitor for adding a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.',
+                          #                "Checks": 'Feature Name:Str',
+                          #                "Category": 'Program Management'},
+                          #"Remove Feature": {"Definition": '(WIP)Enable this to score the competitor for removing a feature.',
+                          #                   "Description": '(WIP)This will score the competitor for removing a feature. To add more features press the "Add" button. To remove a feature press the "X" button next to the feature you want to remove. Keep it one feature per line.',
+                          #                   "Checks": 'Feature Name:Str',
+                          #                   "Category": 'Program Management'},
                           "Critical Services": {"Definition": 'Enable this to penalize the competitor for modifying a services run ability.',
                                                 "Description": 'This will penalize the competitor for modifying a services run ability. To add more services press the "Add" button. To remove a service press the "X" button next to the service you want to remove. Keep it one service per line.',
                                                 "Checks": 'Service Name:Str,Service State:Str,Service Start Mode:Str',
@@ -136,10 +149,10 @@ vulnerability_template = {"Disable Guest": {"Definition": 'Enable this to score 
                                        "Description": 'This will score the competitor for deleting a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
                                        "Checks": 'File Path:Str',
                                        "Category": 'File Management'},
-                          "Check Hosts": {"Definition": '(WIP)Enable this to score the competitor for clearing the hosts file.',
-                                          "Description": '(WIP)This will score the competitor for clearing the hosts file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
-                                          "Checks": 'Text:Str',
-                                          "Category": 'File Management'},
+                          #"Check Hosts": {"Definition": '(WIP)Enable this to score the competitor for clearing the hosts file.',
+                          #                "Description": '(WIP)This will score the competitor for clearing the hosts file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
+                          #                "Checks": 'Text:Str',
+                          #                "Category": 'File Management'},
                           "Add Text to File": {"Definition": 'Enable this to score the competitor for adding text to a file.',
                                                "Description": 'This will score the competitor for adding text to a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
                                                "Checks": 'Text to Add:Str,File Path:Str',
@@ -148,28 +161,30 @@ vulnerability_template = {"Disable Guest": {"Definition": 'Enable this to score 
                                                     "Description": 'This will score the competitor for removing text from a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
                                                     "Checks": 'Text to Remove:Str,File Path:Str',
                                                     "Category": 'File Management'},
-                          "File Permissions": {"Definition": '(WIP)Enable this to score the competitor for changing the permissions a user has on a file.',
-                                               "Description": '(WIP)This will score the competitor for changing the permissions a user has on a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
-                                               "Checks": 'Users to Modify:Str,Permission to Set:Str,File Path:Str',
-                                               "Category": 'File Management'},
-                          "Anti-Virus": {"Definition": 'Enable this to score the competitor for installing an anti-virus. Not windows defender.',
-                                         "Category": 'Miscellaneous'},
-                          "Update Check Period": {"Definition": '(WIP)Enable this to score the competitor for setting the period windows checks for updates to once a week.',
-                                                  "Category": 'Miscellaneous'},
-                          "Update Auto Install": {"Definition": '(WIP)Enable this to score the competitor for setting windows updates to automatically install updates.',
-                                                  "Category": 'Miscellaneous'},
-                          "Task Scheduler": {"Definition": '(WIP)Enable this to score the competitor for removing a task from the task scheduler.',
-                                             "Description": '(WIP)This will score the competitor for removing a task from the task scheduler. To add more tasks press the "Add" button. To remove a task press the "X" button next to the task you want to remove. Keep it one task per line.',
-                                             "Checks": 'Task Name:Str',
-                                             "Category": 'Miscellaneous'},
-                          "Check Startup": {"Definition": '(WIP)Enable this to score the competitor for removing or disabling a program from the startup.',
-                                            "Description": '(WIP)This will score the competitor for removing or disabling a program from the startup. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
-                                            "Checks": 'Program Name:Str',
-                                            "Category": 'Miscellaneous'},
+                          #"File Permissions": {"Definition": '(WIP)Enable this to score the competitor for changing the permissions a user has on a file.',
+                          #                     "Description": '(WIP)This will score the competitor for changing the permissions a user has on a file. To add more files press the "Add" button. To remove a file press the "X" button next to the file you want to remove. Keep it one file per line.',
+                          #                     "Checks": 'Users to Modify:Str,Permission to Set:Str,File Path:Str',
+                          #                     "Category": 'File Management'},
+                          #"Anti-Virus": {"Definition": 'Enable this to score the competitor for installing an anti-virus. Not windows defender.',
+                          #               "Category": 'Miscellaneous'},
+                          #"Update Check Period": {"Definition": '(WIP)Enable this to score the competitor for setting the period windows checks for updates to once a week.',
+                          #                       "Category": 'Miscellaneous'},
+                          #"Update Auto Install": {"Definition": '(WIP)Enable this to score the competitor for setting windows updates to automatically install updates.',
+                          #                        "Category": 'Miscellaneous'},
+                          #"Task Scheduler": {"Definition": '(WIP)Enable this to score the competitor for removing a task from the task scheduler.',
+                          #                   "Description": '(WIP)This will score the competitor for removing a task from the task scheduler. To add more tasks press the "Add" button. To remove a task press the "X" button next to the task you want to remove. Keep it one task per line.',
+                          #                   "Checks": 'Task Name:Str',
+                          #                   "Category": 'Miscellaneous'},
+                          #"Check Startup": {"Definition": '(WIP)Enable this to score the competitor for removing or disabling a program from the startup.',
+                          #                  "Description": '(WIP)This will score the competitor for removing or disabling a program from the startup. To add more programs press the "Add" button. To remove a program press the "X" button next to the program you want to remove. Keep it one program per line.',
+                          #                  "Checks": 'Program Name:Str',
+                          #                  "Category": 'Miscellaneous'},
                           }
 Vulnerabilities = db_handler.OptionTables(vulnerability_template)
 Vulnerabilities.initialize_option_table()
 vuln_settings = {}
+
+# endregion
 
 
 class VerticalScrolledFrame(Frame):
@@ -220,18 +235,26 @@ class Config(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
 
+        if not admin_test.isUserAdmin():
+            switch = messagebox.askyesno('Administrative Access Required',
+                                         'You need to be Admin to Write to Config. Please relaunch the confiturator as Administrator.')
+            if switch:
+                sys.exit(admin_test.runAsAdmin())
+            return
+
         nb = ttk.Notebook(self)
         MainPage = ttk.Frame(nb)
 
         self.MenuSettings = Settings.get_settings()
         temp_style = self.MenuSettings["Style"].get()
 
-        ttk.Button(MainPage, text='Save', command=lambda: (save_config())).grid(sticky=EW)
-        ttk.Label(MainPage, text="Leave blank if the current logged in users is the main otherwise enter the path manually.").grid(row=0, column=1, sticky=W, columnspan=4)
+        #ttk.Button(MainPage, text='Save', command=lambda: (save_config())).grid(sticky=EW)
+        #
+        ttk.Label(MainPage, text="Leave blank if the current logged in users is the main otherwise enter the path manually.").grid(row=0, column=0, sticky=W, columnspan=4)
         ttk.OptionMenu(MainPage, self.MenuSettings["Style"], *themeList).grid(row=0, column=5, sticky=EW)
         self.MenuSettings["Style"].set(temp_style)
-        ttk.Button(MainPage, text='Set', width=5, command=lambda: (change_theme(self.MenuSettings["Style"]))).grid(row=0, column=6)
-        ttk.Button(MainPage, text='Commit', command=lambda: (commit_config())).grid(row=1, sticky=EW)
+        ttk.Button(MainPage, text='Set', width=5, command=lambda: (change_theme(self.MenuSettings["Style"]))).grid(row=0, column=6, sticky=E)
+        ttk.Button(MainPage, text='Commit', command=lambda: (commit_config())).grid(row=1, sticky=W)
         ttk.Entry(MainPage, textvariable=self.MenuSettings["Desktop"]).grid(row=1, column=1, columnspan=4, sticky=EW)
         ttk.Checkbutton(MainPage, text='Silent Miss', variable=self.MenuSettings["Silent Mode"]).grid(row=2, sticky=W)
         ttk.Label(MainPage, text='Check this box to hide missed items (Similar to competition)').grid(row=2, column=1, columnspan=5, sticky=W)
@@ -251,8 +274,12 @@ class Config(Tk):
         passE.grid(row=4, column=5, sticky=EW)
         ttk.Label(MainPage, text="Total Points:").grid(row=5, column=0)
         ttk.Label(MainPage, textvariable=self.MenuSettings["Tally Points"], font='Verdana 10 bold', wraplength=150).grid(row=5, column=1)
-        ttk.Label(MainPage, text="Total Vulnerabilities:").grid(row=6, column=0)
+        ttk.Label(MainPage, text="Total Vulnerabilities:").grid(row=6, column=0, rowspan=4)
         ttk.Label(MainPage, textvariable=self.MenuSettings["Tally Vulnerabilities"], font='Verdana 10 bold', wraplength=150).grid(row=6, column=1)
+        ttk.Label(MainPage, text="Created by Shaun Martin, Anthony Nguyen, Bryan Ortiz and Minh-Khoi Do").grid(row=10, column=0, columnspan=4, sticky=SW)
+      #  ttk.Label(MainPage, text="Feedback welcome email to smartin94@student.cccd.edu Subject=CSEW").grid(row=8, column=0, columnspan=6, sticky=S)
+        MainPage.columnconfigure(tuple(range(10)), weight=1)
+        #MainPage.rowconfigure(tuple(range(5)), weight=1)
 
         pages = {}
         for category in Categories.get_categories():
@@ -263,6 +290,7 @@ class Config(Tk):
             pageIn = ttk.Frame(page)
             pageIn.pack(before=page.canvas, fill=X)
             pageIn.grid_columnconfigure(1, weight=1)
+            ttk.Label(pageIn, text=category.description, padding='10 5').grid(row=0, column=0, columnspan=3)
             ttk.Label(pageIn, text=category.description, padding='10 5').grid(row=0, column=0, columnspan=3)
             ttk.Label(pageIn, text='Vulnerabilities', font='Verdana 12 bold').grid(row=1, column=0, stick=W)
             ttk.Label(pageIn, text="Points", font='Verdana 12 bold').grid(row=1, column=2)
@@ -277,10 +305,11 @@ class Config(Tk):
         ReportPageList.pack(fill=X)
         ReportPageIn = ttk.Frame(ReportPage)
         ReportPageIn.pack(before=ReportPage.canvas, fill=X)
-        ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
+        #ttk.Button(ReportPageIn, text='Export to csv').grid(row=0, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Export to HTML', command=lambda: (generate_export('.html'))).grid(row=1, column=0, stick=EW)
         ttk.Button(ReportPageIn, text='Generate', command=lambda: (self.generate_report(ReportPageList))).grid(row=2, column=0, stick=EW)
-        ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button.').grid(row=0, column=1, rowspan=3, columnspan=4)
+        ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a web page press the "Export to HTML" button.').grid(row=0, column=1, rowspan=3, columnspan=4)
+        #ttk.Label(ReportPageIn, text='This section is for reviewing the options that will be scored. To view the report press the "Generate" button. To export this report to a .csv file press the "Export to CSV" button(WIP). To export this report to a web page press the "Export to HTML" button.').grid(row=0, column=1, rowspan=3, columnspan=4)
         ttk.Separator(ReportPageIn, orient=HORIZONTAL).grid(row=3, column=0, columnspan=5, sticky=EW)
 
         nb.add(MainPage, text='Main Page')
@@ -416,9 +445,10 @@ def load_modify_settings(frame, entry, name, idx):
             ttk.Combobox(modifyPageListRow, textvariable=entry[idx]["Checks"][t], values=group_list).grid(row=0, column=r, sticky=EW)
             c = r + 1
         else:
-            print(t)
+           # print(t)
             modifyPageListRow.grid_columnconfigure(r, weight=1)
             ttk.Entry(modifyPageListRow, textvariable=entry[idx]["Checks"][t]).grid(row=0, column=r, sticky=EW)
+
             c = r + 1
     ttk.Button(modifyPageListRow, text='X', width=8, command=lambda: (remove_row(entry, idx, modifyPageListRow), Vulnerabilities.remove_from_table(name, idx))).grid(row=0, column=c, sticky=W)
 
@@ -474,7 +504,6 @@ def add_row(frame, entry, name):
             c = r + 1
     ttk.Button(mod_frame, text='X', width=8, command=lambda: (remove_row(entry[idx], idx, mod_frame), Vulnerabilities.remove_from_table(name, idx))).grid(row=0, column=c, sticky=W)
 
-
 def remove_row(entry, idx, widget):
     del entry[idx]
     widget.destroy()
@@ -512,12 +541,16 @@ def create_forensic():
 
 
 def commit_config():
+
     save_config()
+    '''
     if not admin_test.isUserAdmin():
-        switch = messagebox.askyesno('Administrative Access Required', 'You need to be Admin to Write to Config. Do you want to relaunch the confiturator as Administrator.')
+        switch = messagebox.askyesno('Administrative Access Required', 'You need to be Admin to Write to Config. Please relaunch the confiturator as Administrator.')
         if switch:
             sys.exit(admin_test.runAsAdmin())
-        return
+        return 
+    '''
+
     output_directory = 'C:/CyberPatriot/'
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
@@ -527,13 +560,16 @@ def commit_config():
     shutil.copy(resource_path('scoring_engine.exe'), os.path.join(output_directory, 'scoring_engine.exe'))
 
     r = open(r'C:\\CyberPatriot\\RunScoring.bat', 'w+')
-    r.write('@echo off\ncd C:\\CyberPatriot\nstart scoring_engine.exe')
+    r.write('@echo off\ncd C:\\CyberPatriot\n start scoring_engine.exe')
+    r.close()
     r.close()
     s = open(r'c:\\CyberPatriot\\Repeat.bat', 'w+')
-    s.write('@echo off\ntasklist /nh /fi "imagename eq scoring_engine.exe" | find /i "scoring_engine.exe" > nul || (cd C:\\CyberPatriot\nstart RunScoring.bat)')
+    s.write('tasklist /nh /fi "imagename eq scoring_engine.exe" | find /i "scoring_engine.exe" > nul || (cd C:\\CyberPatriot\ncall RunScoring.bat) > nul')
     s.close()
-    os.system('schtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST /F')
-    os.system('schtasks /create /SC MINUTE /MO 2 /TN RepeatScore /TR C:\\CyberPatriot\\Repeat.bat /RL HIGHEST /F')
+    #os.system('schtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST /F  /quiet')
+    #os.system('schtasks /create /SC MINUTE /MO 2 /TN RepeatScore /TR C:\\CyberPatriot\\Repeat.bat /RL HIGHEST /F  /quiet')
+    subprocess.call('schtasks /create /SC ONSTART /TN ScoringEngine /TR C:\\CyberPatriot\\RunScoring.bat /RL HIGHEST /F', creationflags=subprocess.CREATE_NO_WINDOW)
+    subprocess.call('schtasks /create /SC MINUTE /MO 2 /TN RepeatScore /TR C:\\CyberPatriot\\Repeat.bat /RL HIGHEST /F', creationflags=subprocess.CREATE_NO_WINDOW)
     time.sleep(2)
     sys.exit()
 
@@ -546,8 +582,10 @@ def save_config():
     Settings.update_table(root.MenuSettings)
     for vuln in vuln_settings:
         Vulnerabilities.update_table(vuln, vuln_settings[vuln])
+    Vulnerabilities.cleanup()
 
 
+#score count
 def tally():
     # Set tally scores
     tally_score = 0
@@ -589,7 +627,6 @@ def get_group_list():
         group_list.append(group.Name)
     return group_list
 
-
 def show_error(self, *args):
     err = traceback.format_exception(*args)
     for i in err:
@@ -612,10 +649,12 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
+
 def change_theme(style_array):
     root.ttkStyle.set_theme(style_array.get())
 
 
+#  region theme settings
 def generate_export(extension):
     save_config()
     default = False
@@ -669,6 +708,8 @@ def generate_export(extension):
     f = open(saveLocation, '+w')
     f.write(head)
     f.close()
+
+
 
 
 Tk.report_callback_exception = show_error
@@ -914,6 +955,9 @@ root.ttkStyle.theme_settings(themename="ubuntu", settings={
         }
     }
 })
+
+
+# endregion
 
 root.mainloop()
 

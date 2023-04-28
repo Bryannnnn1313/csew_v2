@@ -45,12 +45,12 @@ class SettingsModel(base):
 
 class Settings:
     def __init__(self):
-        if session.query(SettingsModel).scalar() is None:
-            self.settings = SettingsModel()
-            session.add(self.settings)
-            session.commit()
-        else:
-            self.settings = session.query(SettingsModel).one()
+            if session.query(SettingsModel).scalar() is None:
+                self.settings = SettingsModel()
+                session.add(self.settings)
+                session.commit()
+            else:
+                self.settings = session.query(SettingsModel).one()
 
     def get_settings(self, config=True):
         if config:
@@ -74,7 +74,6 @@ class Settings:
         self.settings.current_points = entry["Current Points"]
         self.settings.current_vuln = entry["Current Vulnerabilities"]
 
-
 class CategoryModels(base):
     __tablename__ = "Vulnerability Categories"
     id = sa.Column(sa.Integer, primary_key=True)
@@ -91,9 +90,19 @@ class Categories:
         "Local Policy": "This section is for scoring Local Security Policies. Each option has a defined range that they be testing listed in their description. Make sure the option is enabled and the points are set for the options you want scored.",
         "Program Management": "This section is for scoring program manipulation. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.",
         "File Management": "This section is for scoring file manipulation. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.",
-        "Miscellaneous": "This section is for scoring the options that do not fit into and of the other or multiple catagories. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored."
+        "Firewall Management": "This section is for scoring Firewalls and ports. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored."
     }
 
+
+    """
+     categories = {
+        "Account Management": "This section is for scoring user policies. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.",
+        "Local Policy": "This section is for scoring Local Security Policies. Each option has a defined range that they be testing listed in their description. Make sure the option is enabled and the points are set for the options you want scored.",
+        "Program Management": "This section is for scoring program manipulation. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.",
+        "File Management": "This section is for scoring file manipulation. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored.",
+        "Miscellaneous": "This section is for scoring the options that do not fit into and of the other or multiple catagories. The options that will take multiple test points can be setup by clicking the `Modify` button. Once the `Modify` button is clicked that option will automatically be enabled. Make sure the option is enabled and the points are set for the options you want scored."
+       }
+"""
     def __init__(self):
         loaded_categories = []
         for cat in session.query(CategoryModels):
@@ -210,6 +219,9 @@ class OptionTables:
         vuln = session.query(self.models[vulnerability]).filter_by(id=vuln_id).one()
         session.delete(vuln)
         session.commit()
+
+    def cleanup(self):
+        session.flush()
 
 
 def create_option_table(name, option_categories, option_models):

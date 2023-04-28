@@ -1,7 +1,9 @@
+import socket
 import sys
 import traceback
 import win32com.client
 import os
+import subprocess
 import re
 import time
 import datetime
@@ -12,14 +14,12 @@ import balloontip
 import admin_test
 import db_handler
 
-
 # Scoring Report creation
 def draw_head():
     file = open(scoreIndex, 'w+')
     file.write('<!doctype html><html><head><title>CSEW Score Report</title><meta http-equiv="refresh" content="60"></head><body style="background-color:powderblue;">''\n')
-    file.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/CCC_logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v1.0</H2></div></td><td><img src="C:/CyberPatriot/SoCalCCCC.png"></td></tr></table>If you see this wait a few seconds then refresh<br><H2>Your Score: #TotalScore#/' + str(menuSettings["Tally Points"]) + '</H2><H2>Vulnerabilities: #TotalVuln#/' + str(menuSettings["Tally Vulnerabilities"]) + '</H2><hr>')
+    file.write('<table align="center" cellpadding="10"><tr><td><img src="C:/CyberPatriot/CCC_logo.png"></td><td><div align="center"><H2>Cyberpatriot Scoring Engine:Windows v1.1</H2></div></td><td><img src="C:/CyberPatriot/SoCalCCCC.png"></td></tr></table>If you see this wait a few seconds then refresh<br><H2>Your Score: #TotalScore#/' + str(menuSettings["Tally Points"]) + '</H2><H2>Vulnerabilities: #TotalVuln#/' + str(menuSettings["Tally Vulnerabilities"]) + '</H2><hr>')
     file.close()
-
 
 def record_hit(name, points):
     global total_points, total_vulnerabilities
@@ -40,8 +40,9 @@ def record_penalty(name, points):
 
 
 def draw_tail():
-    write_to_html('<hr><div align="center"><b>Coastline Collage</b><br>Created by Shaun Martin, Anthony Nguyen, and Minh-Khoi Do</br><br>Feedback welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEW Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>')
-    print(str(total_points) + ' / ' + str(menuSettings["Tally Points"]) + '\n' + str(total_vulnerabilities) + ' / ' + str(menuSettings["Tally Vulnerabilities"]))
+    write_to_html('<hr><div align="center"><b>Coastline College</b>')
+    #write_to_html('<hr><div align="center"><b>Coastline College</b><br>Created by Shaun Martin, Anthony Nguyen, and Minh-Khoi Do</br><br>Feedback welcome: <a href="mailto:smartin94@student.cccd.edu?Subject=CSEW Scoring Engine" target="_top">smartin94@student.cccd.edu</a></div>')
+    #print(str(total_points) + ' / ' + str(menuSettings["Tally Points"]) + '\n' + str(total_vulnerabilities) + ' / ' + str(menuSettings["Tally Vulnerabilities"]))
     replace_section(scoreIndex, '#TotalScore#', str(total_points))
     replace_section(scoreIndex, '#TotalVuln#', str(total_vulnerabilities))
     replace_section(scoreIndex, 'If you see this wait a few seconds then refresh', '')
@@ -66,18 +67,28 @@ def check_runas():
 
 def check_score():
     global total_points, total_vulnerabilities
-    menuSettings["Current Vulnerabilities"] = total_vulnerabilities
-    if total_points > menuSettings["Current Points"]:
-        menuSettings["Current Points"] = total_points
-        Settings.update_score(menuSettings)
-        w.ShowWindow('Score Update', 'You gained points!!')
-    elif total_points < menuSettings["Current Points"]:
-        menuSettings["Current Points"] = total_points
-        Settings.update_score(menuSettings)
-        w.ShowWindow('Score Update', 'You lost points!!')
-    if total_points == menuSettings["Tally Points"] and total_vulnerabilities == menuSettings["Tally Vulnerabilities"]:
-        w.ShowWindow('Image Completed', 'Congratulations you finished the image.')
+    try:
 
+        menuSettings["Current Vulnerabilities"] = total_vulnerabilities
+        if total_points > menuSettings["Current Points"]:
+            menuSettings["Current Points"] = total_points
+            Settings.update_score(menuSettings)
+            w.ShowWindow('Score Update', 'You gained points!!')
+        elif total_points < menuSettings["Current Points"]:
+            menuSettings["Current Points"] = total_points
+            Settings.update_score(menuSettings)
+            w.ShowWindow('Score Update', 'You lost points!!')
+        if total_points == menuSettings["Tally Points"] and total_vulnerabilities == menuSettings["Tally Vulnerabilities"]:
+            w.ShowWindow('Image Completed', 'Congratulations you finished the image.')
+    except:
+        f = open('scoring_engine.log', 'w')
+        e = traceback.format_exc()
+        #if "KeyboardInterrupt" in e:
+        #sys.exit()
+        f.write(str(e))
+        f.close()
+        messagebox.showerror('Crash Report','The scoring engine has stopped working, a log has been saved to ' + os.path.abspath('scoring_engine.log'))
+        # sys.exit()
 
 def write_to_html(message):
     file = open(scoreIndex, 'a')
@@ -159,7 +170,7 @@ def users_manipulation(vulnerability, name):
                 else:
                     record_miss('User Management')
 
-
+'''
 def turn_on_firewall(vulnerability, name):
     file = open('firewall_status.txt')
     content = file.read()
@@ -182,6 +193,35 @@ def turn_on_firewall(vulnerability, name):
             record_hit('Firewall has been turned on.', vulnerability[1]['Points'])
         else:
             record_miss('Policy Management')
+'''
+def firewallVulns(vulnerability, name):
+    file = open('firewall_status.txt')
+    content = file.read()
+    file.close()
+    if name == 'Turn On Domain Firewall':
+        firewall = re.search(r"Domain Profile Settings: \n-+\n\w+\s+\w+\n\n", content).group(0)
+        if re.search("ON", firewall):
+            record_hit('Domain Firewall has been turned on.', vulnerability[1]['Points'])
+        else:
+            record_miss('Firewall Management')
+    if name == "Turn On Private Firewall":
+        firewall = re.search(r"Private Profile Settings: \n-+\n\w+\s+\w+\n\n", content).group(0)
+        if re.search("ON", firewall):
+            record_hit('Private Firewall has been turned on.', vulnerability[1]['Points'])
+        else:
+            record_miss('Firewall Management')
+    if name == "Turn On Public Firewall":
+        firewall = re.search(r"Public Profile Settings: \n-+\n\w+\s+\w+\n", content).group(0)
+        if re.search("ON", firewall):
+            record_hit('Public Firewall has been turned on.', vulnerability[1]['Points'])
+        else:
+            record_miss('Firewall Management')
+
+
+def portVulns(vulnerability, name):
+    file = open('fRules.txt')
+    content = file.read()
+    file.close()
 
 
 def local_group_policy(vulnerability, name):
@@ -488,7 +528,9 @@ def no_scoring_available(name):
 
 
 def load_policy_settings():
-    os.system('secedit /export /cfg group-policy.inf')
+    #os.system('secedit /export /cfg group-policy.inf /quiet ')
+    CREATE_NO_WINDOW = 0x08000000
+    subprocess.check_call('secedit /export /cfg group-policy.inf /quiet ', creationflags=CREATE_NO_WINDOW)
     policy_settings = open('group-policy.inf', 'r', encoding='utf-16-le')
     content = policy_settings.read()
     policy_settings.close()
@@ -496,7 +538,8 @@ def load_policy_settings():
 
 
 def ps_create():
-    vuln_scripts = ["Good Program", "Bad Program", "Anti-Virus", "User Change Password", "Turn On Domain Firewall", "Turn On Private Firewall", "Turn On Public Firewall"]
+    vuln_scripts = ["Good Program", "Bad Program", "Turn On Domain Firewall", "Turn On Private Firewall", "Turn On Public Firewall"]
+    #vuln_scripts = ["Good Program", "Bad Program", "Anti-Virus", "User Change Password", "Turn On Domain Firewall", "Turn On Private Firewall", "Turn On Public Firewall"]
     vuln_obj = {}
     for vuln in vuln_scripts:
         vuln_obj.update({vuln: Vulnerabilities.get_option_table(vuln, False)})
@@ -504,30 +547,35 @@ def ps_create():
 
     if vuln_obj["Bad Program"][1]["Enabled"] or vuln_obj["Good Program"][1]["Enabled"]:
         m.write('Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table -AutoSize > programs.txt\n')
-    if vuln_obj["Anti-Virus"][1]["Enabled"]:
-        m.write('function Get-AntiVirusProduct {\n[CmdletBinding()]\nparam (\n[parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]\n[Alias(\'name\')]\n$computername=$env:computername\n\n)\n\n#$AntivirusProducts = Get-WmiObject -Namespace "root\\SecurityCenter2" -Query $wmiQuery  @psboundparameters # -ErrorVariable myError -ErrorAction \'SilentlyContinue\' # did not work\n$AntiVirusProducts = Get-WmiObject -Namespace "root\\SecurityCenter2" -Class AntiVirusProduct  -ComputerName $computername\n\n$ret = @()\nforeach($AntiVirusProduct in $AntiVirusProducts){\n#Switch to determine the status of antivirus definitions and real-time protection.\n#The values in this switch-statement are retrieved from the following website: http://community.kaseya.com/resources/m/knowexch/1020.aspx\nswitch ($AntiVirusProduct.productState) {\n"262144" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}\n"262160" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"266240" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}\n"266256" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\n"393216" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}\n"393232" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"393488" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"397312" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}\n"397328" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\n"397584" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\ndefault {$defstatus = "Unknown" ;$rtstatus = "Unknown"}\n}\n\n#Create hash-table for each computer\n$ht = @{}\n$ht.Computername = $computername\n$ht.Name = $AntiVirusProduct.displayName\n$ht.\'Product GUID\' = $AntiVirusProduct.instanceGuid\n$ht.\'Product Executable\' = $AntiVirusProduct.pathToSignedProductExe\n$ht.\'Reporting Exe\' = $AntiVirusProduct.pathToSignedReportingExe\n$ht.\'Definition Status\' = $defstatus\n$ht.\'Real-time Protection Status\' = $rtstatus\n\n#Create a new object for each computer\n$ret += New-Object -TypeName PSObject -Property $ht \n}\nReturn $ret\n} \nGet-AntiVirusProduct > security.txt\n')
+    #if vuln_obj["Anti-Virus"][1]["Enabled"]:
+        #m.write('function Get-AntiVirusProduct {\n[CmdletBinding()]\nparam (\n[parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]\n[Alias(\'name\')]\n$computername=$env:computername\n\n)\n\n#$AntivirusProducts = Get-WmiObject -Namespace "root\\SecurityCenter2" -Query $wmiQuery  @psboundparameters # -ErrorVariable myError -ErrorAction \'SilentlyContinue\' # did not work\n$AntiVirusProducts = Get-WmiObject -Namespace "root\\SecurityCenter2" -Class AntiVirusProduct  -ComputerName $computername\n\n$ret = @()\nforeach($AntiVirusProduct in $AntiVirusProducts){\n#Switch to determine the status of antivirus definitions and real-time protection.\n#The values in this switch-statement are retrieved from the following website: http://community.kaseya.com/resources/m/knowexch/1020.aspx\nswitch ($AntiVirusProduct.productState) {\n"262144" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}\n"262160" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"266240" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}\n"266256" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\n"393216" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}\n"393232" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"393488" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}\n"397312" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}\n"397328" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\n"397584" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}\ndefault {$defstatus = "Unknown" ;$rtstatus = "Unknown"}\n}\n\n#Create hash-table for each computer\n$ht = @{}\n$ht.Computername = $computername\n$ht.Name = $AntiVirusProduct.displayName\n$ht.\'Product GUID\' = $AntiVirusProduct.instanceGuid\n$ht.\'Product Executable\' = $AntiVirusProduct.pathToSignedProductExe\n$ht.\'Reporting Exe\' = $AntiVirusProduct.pathToSignedReportingExe\n$ht.\'Definition Status\' = $defstatus\n$ht.\'Real-time Protection Status\' = $rtstatus\n\n#Create a new object for each computer\n$ret += New-Object -TypeName PSObject -Property $ht \n}\nReturn $ret\n} \nGet-AntiVirusProduct > security.txt\n')
     m.close()
     m = open('check.bat', 'w+')
     m.write('@echo off\n echo > trigger.cfg\n')
-    if vuln_obj["User Change Password"][1]["Enabled"]:
-        for vuln in vuln_obj["User Change Password"]:
-            if vuln != 1:
-                m.write('net user ' + vuln_obj["User Change Password"][vuln]["User Name"].lower() + ' > user_' + vuln_obj["User Change Password"][vuln]["User Name"].lower() + '.txt\n')
+    #if vuln_obj["User Change Password"][1]["Enabled"]:
+    #    for vuln in vuln_obj["User Change Password"]:
+    #        if vuln != 1:
+    #            m.write('net user ' + vuln_obj["User Change Password"][vuln]["User Name"].lower() + ' > user_' + vuln_obj["User Change Password"][vuln]["User Name"].lower() + '.txt\n')
     if vuln_obj["Turn On Domain Firewall"][1]["Enabled"] or vuln_obj["Turn On Private Firewall"][1]["Enabled"] or vuln_obj["Turn On Public Firewall"][1]["Enabled"]:
         m.write('netsh advfirewall show allprofiles state > firewall_status.txt\n')
-    if vuln_obj["Bad Program"][1]["Enabled"] or vuln_obj["Good Program"][1]["Enabled"] or vuln_obj["Anti-Virus"][1]["Enabled"]:
+    #if vuln_obj["Bad Program"][1]["Enabled"] or vuln_obj["Good Program"][1]["Enabled"] or vuln_obj["Anti-Virus"][1]["Enabled"]:
+    if vuln_obj["Bad Program"][1]["Enabled"] or vuln_obj["Good Program"][1]["Enabled"]:
         m.write('Powershell.exe -Command "& {Start-Process Powershell.exe -ArgumentList \'-ExecutionPolicy Bypass -File "check.ps1"\' -Verb RunAs -Wait -WindowStyle Hidden}"\n')
+    if vuln_obj["Check Port Open"][1]["Enabled"]:
+        v = open('portVulns.vbs', 'w+')
     m.write('timeout 30')
     m.close()
     f = open('invisible.vbs', 'w+')
     f.write('CreateObject("Wscript.Shell").Run """" & WScript.Arguments(0) & """", 0, False')
     f.close()
-    os.system('wscript.exe "invisible.vbs" "check.bat"')
-
+    CREATE_NO_WINDOW = 0x08000000
+    #os.system('wscript.exe "invisible.vbs" "check.bat" /quiet')
+    subprocess.check_call('wscript.exe "invisible.vbs" "check.bat" "fRules.vbs" /quiet', creationflags=CREATE_NO_WINDOW)
 
 def account_management(vulnerabilities):
     write_to_html('<H3>USER MANAGEMENT</H3>')
-    vulnerability_def = {"Disable Admin": disable_admin, "Disable Guest": disable_guest, "Add Admin": group_manipulation, "Remove Admin": group_manipulation, "Add User to Group": group_manipulation, "Remove User from Group": group_manipulation, "Add User": users_manipulation, "Remove User": users_manipulation, "User Change Password": user_change_password}
+    vulnerability_def = {"Disable Admin": disable_admin, "Disable Guest": disable_guest, "Add Admin": group_manipulation, "Remove Admin": group_manipulation, "Add User to Group": group_manipulation, "Remove User from Group": group_manipulation, "Add User": users_manipulation, "Remove User": users_manipulation}
+    #vulnerability_def = {"Disable Admin": disable_admin, "Disable Guest": disable_guest, "Add Admin": group_manipulation, "Remove Admin": group_manipulation, "Add User to Group": group_manipulation, "Remove User from Group": group_manipulation, "Add User": users_manipulation, "Remove User": users_manipulation, "User Change Password": user_change_password}
     for vuln in vulnerabilities:
         vulnerability = Vulnerabilities.get_option_table(vuln.name, False)
         if "Critical" in vuln.name:
@@ -541,7 +589,8 @@ def account_management(vulnerabilities):
 
 def local_policies(vulnerabilities):
     write_to_html('<H3>SECURITY POLICIES</H3>')
-    vulnerability_def = {"Turn On Domain Firewall": turn_on_firewall, "Turn On Private Firewall": turn_on_firewall, "Turn On Public Firewall": turn_on_firewall, "Do Not Require CTRL_ALT_DEL": local_group_policy, "Don't Display Last User": local_group_policy, "Minimum Password Age": local_group_policy, "Maximum Password Age": local_group_policy, "Minimum Password Length": local_group_policy, "Maximum Login Tries": local_group_policy, "Lockout Duration": local_group_policy, "Lockout Reset Duration": local_group_policy, "Password History": local_group_policy, "Password Complexity": local_group_policy, "Reversible Password Encryption": local_group_policy, "Audit Account Login": local_group_policy, "Audit Account Management": local_group_policy, "Audit Directory Settings Access": local_group_policy, "Audit Logon Events": local_group_policy, "Audit Object Access": local_group_policy, "Audit Policy Change": local_group_policy, "Audit Privilege Use": local_group_policy, "Audit Process Tracking": local_group_policy, "Audit System Events": local_group_policy}
+    vulnerability_def = {"Do Not Require CTRL_ALT_DEL": local_group_policy, "Don't Display Last User": local_group_policy, "Minimum Password Age": local_group_policy, "Maximum Password Age": local_group_policy, "Minimum Password Length": local_group_policy, "Maximum Login Tries": local_group_policy, "Lockout Duration": local_group_policy, "Lockout Reset Duration": local_group_policy, "Password History": local_group_policy, "Password Complexity": local_group_policy, "Reversible Password Encryption": local_group_policy, "Audit Account Login": local_group_policy, "Audit Account Management": local_group_policy, "Audit Directory Settings Access": local_group_policy, "Audit Logon Events": local_group_policy, "Audit Object Access": local_group_policy, "Audit Policy Change": local_group_policy, "Audit Privilege Use": local_group_policy, "Audit Process Tracking": local_group_policy, "Audit System Events": local_group_policy}
+    #vulnerability_def = {"Turn On Domain Firewall": firewallVulns, "Turn On Private Firewall": firewallVulns, "Turn On Public Firewall": firewallVulns, "Do Not Require CTRL_ALT_DEL": local_group_policy, "Don't Display Last User": local_group_policy, "Minimum Password Age": local_group_policy, "Maximum Password Age": local_group_policy, "Minimum Password Length": local_group_policy, "Maximum Login Tries": local_group_policy, "Lockout Duration": local_group_policy, "Lockout Reset Duration": local_group_policy, "Password History": local_group_policy, "Password Complexity": local_group_policy, "Reversible Password Encryption": local_group_policy, "Audit Account Login": local_group_policy, "Audit Account Management": local_group_policy, "Audit Directory Settings Access": local_group_policy, "Audit Logon Events": local_group_policy, "Audit Object Access": local_group_policy, "Audit Policy Change": local_group_policy, "Audit Privilege Use": local_group_policy, "Audit Process Tracking": local_group_policy, "Audit System Events": local_group_policy}
     for vuln in vulnerabilities:
         vulnerability = Vulnerabilities.get_option_table(vuln.name, False)
         if vulnerability[1]["Enabled"]:
@@ -553,7 +602,8 @@ def local_policies(vulnerabilities):
 
 def program_management(vulnerabilities):
     write_to_html('<H3>PROGRAMS</H3>')
-    vulnerability_def = {"Good Program": programs, "Bad Program": programs, "Update Program": no_scoring_available, "Add Feature": no_scoring_available, "Remove Feature": no_scoring_available, "Services": manage_services}
+    vulnerability_def = {"Good Program": programs, "Bad Program": programs, "Services": manage_services}
+    #vulnerability_def = {"Good Program": programs, "Bad Program": programs, "Update Program": no_scoring_available, "Add Feature": no_scoring_available, "Remove Feature": no_scoring_available, "Services": manage_services}
     for vuln in vulnerabilities:
         vulnerability = Vulnerabilities.get_option_table(vuln.name, False)
         if "Critical" in vuln.name:
@@ -567,7 +617,21 @@ def program_management(vulnerabilities):
 
 def file_management(vulnerabilities):
     write_to_html('<H3>FILE MANAGEMENT</H3>')
-    vulnerability_def = {"Forensic": forensic_question, "Bad File": bad_file, "Check Hosts": no_scoring_available, "Add Text to File": add_text_to_file, "Remove Text From File": remove_text_from_file, "File Permissions": no_scoring_available}
+    vulnerability_def = {"Forensic": forensic_question, "Bad File": bad_file, "Add Text to File": add_text_to_file, "Remove Text From File": remove_text_from_file}
+    #vulnerability_def = {"Forensic": forensic_question, "Bad File": bad_file, "Check Hosts": no_scoring_available, "Add Text to File": add_text_to_file, "Remove Text From File": remove_text_from_file, "File Permissions": no_scoring_available}
+    for vuln in vulnerabilities:
+        vulnerability = Vulnerabilities.get_option_table(vuln.name, False)
+        if vulnerability[1]["Enabled"]:
+            if len(getfullargspec(vulnerability_def[vuln.name]).args) == 1:
+                vulnerability_def[vuln.name](vulnerability if "vulnerability" in getfullargspec(vulnerability_def[vuln.name]).args else vuln.name)
+            else:
+                vulnerability_def[vuln.name](vulnerability, vuln.name)
+
+def firewall_management(vulnerabilities):
+    write_to_html('<H3>FIREWALL MANAGEMENT</H3>')
+    vulnerabilities
+    vulnerability_def = {"Turn On Domain Firewall": firewallVulns, "Turn On Private Firewall": firewallVulns, "Turn On Public Firewall": firewallVulns, "Check Port Open": portVulns, "Check Port Closed": portVulns}
+    #vulnerability_def = {"Forensic": forensic_question, "Bad File": bad_file, "Check Hosts": no_scoring_available, "Add Text to File": add_text_to_file, "Remove Text From File": remove_text_from_file, "File Permissions": no_scoring_available}
     for vuln in vulnerabilities:
         vulnerability = Vulnerabilities.get_option_table(vuln.name, False)
         if vulnerability[1]["Enabled"]:
@@ -577,6 +641,7 @@ def file_management(vulnerabilities):
                 vulnerability_def[vuln.name](vulnerability, vuln.name)
 
 
+"""
 def miscellaneous(vulnerabilities):
     write_to_html('<H3>MISCELLANEOUS</H3>')
     vulnerability_def = {"Anti-Virus": anti_virus, "Update Check Period": no_scoring_available, "Update Auto Install": no_scoring_available, "Task Scheduler": no_scoring_available, "Check Startup": no_scoring_available}
@@ -587,6 +652,7 @@ def miscellaneous(vulnerabilities):
                 vulnerability_def[vuln.name](vulnerability if "vulnerability" in getfullargspec(vulnerability_def[vuln.name]).args else vuln.name)
             else:
                 vulnerability_def[vuln.name](vulnerability, vuln.name)
+"""
 
 
 def critical_functions(vulnerabilities):
@@ -598,7 +664,7 @@ def critical_functions(vulnerabilities):
             vulnerability_def[vuln.name](vulnerability)
 
 
-print("Loading Settings")
+#print("Loading Settings")
 wmi = WMI()
 try:
     Settings = db_handler.Settings()
@@ -610,8 +676,8 @@ try:
 except:
     f = open('scoring_engine.log', 'w')
     e = traceback.format_exc()
-    if "KeyboardInterrupt" in e:
-        sys.exit()
+    #if "KeyboardInterrupt" in e:
+        #sys.exit()
     f.write(str(e))
     f.close()
     messagebox.showerror('Crash Report', 'The scoring engine has stopped working, a log has been saved to ' + os.path.abspath('scoring_engine.log'))
@@ -620,21 +686,22 @@ except:
 total_points = 0
 total_vulnerabilities = 0
 prePoints = 0
-category_def = {"Account Management": account_management, "Local Policy": local_policies, "Program Management": program_management, "File Management": file_management, "Miscellaneous": miscellaneous}
+category_def = {"Account Management": account_management, "Local Policy": local_policies, "Program Management": program_management, "File Management": file_management, "Firewall Management": firewall_management}
+#category_def = {"Account Management": account_management, "Local Policy": local_policies, "Program Management": program_management, "File Management": file_management, "Miscellaneous": miscellaneous}
 Desktop = menuSettings["Desktop"]
 index = 'C:/CyberPatriot/'
 scoreIndex = index + 'ScoreReport.html'
 
 # --------- Main Loop ---------#
-print("Building Balloon")
+#print("Building Balloon")
 w = balloontip.WindowsBalloonTip()
-print("Running Checks")
+#print("Running Checks")
 check_runas()
 while True:
-    print("Initializing Variables and Running Scrips(~20 seconds)")
+    #print("Initializing Variables and Running Scrips(~20 seconds)")
     try:
         if not os.path.exists('trigger.cfg'):
-            print("Creating PS")
+            #print("Creating PS")
             ps_create()
         else:
             os.remove('trigger.cfg')
@@ -643,32 +710,33 @@ while True:
         critical_items = []
         policy_settings_content = load_policy_settings()
         time.sleep(20)
-        print("Building Report Head")
+        #print("Building Report Head")
         draw_head()
         for category in categories:
-            print("Checking", category.name, "Options")
+            #print("Checking", category.name, "Options")
             category_def[category.name](Vulnerabilities.get_option_template_by_category(category.id))
-        print("Checking Critical Functions")
+        #print("Checking Critical Functions")
         critical_functions(critical_items)
-        print("Checking Score")
-        check_score()
-        print("Building Report Tail")
+        #print("Checking Score")
         draw_tail()
-        print("Finished...Looping in 30 Seconds")
+        check_score()
+       #print("Building Report Tail")
+
+        #print("Finished...Looping in 30 Seconds")
         time.sleep(30)
     except:
         f = open('scoring_engine.log', 'w')
         e = traceback.format_exc()
-        if "KeyboardInterrupt" in e:
-            sys.exit()
+        #if "KeyboardInterrupt" in e:
+            #sys.exit()
         f.write(str(e))
         f.close()
         messagebox.showerror('Crash Report', 'The scoring engine has stopped working, a log has been saved to ' + os.path.abspath('scoring_engine.log'))
-        sys.exit()
+        #sys.exit()
 
-# TODO add Functions:
-#  updatecheckperiod    ["Miscellaneous"]["Update Check Period"]
-#  updateautoinstall    ["Miscellaneous"]["Update Auto Install"]
-#  checkhosts           ["File Management"]["Check Hosts"]
-#  taskscheduler        ["Miscellaneous"]["Task Scheduler"]
-#  checkstartup         ["Miscellaneous"]["Check Startup"]
+#TODO add Functions:
+#updatecheckperiod    ["Miscellaneous"]["Update Check Period"]
+# updateautoinstall    ["Miscellaneous"]["Update Auto Install"]
+# checkhosts           ["File Management"]["Check Hosts"]
+# taskscheduler        ["Miscellaneous"]["Task Scheduler"]
+# checkstartup         ["Miscellaneous"]["Check Startup"]
