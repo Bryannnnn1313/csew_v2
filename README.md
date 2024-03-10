@@ -93,3 +93,6 @@ sudo run ./configurator
 ### Score Report
 ![Score Report](https://github.com/Bryannnnn1313/CSELv2/blob/master/ScoreReport.png)
    - This page is created when the the 'Commit' is pressed.
+## Known issues and planned updates
+- Removing an empty flag from the modify page may break the Configurator
+    - Temporary solution is delete the database and rerun the Configurator
